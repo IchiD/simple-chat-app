@@ -100,6 +100,14 @@
           </div>
 
           <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600 mb-2">
+              <NuxtLink
+                to="/auth/forgot-password"
+                class="font-medium text-blue-600 hover:text-blue-500"
+              >
+                パスワードをお忘れの方はこちら
+              </NuxtLink>
+            </p>
             <p class="text-sm text-gray-600">
               アカウントをお持ちでないですか？
               <NuxtLink
@@ -118,9 +126,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { useAuthStore } from "~/stores/auth";
-import { useToast } from "~/composables/useToast";
+import { useAuthStore } from "../../stores/auth";
+import { useToast } from "../../composables/useToast";
 import { useRouter } from "vue-router";
+import { FetchError } from "ofetch";
 
 definePageMeta({
   layout: "default",
@@ -211,10 +220,19 @@ const onSubmit = async () => {
         color: "error",
       });
     }
-  } catch (error: any) {
+  } catch (error) {
+    let message = "ログイン処理中にエラーが発生しました";
+    if (error instanceof FetchError && error.data) {
+      const errorData = error.data as { message?: string };
+      if (errorData.message) {
+        message = errorData.message;
+      }
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
     toast.add({
       title: "エラー",
-      description: error.message || "ログイン処理中にエラーが発生しました",
+      description: message,
       color: "error",
     });
   } finally {

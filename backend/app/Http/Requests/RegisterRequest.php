@@ -28,7 +28,7 @@ class RegisterRequest extends BaseFormRequest
       'email'    => 'required|email',
       'password' => 'required|min:6|regex:/\A[!-~]+\z/|confirmed',
       'password_confirmation' => 'required|min:6',
-      'name'     => 'required|string|max:255',
+      'name'     => 'required|string|max:10',
     ];
   }
 
@@ -51,7 +51,7 @@ class RegisterRequest extends BaseFormRequest
       'password_confirmation.min' => '確認用パスワードは6文字以上で入力してください。',
       'name.required'    => '名前を入力してください。',
       'name.string'      => '名前は文字列で入力してください。',
-      'name.max'         => '名前は255文字以内で入力してください。',
+      'name.max'         => '名前は10文字以内で入力してください。',
     ];
   }
 }

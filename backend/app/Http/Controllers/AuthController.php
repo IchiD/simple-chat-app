@@ -223,7 +223,7 @@ class AuthController extends Controller
     $user = $request->user();
 
     $validator = Validator::make($request->all(), [
-      'name' => 'required|string|max:255',
+      'name' => 'required|string|max:10',
     ]);
 
     if ($validator->fails()) {
@@ -257,6 +257,139 @@ class AuthController extends Controller
         'error' => $e->getMessage(),
       ]);
       return response()->json(['message' => 'ユーザー名の更新中にエラーが発生しました。'], 500);
+    }
+  }
+
+  /**
+   * メールアドレス変更リクエスト
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function requestEmailChange(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'email' => 'required|email|unique:users,email',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $newEmail = $request->input('email');
+    $user = $request->user();
+    $ip = $request->ip();
+
+    Log::info('メールアドレス変更リクエストを受信', [
+      'user_id' => $user->id,
+      'current_email' => $user->email,
+      'new_email' => $newEmail,
+      'ip' => $ip
+    ]);
+
+    try {
+      $result = $this->authService->requestEmailChange($user, $newEmail, $ip);
+
+      if ($result['status'] === 'success') {
+        return response()->json($result, 200);
+      } else {
+        return response()->json($result, 400);
+      }
+    } catch (\Exception $e) {
+      Log::error('メールアドレスの更新処理中にエラーが発生しました', [
+        'user_id' => $user->id,
+        'error' => $e->getMessage()
+      ]);
+
+      return response()->json([
+        'status' => 'error',
+        'message' => 'メールアドレスの更新処理中にエラーが発生しました'
+      ], 500);
+    }
+  }
+
+  /**
+   * メールアドレス変更を確認
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function confirmEmailChange(Request $request)
+  {
+    $token = $request->input('token');
+    $ip = $request->ip();
+
+    Log::info('メールアドレス変更確認リクエストを受信', [
+      'token' => $token,
+      'ip' => $ip
+    ]);
+
+    try {
+      $result = $this->authService->confirmEmailChange($token, $ip);
+
+      if ($result['status'] === 'success') {
+        return response()->json($result, 200);
+      } else {
+        return response()->json($result, 400);
+      }
+    } catch (\Exception $e) {
+      Log::error('メールアドレス変更確認処理中にエラーが発生しました', [
+        'error' => $e->getMessage()
+      ]);
+
+      return response()->json([
+        'status' => 'error',
+        'message' => 'メールアドレス変更確認処理中にエラーが発生しました'
+      ], 500);
+    }
+  }
+
+  /**
+   * パスワードを更新
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function updatePassword(Request $request)
+  {
+    $user = $request->user();
+
+    $validator = Validator::make($request->all(), [
+      'current_password' => 'required|string',
+      'password' => 'required|string|min:8|confirmed',
+    ]);
+
+    if ($validator->fails()) {
+      Log::warning('パスワード更新のバリデーションエラー', [
+        'user_id' => $user->id,
+        'errors' => $validator->errors()->toArray()
+      ]);
+      return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    // 現在のパスワードが正しいか確認
+    if (!Hash::check($request->current_password, $user->password)) {
+      Log::warning('パスワード更新失敗: 現在のパスワードが不正確', ['user_id' => $user->id]);
+      return response()->json(['errors' => ['current_password' => ['現在のパスワードが正しくありません。']]], 422);
+    }
+
+    try {
+      $user->password = Hash::make($request->password);
+      $user->save();
+
+      // 必要であれば、他のデバイスのセッションを無効化するなどの処理を追加
+      // $user->tokens()->delete(); // 全てのトークンを削除 (現在のセッションも含む)
+      // Auth::logoutOtherDevices($request->password); // 他のデバイスのみログアウト
+
+      Log::info('パスワードが更新されました', ['user_id' => $user->id]);
+
+      return response()->json(['message' => 'パスワードが正常に更新されました。'], 200);
+    } catch (\Exception $e) {
+      Log::error('パスワードの更新中にエラーが発生しました', [
+        'user_id' => $user->id,
+        'error' => $e->getMessage(),
+      ]);
+      return response()->json(['message' => 'パスワードの更新中にエラーが発生しました。'], 500);
     }
   }
 }

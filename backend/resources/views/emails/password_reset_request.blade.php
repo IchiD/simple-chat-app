@@ -43,7 +43,7 @@
     </p>
 
     <p>
-      <a href="{{ $resetUrl }}" class="button">パスワード再設定</a>
+      <a href="{!! $resetUrl !!}" class="button">パスワード再設定</a>
     </p>
 
     <p>

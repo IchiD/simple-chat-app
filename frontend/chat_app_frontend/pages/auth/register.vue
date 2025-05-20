@@ -26,8 +26,13 @@
                 type="text"
                 autocomplete="name"
                 required
-                placeholder="あなたの名前"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="10文字以内"
+                :class="[
+                  'appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm',
+                  nameError
+                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                ]"
               />
             </div>
             <p v-if="nameError" class="mt-2 text-sm text-red-600">
@@ -102,9 +107,8 @@
           <div>
             <button
               type="submit"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              :class="{ 'opacity-75 cursor-not-allowed': loading }"
-              :disabled="loading"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="loading || isFormInvalid"
             >
               <svg
                 v-if="loading"
@@ -160,9 +164,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
-import { useAuthStore } from "~/stores/auth";
-import { useToast } from "~/composables/useToast";
+import { ref, reactive, computed, watch } from "vue";
+import { useAuthStore } from "../../stores/auth";
+import { useToast } from "../../composables/useToast";
 import { useRouter } from "vue-router";
 
 // ページメタデータの設定
@@ -185,10 +189,54 @@ const form = reactive({
   password_confirmation: "",
 });
 
+// name を監視してリアルタイムバリデーション
+watch(
+  () => form.name,
+  (newName) => {
+    if (newName.trim().length > 10) {
+      nameError.value = "名前は10文字以内で入力してください";
+    } else if (
+      !newName.trim() &&
+      nameError.value === "名前は10文字以内で入力してください"
+    ) {
+      // 10文字超過のエラーが出ている状態で空になった場合は、"入力してください" のエラーに任せるか、クリアする
+      // ここでは一旦クリアし、validateFormに任せる
+      nameError.value = "";
+    } else if (nameError.value === "名前は10文字以内で入力してください") {
+      // 10文字超過エラーから復帰した場合
+      nameError.value = "";
+    }
+    // 空かどうかのチェックはvalidateFormに任せるため、ここでは10文字超過のみを主に扱う
+  }
+);
+
 const authStore = useAuthStore();
 const loading = computed(() => authStore.loading);
 const toast = useToast();
 const router = useRouter();
+
+// フォームの無効状態を判定する算出プロパティ
+const isFormInvalid = computed(() => {
+  // validateFormを呼び出してエラー状態を更新し、その結果を利用することもできるが、
+  // ここでは各エラーrefと主要な入力フィールドの空チェックを直接行う。
+  // watchやvalidateFormによってエラーrefは更新される前提。
+  return (
+    !form.name.trim() ||
+    !form.email.trim() ||
+    !form.password || // passwordはtrim不要
+    !form.password_confirmation || // password_confirmationもtrim不要
+    nameError.value !== "" ||
+    emailError.value !== "" ||
+    passwordError.value !== "" ||
+    confirmPasswordError.value !== ""
+  );
+});
+
+interface RegisterResult {
+  success: boolean;
+  message: string;
+  // 必要に応じて他のプロパティも定義
+}
 
 // バリデーション関数
 function validateForm() {
@@ -203,6 +251,16 @@ function validateForm() {
   if (!form.name.trim()) {
     nameError.value = "名前を入力してください";
     isValid = false;
+  } else if (form.name.trim().length > 10) {
+    nameError.value = "名前は10文字以内で入力してください";
+    isValid = false;
+  } else {
+    if (
+      nameError.value !== "名前は10文字以内で入力してください" &&
+      nameError.value !== "名前を入力してください"
+    ) {
+      nameError.value = "";
+    }
   }
 
   if (!form.email.trim()) {
@@ -233,12 +291,12 @@ async function onRegister() {
   }
 
   try {
-    const result = await authStore.register(
+    const result = (await authStore.register(
       form.name,
       form.email,
       form.password,
       form.password_confirmation
-    );
+    )) as RegisterResult;
 
     if (result.success) {
       toast.add({

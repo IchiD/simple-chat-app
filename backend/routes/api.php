@@ -21,6 +21,9 @@ Route::middleware('auth:sanctum')->group(function () {
   // ユーザー名を更新
   Route::put('/user/update-name', [AuthController::class, 'updateName']);
 
+  // パスワードを更新
+  Route::put('/user/update-password', [AuthController::class, 'updatePassword']);
+
   // 友達関係のAPI
   Route::prefix('friends')->group(function () {
     // 友達一覧
@@ -59,7 +62,13 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::post('/', 'store'); // メッセージ送信
     });
   });
+
+  // メールアドレス変更関連
+  Route::put('/user/update-email', [AuthController::class, 'requestEmailChange']);
 });
+
+// メールアドレス変更確認（認証不要）
+Route::get('/verify-email-change', [AuthController::class, 'confirmEmailChange']);
 
 // 既存のユーザー情報取得エンドポイント
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Carbon\Carbon;
+use App\Mail\EmailChangeVerification;
 
 
 class AuthService extends BaseService
@@ -281,6 +282,125 @@ class AuthService extends BaseService
         'email' => $data['email'],
       ]);
       return $this->errorResponse('password_reset_failed', 'パスワードリセットに失敗しました。');
+    }
+  }
+
+  /**
+   * メールアドレス変更リクエスト処理
+   *
+   * @param User $user 現在のユーザー
+   * @param string $newEmail 新しいメールアドレス
+   * @param string $ip IPアドレス（ログ用）
+   * @return array 処理結果
+   */
+  public function requestEmailChange(User $user, string $newEmail, string $ip): array
+  {
+    // 現在のメールアドレスと同じ場合
+    if ($user->email === $newEmail) {
+      return $this->errorResponse('same_email', '現在と同じメールアドレスです。');
+    }
+
+    // すでに存在するメールアドレスか確認（バリデーション済みだが念のため）
+    if (User::where('email', $newEmail)->exists()) {
+      return $this->errorResponse('email_taken', 'このメールアドレスは既に使用されています。');
+    }
+
+    // トークン生成
+    $token = Str::random(60);
+    $expiresAt = Carbon::now()->addHour();
+
+    DB::beginTransaction();
+
+    try {
+      // ユーザー情報を更新
+      $user->email_change_token = $token;
+      $user->new_email = $newEmail;
+      $user->token_expires_at = $expiresAt;
+      $user->save();
+
+      // メール送信
+      Mail::to($newEmail)->queue(new EmailChangeVerification($user, $token));
+
+      DB::commit();
+
+      Log::info('メールアドレス変更確認メールを送信しました', [
+        'user_id' => $user->id,
+        'new_email' => $newEmail
+      ]);
+
+      return [
+        'status' => 'success',
+        'message' => '確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。'
+      ];
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('メールアドレス変更確認メールの送信に失敗しました', [
+        'user_id' => $user->id,
+        'new_email' => $newEmail,
+        'error' => $e->getMessage()
+      ]);
+
+      return $this->errorResponse('email_send_failed', 'メール送信に失敗しました。後でもう一度お試しください。');
+    }
+  }
+
+  /**
+   * メールアドレス変更確認処理
+   *
+   * @param string $token 認証トークン
+   * @param string $ip IPアドレス（ログ用）
+   * @return array 処理結果
+   */
+  public function confirmEmailChange(string $token, string $ip): array
+  {
+    if (!$token) {
+      return $this->errorResponse('token_missing', '無効な認証リンクです。');
+    }
+
+    // トークンからユーザーを検索
+    $user = User::where('email_change_token', $token)->first();
+
+    if (!$user || !$user->new_email) {
+      return $this->errorResponse('token_invalid', '無効な認証リンクです。（該当するユーザーが見つかりません）');
+    }
+
+    // トークンの有効期限チェック
+    if (Carbon::now()->greaterThan($user->token_expires_at)) {
+      return $this->errorResponse('token_expired', '認証リンクの有効期限が切れています。もう一度メールアドレス変更をお試しください。');
+    }
+
+    DB::beginTransaction();
+
+    try {
+      // メールアドレスを更新
+      $oldEmail = $user->email;
+      $user->email = $user->new_email;
+      $user->email_change_token = null;
+      $user->new_email = null;
+      $user->token_expires_at = null;
+      $user->save();
+
+      DB::commit();
+
+      Log::info('メールアドレスが正常に更新されました', [
+        'user_id' => $user->id,
+        'old_email' => $oldEmail,
+        'new_email' => $user->email
+      ]);
+
+      return [
+        'status' => 'success',
+        'message' => 'メールアドレスが正常に更新されました。',
+        'email' => $user->email
+      ];
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('メールアドレス更新中にエラーが発生しました', [
+        'user_id' => $user->id,
+        'error' => $e->getMessage()
+      ]);
+
+      return $this->errorResponse('update_failed', 'メールアドレスの更新に失敗しました。後でもう一度お試しください。');
     }
   }
 }

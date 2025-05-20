@@ -31,6 +31,8 @@ class User extends Authenticatable
     'token_expires_at',
     'email_verified_at',
     'friend_id',
+    'new_email',
+    'email_change_token',
   ];
 
   /**

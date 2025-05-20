@@ -14,6 +14,12 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // /auth/ で始まるパス（認証関連ページ）へのアクセスで、かつ認証済みの場合はユーザーページにリダイレクト
   if (to.path.startsWith("/auth/")) {
+    // メール認証確認ページはリダイレクト対象外とする
+    if (to.path === "/auth/verify-email-change") {
+      console.log("メール認証確認ページなのでリダイレクトをスキップ:", to.path);
+      return;
+    }
+
     await authStore.checkAuth();
 
     if (authStore.isAuthenticated) {

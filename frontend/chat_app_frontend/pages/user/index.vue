@@ -201,8 +201,97 @@
               <div class="space-y-4">
                 <!-- メールアドレス表示 -->
                 <div class="bg-gray-50 p-4 rounded-lg">
-                  <p class="text-sm text-gray-500">メールアドレス</p>
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-500">メールアドレス</p>
+                    <button
+                      v-if="!isChangingEmail && !pendingEmailChange"
+                      class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                      @click="isChangingEmail = true"
+                    >
+                      変更
+                    </button>
+                  </div>
                   <p class="font-medium">{{ authStore.user.email }}</p>
+
+                  <!-- メールアドレス変更中の状態表示 -->
+                  <div
+                    v-if="pendingEmailChange"
+                    class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
+                  >
+                    <div class="flex items-start">
+                      <div class="flex-shrink-0">
+                        <UIcon
+                          name="i-heroicons-information-circle"
+                          class="text-blue-400 h-5 w-5"
+                        />
+                      </div>
+                      <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">
+                          メールアドレス変更中
+                        </h3>
+                        <div class="mt-1 text-sm text-blue-700">
+                          <p>
+                            {{
+                              newEmail
+                            }}に確認メールを送信しました。<br />メール内のリンクをクリックすると変更が完了します。
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- メールアドレス変更フォーム -->
+                <div
+                  v-if="isChangingEmail"
+                  class="mt-4 p-4 bg-white rounded-lg border border-gray-200"
+                >
+                  <h3 class="text-lg font-medium text-gray-900 mb-3">
+                    メールアドレス変更
+                  </h3>
+                  <form @submit.prevent="changeEmail">
+                    <div class="mb-4">
+                      <label
+                        for="new_email"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >新しいメールアドレス</label
+                      >
+                      <input
+                        id="new_email"
+                        v-model="newEmail"
+                        type="email"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="新しいメールアドレスを入力"
+                      />
+                      <p class="mt-1 text-sm text-gray-500">
+                        確認のため新しいメールアドレスに認証メールが送信されます。
+                      </p>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                      <button
+                        type="button"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+                        @click="isChangingEmail = false"
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md"
+                        :disabled="emailChangeLoading"
+                      >
+                        <span v-if="emailChangeLoading">
+                          <UIcon
+                            name="i-heroicons-arrow-path"
+                            class="animate-spin h-4 w-4 mr-1 inline"
+                          />
+                          処理中...
+                        </span>
+                        <span v-else>確認メールを送信</span>
+                      </button>
+                    </div>
+                  </form>
                 </div>
 
                 <!-- ユーザーネーム表示・編集 -->
@@ -224,11 +313,20 @@
                     <input
                       v-model="editingName"
                       type="text"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      :class="[
+                        'w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none sm:text-sm',
+                        nameEditError
+                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                      ]"
+                      placeholder="10文字以内"
                     />
+                    <p v-if="nameEditError" class="mt-1 text-sm text-red-600">
+                      {{ nameEditError }}
+                    </p>
                     <div class="flex space-x-2 justify-end">
                       <button
-                        class="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
                         @click="cancelEditName"
                       >
                         キャンセル
@@ -236,7 +334,8 @@
                       <button
                         :disabled="
                           !editingName.trim() ||
-                          editingName === authStore.user.name
+                          editingName.trim().length > 10 ||
+                          editingName.trim() === authStore.user.name
                         "
                         class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
                         @click="saveName"
@@ -244,6 +343,90 @@
                         保存
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                <!-- パスワード変更フォーム -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <p class="text-sm text-gray-500">パスワード</p>
+                    <button
+                      v-if="!isChangingPassword"
+                      class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      @click="isChangingPassword = true"
+                    >
+                      変更
+                    </button>
+                  </div>
+
+                  <div v-if="isChangingPassword" class="mt-2 space-y-4">
+                    <form @submit.prevent="changePassword">
+                      <div>
+                        <label
+                          for="current_password"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >現在のパスワード</label
+                        >
+                        <input
+                          id="current_password"
+                          v-model="currentPassword"
+                          type="password"
+                          required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          for="new_password"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >新しいパスワード</label
+                        >
+                        <input
+                          id="new_password"
+                          v-model="newPassword"
+                          type="password"
+                          required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          for="new_password_confirmation"
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          >新しいパスワード（確認）</label
+                        >
+                        <input
+                          id="new_password_confirmation"
+                          v-model="newPasswordConfirmation"
+                          type="password"
+                          required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        />
+                      </div>
+                      <div class="flex justify-end space-x-3 mt-4">
+                        <button
+                          type="button"
+                          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+                          @click="cancelChangePassword"
+                        >
+                          キャンセル
+                        </button>
+                        <button
+                          type="submit"
+                          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md"
+                          :disabled="passwordChangeLoading"
+                        >
+                          <span v-if="passwordChangeLoading">
+                            <UIcon
+                              name="i-heroicons-arrow-path"
+                              class="animate-spin h-4 w-4 mr-1 inline"
+                            />
+                            処理中...
+                          </span>
+                          <span v-else>パスワードを更新</span>
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -350,11 +533,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useAuthStore } from "~/stores/auth";
+import { onMounted, ref, watch } from "vue";
+import { useAuthStore } from "../../stores/auth";
 import { useRouter } from "vue-router";
-import { useToast } from "~/composables/useToast";
-import { useApi } from "~/composables/useApi";
+import { useToast } from "../../composables/useToast";
+import { useApi } from "../../composables/useApi";
+import { FetchError } from "ofetch";
 
 definePageMeta({
   layout: "default",
@@ -367,7 +551,26 @@ const router = useRouter();
 const isLoading = ref(true);
 const isEditingName = ref(false);
 const editingName = ref("");
+const nameEditError = ref("");
 const { api } = useApi();
+const isChangingEmail = ref(false);
+const newEmail = ref("");
+const emailChangeLoading = ref(false);
+const pendingEmailChange = ref(false);
+const isChangingPassword = ref(false);
+const currentPassword = ref("");
+const newPassword = ref("");
+const newPasswordConfirmation = ref("");
+const passwordChangeLoading = ref(false);
+
+// editingName を監視してリアルタイムバリデーション
+watch(editingName, (newName) => {
+  if (newName.trim().length > 10) {
+    nameEditError.value = "ユーザー名は10文字以内で入力してください。";
+  } else {
+    nameEditError.value = ""; // 10文字以内ならエラーをクリア
+  }
+});
 
 onMounted(async () => {
   try {
@@ -403,7 +606,29 @@ const cancelEditName = () => {
 };
 
 const saveName = async () => {
-  if (!editingName.value.trim() || editingName.value === authStore.user?.name) {
+  nameEditError.value = "";
+
+  if (!editingName.value.trim()) {
+    nameEditError.value = "ユーザー名を入力してください。";
+    toast.add({
+      title: "入力エラー",
+      description: nameEditError.value,
+      color: "error",
+    });
+    return;
+  }
+
+  if (editingName.value.trim().length > 10) {
+    nameEditError.value = "ユーザー名は10文字以内で入力してください。";
+    toast.add({
+      title: "入力エラー",
+      description: nameEditError.value,
+      color: "error",
+    });
+    return;
+  }
+
+  if (editingName.value.trim() === authStore.user?.name) {
     toast.add({
       title: "変更なし",
       description: "ユーザー名が変更されていません。",
@@ -415,7 +640,7 @@ const saveName = async () => {
 
   try {
     // APIを呼び出してユーザー名を更新 (実際のAPIエンドポイントとリクエスト形式に合わせてください)
-    const response = await api("/user/update-name", {
+    const _response = await api("/user/update-name", {
       // 実際のAPIパスに置き換えてください
       method: "PUT",
       body: { name: editingName.value },
@@ -484,5 +709,135 @@ const handleLogout = async () => {
     color: "success",
   });
   router.push("/auth/login");
+};
+
+const changeEmail = async () => {
+  if (!newEmail.value.trim()) {
+    toast.add({
+      title: "エラー",
+      description: "新しいメールアドレスを入力してください",
+      color: "error",
+    });
+    return;
+  }
+
+  try {
+    emailChangeLoading.value = true;
+    await api("/user/update-email", {
+      method: "PUT",
+      body: { email: newEmail.value },
+    });
+
+    toast.add({
+      title: "成功",
+      description:
+        "確認メールを送信しました。メール内のリンクをクリックして変更を完了してください。",
+      color: "success",
+    });
+    isChangingEmail.value = false;
+    pendingEmailChange.value = true;
+  } catch (error) {
+    console.error("メールアドレスの更新に失敗しました:", error);
+    const errorMessage = "メールアドレスの更新に失敗しました。";
+    toast.add({
+      title: "エラー",
+      description: errorMessage,
+      color: "error",
+    });
+  } finally {
+    emailChangeLoading.value = false;
+  }
+};
+
+const changePassword = async () => {
+  // バリデーション
+  if (
+    !currentPassword.value ||
+    !newPassword.value ||
+    !newPasswordConfirmation.value
+  ) {
+    toast.add({
+      title: "入力エラー",
+      description: "すべてのパスワードフィールドを入力してください。",
+      color: "error",
+    });
+    return;
+  }
+
+  if (newPassword.value.length < 8) {
+    // 例: 最小8文字
+    toast.add({
+      title: "入力エラー",
+      description: "新しいパスワードは8文字以上で入力してください。",
+      color: "error",
+    });
+    return;
+  }
+
+  if (newPassword.value !== newPasswordConfirmation.value) {
+    toast.add({
+      title: "入力エラー",
+      description: "新しいパスワードと確認用パスワードが一致しません。",
+      color: "error",
+    });
+    return;
+  }
+
+  try {
+    passwordChangeLoading.value = true;
+    await api("/user/update-password", {
+      method: "PUT",
+      body: {
+        current_password: currentPassword.value,
+        password: newPassword.value,
+        password_confirmation: newPasswordConfirmation.value, // バックエンドのバリデーションで利用
+      },
+    });
+
+    toast.add({
+      title: "成功",
+      description: "パスワードを更新しました。",
+      color: "success",
+    });
+    isChangingPassword.value = false;
+    // 成功したらフォームをクリア
+    currentPassword.value = "";
+    newPassword.value = "";
+    newPasswordConfirmation.value = "";
+  } catch (error) {
+    console.error("パスワードの更新に失敗しました:", error);
+    let errorMessage = "パスワードの更新に失敗しました。";
+    if (error instanceof FetchError && error.data) {
+      const errorData = error.data as {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (errorData.errors) {
+        const firstErrorKey = Object.keys(errorData.errors)[0];
+        if (firstErrorKey && errorData.errors[firstErrorKey][0]) {
+          errorMessage = errorData.errors[firstErrorKey][0];
+        }
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    toast.add({
+      title: "エラー",
+      description: errorMessage,
+      color: "error",
+    });
+  } finally {
+    passwordChangeLoading.value = false;
+  }
+};
+
+const cancelChangePassword = () => {
+  isChangingPassword.value = false;
+  // キャンセル時もフォームをクリア
+  currentPassword.value = "";
+  newPassword.value = "";
+  newPasswordConfirmation.value = "";
 };
 </script>
