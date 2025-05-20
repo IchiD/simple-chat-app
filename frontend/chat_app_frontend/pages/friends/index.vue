@@ -327,8 +327,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useApi } from "~/composables/useApi";
-import { useToast } from "~/composables/useToast";
+import { useApi } from "../../composables/useApi";
+import { useToast } from "../../composables/useToast";
 
 // 型定義
 interface User {

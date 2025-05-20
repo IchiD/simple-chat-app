@@ -18,7 +18,7 @@
       <slot />
     </main>
 
-    <Toast />
+    <!-- <Toast /> -->
   </div>
 </template>
 

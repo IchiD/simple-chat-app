@@ -1,12 +1,14 @@
 <template>
   <div class="fixed top-0 right-0 z-50 p-4 space-y-4">
     <TransitionGroup
-      enter-active-class="transform ease-out duration-300"
-      enter-from-class="translate-y-2 opacity-0"
-      enter-to-class="translate-y-0 opacity-100"
-      leave-active-class="transform ease-in duration-200"
-      leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="translate-y-2 opacity-0"
+      name="toast-list"
+      tag="div"
+      enter-active-class="transition-opacity ease-out duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity ease-in duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
       <div v-for="toast in toasts" :key="toast.id" class="pointer-events-auto">
         <AppToast

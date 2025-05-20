@@ -1,35 +1,36 @@
 import { reactive } from "vue";
 
-type ToastType = "success" | "error" | "info" | "warning";
-
-interface Toast {
+export interface Toast {
   id: number;
   title: string;
   description?: string;
-  color: ToastType;
-  timeout?: number;
+  color?: "success" | "error" | "info" | "warning";
+  duration?: number;
+  persistent?: boolean;
 }
 
 // グローバルなトースト通知ストア
 const toasts = reactive<Toast[]>([]);
 let nextId = 0;
 
-export function useToast() {
+export const useToastStore = () => {
   // トースト通知を追加する
   const add = (toast: Omit<Toast, "id">) => {
     const id = nextId++;
     const newToast = {
       ...toast,
       id,
-      timeout: toast.timeout || 5000, // デフォルトは5秒
+      timeout: toast.duration || 5000, // デフォルトは5秒
     };
 
     toasts.push(newToast);
 
     // 自動的に一定時間後に削除
-    setTimeout(() => {
-      remove(id);
-    }, newToast.timeout);
+    if (toast.duration !== undefined && !toast.persistent) {
+      setTimeout(() => {
+        remove(id);
+      }, toast.duration);
+    }
 
     return id;
   };
@@ -51,6 +52,12 @@ export function useToast() {
     toasts,
     add,
     remove,
+    removeToast: remove, // 互換性のためのエイリアス
     clear,
   };
-}
+};
+
+// クライアントコンポーネントでの簡単な使用のためのエクスポート
+export const useToast = () => {
+  return useToastStore();
+};
