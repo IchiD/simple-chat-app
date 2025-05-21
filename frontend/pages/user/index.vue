@@ -432,6 +432,28 @@
               </div>
             </div>
 
+            <!-- 通知設定エリア -->
+            <div
+              class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
+            >
+              <h3
+                class="text-md font-semibold text-gray-800 mb-4 flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-2 text-gray-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                  />
+                </svg>
+                通知設定
+              </h3>
+              <NotificationSettings :is-dev="isDevelopment" />
+            </div>
+
             <!-- アプリ使い方ガイド -->
             <div
               class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
@@ -562,6 +584,7 @@ const currentPassword = ref("");
 const newPassword = ref("");
 const newPasswordConfirmation = ref("");
 const passwordChangeLoading = ref(false);
+const isDevelopment = ref(process.env.NODE_ENV === "development");
 
 // editingName を監視してリアルタイムバリデーション
 watch(editingName, (newName) => {

@@ -9,6 +9,7 @@ use App\Models\Friendship;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Api\NotificationController;
 
 class FriendshipController extends Controller
 {
@@ -181,6 +182,13 @@ class FriendshipController extends Controller
         $existingFriendship->message = $message;
         $existingFriendship->save();
 
+        // 再申請の通知を送信
+        $friendUser = User::find($friendId);
+        if ($friendUser) {
+          $notificationController = new NotificationController();
+          $notificationController->sendFriendRequestNotification($friendUser, $currentUser->name);
+        }
+
         return response()->json([
           'status' => 'success',
           'message' => '友達申請を送信しました',
@@ -191,6 +199,13 @@ class FriendshipController extends Controller
 
     // 新しい友達申請を作成
     $friendship = $currentUser->sendFriendRequest($friendId, $message);
+
+    // 友達申請の通知を送信
+    $friendUser = User::find($friendId);
+    if ($friendUser) {
+      $notificationController = new NotificationController();
+      $notificationController->sendFriendRequestNotification($friendUser, $currentUser->name);
+    }
 
     return response()->json([
       'status' => 'success',

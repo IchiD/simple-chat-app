@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Participant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Api\NotificationController;
 
 class MessagesController extends Controller
 {
@@ -73,6 +75,33 @@ class MessagesController extends Controller
     $message->load(['sender' => function ($query) {
       $query->select('id', 'name', 'avatar', 'friend_id');
     }]);
+
+    // プッシュ通知の送信
+    // 同じ会話の参加者全員（自分以外）に通知を送信する
+    $participants = $conversation->participants()
+      ->where('user_id', '!=', $user->id)
+      ->with('user')
+      ->get();
+
+    if ($participants->isNotEmpty()) {
+      // メッセージプレビュー（長い場合は短縮する）
+      $messagePreview = mb_substr($message->text_content, 0, 50);
+      if (mb_strlen($message->text_content) > 50) {
+        $messagePreview .= '...';
+      }
+
+      $notificationController = new NotificationController();
+
+      foreach ($participants as $participant) {
+        // 各参加者にプッシュ通知を送信
+        $notificationController->sendNewMessageNotification(
+          $participant->user,
+          $user->name,
+          $messagePreview,
+          $conversation->id
+        );
+      }
+    }
 
     // TODO: リアルタイムで相手にメッセージを通知するイベントを発行 (例: NewMessageEvent)
     // broadcast(new NewMessageEvent($message))->toOthers();

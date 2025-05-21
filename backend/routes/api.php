@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\FriendshipController;
 use App\Http\Controllers\API\ConversationsController;
 use App\Http\Controllers\API\MessagesController;
+use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\API\AppConfigController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/verify', [AuthController::class, 'verifyEmail']);
@@ -13,6 +15,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
+
+// アプリケーション設定情報取得
+Route::get('/config', [AppConfigController::class, 'getPublicConfig']);
 
 // 認証済みユーザーのみアクセス可能なエンドポイント
 Route::middleware('auth:sanctum')->group(function () {
@@ -61,6 +66,13 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::get('/', 'index'); // メッセージ一覧
       Route::post('/', 'store'); // メッセージ送信
     });
+  });
+
+  // プッシュ通知関連のAPI
+  Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
+    Route::post('/subscribe', 'subscribe'); // プッシュ通知の購読登録
+    Route::post('/unsubscribe', 'unsubscribe'); // プッシュ通知の購読解除
+    Route::post('/test', 'sendTestNotification'); // テスト通知の送信（開発用）
   });
 
   // メールアドレス変更関連
