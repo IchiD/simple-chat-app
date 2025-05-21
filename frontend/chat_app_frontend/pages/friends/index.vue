@@ -173,6 +173,7 @@
                   <div class="flex space-x-2">
                     <button
                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      @click="startChat(friend.id)"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -329,12 +330,15 @@
 import { ref, onMounted } from "vue";
 import { useApi } from "../../composables/useApi";
 import { useToast } from "../../composables/useToast";
+import { useAuthStore } from "~/stores/auth";
+import { useRouter } from "vue-router";
 
 // 型定義
 interface User {
   id: number;
   name: string;
   friend_id: string;
+  status: number;
 }
 
 interface FriendRequest {
@@ -346,6 +350,13 @@ interface FriendRequest {
   status: number;
 }
 
+// Conversation 型定義 (チャットページから持ってくるか、共通化が必要)
+type Conversation = {
+  id: number;
+  room_token: string;
+  // 他のプロパティも必要に応じて追加
+};
+
 // ページメタデータ
 definePageMeta({
   layout: "default",
@@ -355,6 +366,8 @@ definePageMeta({
 // API関連の設定
 const { api } = useApi();
 const toast = useToast();
+const authStore = useAuthStore();
+const router = useRouter();
 
 // 状態管理
 const loading = ref(true);
@@ -526,6 +539,50 @@ const handleFriendSelected = (user: User) => {
     if (confirm(`${user.name}さんに友達申請を送りますか？`)) {
       sendFriendRequest(user.id);
     }
+  }
+};
+
+// チャット開始処理
+const startChat = async (friendId: number) => {
+  if (!authStore.user?.id) {
+    toast.add({
+      title: "エラー",
+      description: "ログインしていません。",
+      color: "error",
+    });
+    return;
+  }
+
+  try {
+    const response = await api<Conversation>("/conversations", {
+      method: "POST",
+      body: {
+        recipient_id: friendId,
+      },
+    });
+
+    if (response && response.room_token) {
+      router.push(`/chat/${response.room_token}/`);
+    } else {
+      throw new Error("チャットルームの取得に失敗しました。");
+    }
+  } catch (error) {
+    console.error("Error starting chat:", error);
+    let errorMessage = "チャットの開始に失敗しました。";
+    if (error instanceof Error && error.message) {
+      errorMessage = error.message;
+    }
+    // APIからのエラーメッセージを優先して表示 (もしあれば)
+    const apiError = error as { data?: { message?: string } };
+    if (apiError?.data?.message) {
+      errorMessage = apiError.data.message;
+    }
+
+    toast.add({
+      title: "エラー",
+      description: errorMessage,
+      color: "error",
+    });
   }
 };
 
