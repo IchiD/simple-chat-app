@@ -57,22 +57,25 @@
             class="flex flex-col h-full overflow-x-auto mb-4"
           >
             <div
-              v-if="initialMessagesPending || !currentConversation"
+              v-if="
+                isLoadingInitialData ||
+                (!currentConversation && !conversationError && !messagesError)
+              "
               class="flex items-center justify-center h-full"
             >
               <p>メッセージを読み込み中...</p>
             </div>
             <div
-              v-else-if="messagesError"
+              v-else-if="conversationError"
               class="flex items-center justify-center h-full"
             >
-              <p class="text-red-500">メッセージの読み込みに失敗しました。</p>
+              <p class="text-red-500">会話情報の読み込みに失敗しました。</p>
             </div>
             <div
-              v-else-if="messages.length === 0 && !hasNextPage"
+              v-else-if="!currentConversation"
               class="flex items-center justify-center h-full"
             >
-              <p>メッセージはありません。</p>
+              <p>会話が見つかりません。</p>
             </div>
             <div v-else>
               <div
@@ -158,9 +161,7 @@
               <textarea
                 v-model="newMessageText"
                 :disabled="
-                  !currentConversation ||
-                  sendingMessage ||
-                  initialMessagesPending
+                  !currentConversation || sendingMessage || isLoadingInitialData
                 "
                 class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                 rows="1"
@@ -172,7 +173,7 @@
                   !currentConversation ||
                   !newMessageText.trim() ||
                   sendingMessage ||
-                  initialMessagesPending
+                  isLoadingInitialData
                 "
                 class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
                 @click="sendMessage"
@@ -209,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted } from "vue";
+import { ref, computed, watch, nextTick, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
@@ -294,12 +295,15 @@ const router = useRouter();
 const config = useRuntimeConfig();
 
 const currentRoomToken = computed(() => route.params.room_token as string);
-const currentConversation = ref<Conversation | null>(null);
 
+// Renamed and refactored pending/error states for clarity
+const conversationPending = ref(true); // Indicates conversation specific loading
+const conversationError = ref<Error | null>(null);
+const messagesPending = ref(false); // For loading more messages or initial message load for a conversation
+const messagesError = ref<Error | null>(null); // Specific to message fetching errors
+
+const currentConversation = ref<Conversation | null>(null);
 const messages = ref<Message[]>([]);
-const messagesPending = ref(false); // For loading more messages
-const initialMessagesPending = ref(true); // For initial load of conversation and messages
-const messagesError = ref<Error | null>(null);
 const newMessageText = ref("");
 const sendingMessage = ref(false);
 const messageContainerRef = ref<HTMLDivElement | null>(null);
@@ -318,17 +322,185 @@ const {
   `${config.public.apiBase}/conversations`,
   {
     method: "GET",
-    headers: {
+    headers: computed(() => ({
+      // Make sidebar headers reactive to token too
       Accept: "application/json",
       ...(authStore.token
         ? { Authorization: `Bearer ${authStore.token}` }
         : {}),
-    },
+    })),
     server: false,
   }
 );
 const sidebarConversations = computed(
   () => sidebarApiResponse.value?.data || []
+);
+
+// Fetch headers for conversation details, reactive to authStore.token
+const conversationDetailHeaders = computed(() => {
+  console.log(
+    "[ChatRoom] Computing conversationDetailHeaders. Auth token present:",
+    !!authStore.token
+  );
+  return {
+    Accept: "application/json",
+    ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}),
+  };
+});
+
+// useFetch for conversation details - defined once, non-immediate
+const {
+  data: fetchedConvData,
+  error: fetchedConvError,
+  pending: fetchConvPending,
+  execute: executeFetchConversationDetails,
+} = useFetch<Conversation>(
+  () => {
+    const roomToken = currentRoomToken.value;
+    if (!roomToken) return ""; // Prevent fetch if no room token by providing invalid URL effectively
+    return `${config.public.apiBase}/conversations/token/${roomToken}`;
+  },
+  {
+    headers: conversationDetailHeaders,
+    immediate: false, // Crucial: Do not run on setup, we trigger manually
+    server: false,
+    watch: false, // We control refresh via watchEffect
+  }
+);
+
+// Function to fetch messages (to be called after conversation is loaded)
+const fetchMessagesForCurrentConversation = async () => {
+  if (!currentConversation.value) {
+    console.warn(
+      "[ChatRoom] fetchMessages: No currentConversation to fetch messages for."
+    );
+    messages.value = [];
+    return;
+  }
+  console.log(
+    `[ChatRoom] fetchMessages: Fetching messages for conv ID: ${currentConversation.value.id}, room_token: ${currentConversation.value.room_token}`
+  );
+  messagesPending.value = true;
+  messagesError.value = null;
+  currentPage.value = 1; // Reset pagination for new conversation messages
+  hasNextPage.value = false;
+
+  try {
+    const msgData = await $fetch<PaginatedMessagesResponse>(
+      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`,
+      {
+        headers: conversationDetailHeaders.value,
+      }
+    );
+
+    messages.value = msgData.data.sort(
+      (a: Message, b: Message) =>
+        new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
+    );
+    hasNextPage.value = msgData.next_page_url !== null;
+    await markConversationAsRead(currentConversation.value.id); // Mark as read after messages load
+    console.log(
+      "[ChatRoom] Messages processed. Message count:",
+      messages.value.length,
+      "Has next page:",
+      hasNextPage.value
+    );
+  } catch (e: unknown) {
+    console.error(
+      `[ChatRoom] Error fetching messages for conversation ${currentConversation.value.id}:`,
+      e
+    );
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      "data" in e &&
+      typeof (e as { data?: { message?: string } }).data === "object" &&
+      (e as { data?: { message?: string } }).data !== null &&
+      "message" in (e as { data: { message?: string } }).data
+    ) {
+      messagesError.value = new Error(
+        String((e as { data: { message: string } }).data.message)
+      );
+    } else if (e instanceof Error) {
+      messagesError.value = e;
+    } else {
+      messagesError.value = new Error(
+        "An unknown error occurred while fetching messages."
+      );
+    }
+    messages.value = [];
+  } finally {
+    messagesPending.value = false;
+    await scrollToBottom();
+  }
+};
+
+// Main data fetching orchestrator
+watchEffect(async () => {
+  const roomTokenVal = currentRoomToken.value;
+  const authTokenVal = authStore.token;
+
+  console.log(
+    `[ChatRoom] Main watchEffect. RoomToken: ${roomTokenVal}, AuthToken: ${
+      authTokenVal ? "present" : "null"
+    }`
+  );
+
+  if (roomTokenVal && authTokenVal) {
+    conversationPending.value = true;
+    conversationError.value = null;
+    currentConversation.value = null; // Reset before fetching new one
+    messages.value = []; // Clear messages when conversation changes
+
+    console.log(
+      `[ChatRoom] watchEffect: Fetching conversation details for roomToken: ${roomTokenVal}`
+    );
+    await executeFetchConversationDetails(); // Execute the fetch
+
+    conversationPending.value = fetchConvPending.value; // Reflect pending state
+    currentConversation.value = fetchedConvData.value;
+    conversationError.value = fetchedConvError.value;
+
+    console.log(
+      "[ChatRoom] watchEffect: Conversation fetch completed.",
+      "Data:",
+      JSON.parse(JSON.stringify(currentConversation.value)),
+      "Error:",
+      JSON.parse(JSON.stringify(conversationError.value)),
+      "Pending was:",
+      fetchConvPending.value
+    );
+
+    if (currentConversation.value && !conversationError.value) {
+      await fetchMessagesForCurrentConversation();
+    } else if (conversationError.value) {
+      console.error(
+        `[ChatRoom] watchEffect: Error occurred fetching conversation ${roomTokenVal}:`,
+        JSON.parse(JSON.stringify(conversationError.value))
+      );
+      // Ensure messagesPending is false if conversation fetch fails before message fetch starts
+      messagesPending.value = false;
+    } else {
+      console.warn(
+        `[ChatRoom] watchEffect: Conversation data is null for ${roomTokenVal} even after fetch attempt.`
+      );
+      messagesPending.value = false;
+    }
+  } else {
+    console.log(
+      "[ChatRoom] watchEffect: Conditions not met for fetching (no roomToken or no authToken)."
+    );
+    currentConversation.value = null;
+    messages.value = [];
+    conversationPending.value = !roomTokenVal; // If no room token, not pending. If room token but no auth, still pending auth.
+    messagesPending.value = false;
+  }
+});
+
+// The old fetchConversationAndMessages is no longer needed.
+// Replace initialMessagesPending in template with a computed property if needed, or use conversationPending && messagesPending
+const isLoadingInitialData = computed(
+  () => conversationPending.value || messagesPending.value
 );
 
 const openMobileSidebar = () => {
@@ -368,115 +540,28 @@ const scrollToBottom = async (behavior: "auto" | "smooth" = "auto") => {
   }
 };
 
-const fetchConversationAndMessages = async (roomToken: string) => {
-  if (!roomToken) return;
-  initialMessagesPending.value = true;
-  messagesError.value = null;
-  messages.value = [];
-  currentPage.value = 1;
-  hasNextPage.value = false;
-  currentConversation.value = null;
-
-  try {
-    // Fetch conversation details by room_token
-    const { data: convData, error: convError } = await useFetch<Conversation>(
-      `${config.public.apiBase}/conversations/token/${roomToken}`,
-      {
-        headers: {
-          Accept: "application/json",
-          ...(authStore.token
-            ? { Authorization: `Bearer ${authStore.token}` }
-            : {}),
-        },
-        server: false,
-      }
-    );
-
-    if (convError.value) {
-      messagesError.value = convError.value;
-      console.error(
-        `Error fetching conversation ${roomToken}:`,
-        convError.value
-      );
-      initialMessagesPending.value = false;
-      return;
-    }
-    currentConversation.value = convData.value;
-
-    if (currentConversation.value) {
-      // Fetch messages for this conversation
-      const { data: msgData, error: msgFetchError } =
-        await useFetch<PaginatedMessagesResponse>(
-          `${config.public.apiBase}/conversations/${currentConversation.value.id}/messages?page=${currentPage.value}`,
-          {
-            headers: {
-              Accept: "application/json",
-              ...(authStore.token
-                ? { Authorization: `Bearer ${authStore.token}` }
-                : {}),
-            },
-            server: false,
-          }
-        );
-
-      if (msgFetchError.value) {
-        messagesError.value = msgFetchError.value;
-        console.error(
-          `Error fetching messages for conversation ${currentConversation.value.id}:`,
-          msgFetchError.value
-        );
-      } else if (msgData.value) {
-        messages.value = msgData.value.data.sort(
-          (a, b) =>
-            new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
-        );
-        hasNextPage.value = msgData.value.next_page_url !== null;
-        await markConversationAsRead(currentConversation.value.id);
-      }
-    }
-  } catch (e) {
-    if (e instanceof Error) messagesError.value = e;
-    else messagesError.value = new Error(String(e));
-    console.error(
-      `Critical error fetching conversation/messages for ${roomToken}:`,
-      e
-    );
-  } finally {
-    initialMessagesPending.value = false;
-    await scrollToBottom();
-  }
-};
-
 const markConversationAsRead = async (conversationId: number) => {
   if (!conversationId) return;
   try {
-    await useFetch(
+    const fetchPostHeaders = {
+      ...(authStore.token
+        ? { Authorization: `Bearer ${authStore.token}` }
+        : {}),
+    };
+    await $fetch(
       `${config.public.apiBase}/conversations/${conversationId}/read`,
       {
         method: "POST",
-        headers: {
-          ...(authStore.token
-            ? { Authorization: `Bearer ${authStore.token}` }
-            : {}),
-        },
-        server: false,
-        onResponse({ response }) {
-          if (response.ok) {
-            const convInSidebar = sidebarConversations.value.find(
-              (c) => c.id === conversationId
-            );
-            if (convInSidebar) convInSidebar.unread_messages_count = 0;
-          } else {
-            console.error(
-              `Failed to mark conversation ${conversationId} as read. Status: ${response.status}`
-            );
-          }
-        },
+        headers: fetchPostHeaders,
       }
     );
-  } catch (readError) {
+    const convInSidebar = sidebarConversations.value.find(
+      (c) => c.id === conversationId
+    );
+    if (convInSidebar) convInSidebar.unread_messages_count = 0;
+  } catch (readError: unknown) {
     console.error(
-      `Error calling useFetch for marking conversation ${conversationId} as read:`,
+      `Error calling $fetch for marking conversation ${conversationId} as read:`,
       readError
     );
   }
@@ -484,12 +569,19 @@ const markConversationAsRead = async (conversationId: number) => {
 
 watch(
   currentRoomToken,
-  (newToken) => {
-    if (newToken) {
-      fetchConversationAndMessages(newToken);
+  (newToken, oldToken) => {
+    console.log(
+      `[ChatRoom] currentRoomToken watcher (navigation). New: ${newToken}, Old: ${oldToken}`
+    );
+    // The watchEffect should handle fetching new data when currentRoomToken changes.
+    // We might not need to do anything explicit here anymore unless it's for
+    // resetting states not covered by watchEffect's re-run.
+    if (newToken && newToken !== oldToken) {
+      // Ensure message container scrolls to top or resets if that's desired on navigating between rooms
+      if (messageContainerRef.value) messageContainerRef.value.scrollTop = 0;
     }
-  },
-  { immediate: true }
+  }
+  // { immediate: true } // Removed immediate as watchEffect handles initial load
 );
 
 watch(
@@ -514,7 +606,6 @@ const loadMoreMessages = async () => {
     return;
 
   loadingMoreMessages.value = true;
-  messagesPending.value = true; // Indicate general message loading activity
   messagesError.value = null;
   currentPage.value++;
 
@@ -523,43 +614,54 @@ const loadMoreMessages = async () => {
   const previousScrollTop = messageContainer?.scrollTop || 0;
 
   try {
-    const { data, error: fetchError } =
-      await useFetch<PaginatedMessagesResponse>(
-        `${config.public.apiBase}/conversations/${currentConversation.value.id}/messages?page=${currentPage.value}`,
-        {
-          headers: {
-            Accept: "application/json",
-            ...(authStore.token
-              ? { Authorization: `Bearer ${authStore.token}` }
-              : {}),
-          },
-          server: false,
-        }
-      );
-
-    if (fetchError.value) {
-      messagesError.value = fetchError.value;
-      currentPage.value--;
-    } else if (data.value) {
-      const newMsgs = data.value.data.sort(
-        (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
-      );
-      messages.value = [...newMsgs, ...messages.value];
-      hasNextPage.value = data.value.next_page_url !== null;
-      await nextTick();
-      if (messageContainer) {
-        const newScrollHeight = messageContainer.scrollHeight;
-        messageContainer.scrollTop =
-          previousScrollTop + (newScrollHeight - previousScrollHeight);
+    const fetchMoreMessagesHeaders = {
+      Accept: "application/json",
+      ...(authStore.token
+        ? { Authorization: `Bearer ${authStore.token}` }
+        : {}),
+    };
+    const data = await $fetch<PaginatedMessagesResponse>(
+      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`,
+      {
+        headers: fetchMoreMessagesHeaders,
       }
+    );
+
+    const newMsgs = data.data.sort(
+      (a: Message, b: Message) =>
+        new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
+    );
+    messages.value = [...newMsgs, ...messages.value];
+    hasNextPage.value = data.next_page_url !== null;
+    await nextTick();
+    if (messageContainer) {
+      const newScrollHeight = messageContainer.scrollHeight;
+      messageContainer.scrollTop =
+        previousScrollTop + (newScrollHeight - previousScrollHeight);
     }
-  } catch (e) {
-    if (e instanceof Error) messagesError.value = e;
-    else messagesError.value = new Error(String(e));
+  } catch (e: unknown) {
+    console.error("[ChatRoom] Error loading more messages:", e);
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      "data" in e &&
+      typeof (e as { data?: { message?: string } }).data === "object" &&
+      (e as { data?: { message?: string } }).data !== null &&
+      "message" in (e as { data: { message?: string } }).data
+    ) {
+      messagesError.value = new Error(
+        String((e as { data: { message: string } }).data.message)
+      );
+    } else if (e instanceof Error) {
+      messagesError.value = e;
+    } else {
+      messagesError.value = new Error(
+        "An unknown error occurred while loading more messages."
+      );
+    }
     currentPage.value--;
   } finally {
     loadingMoreMessages.value = false;
-    messagesPending.value = false;
   }
 };
 
@@ -576,46 +678,40 @@ const sendMessage = async () => {
   const textContent = newMessageText.value;
 
   try {
-    const { data: sentMessage, error } = await useFetch<Message>(
-      `${config.public.apiBase}/conversations/${conversationId}/messages`,
+    const sendMessageHeaders = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(authStore.token
+        ? { Authorization: `Bearer ${authStore.token}` }
+        : {}),
+    };
+    const sentMessageData = await $fetch<Message>(
+      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages`,
       {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          ...(authStore.token
-            ? { Authorization: `Bearer ${authStore.token}` }
-            : {}),
-        },
+        headers: sendMessageHeaders,
         body: { text_content: textContent },
-        server: false,
       }
     );
 
-    if (error.value) {
-      console.error("Error sending message:", error.value);
-      // Basic error alert, can be replaced with toast notifications
-      alert("メッセージの送信に失敗しました。");
-    } else if (sentMessage.value) {
-      messages.value.push(sentMessage.value);
-      newMessageText.value = "";
-      // Update latest message in sidebar
-      const convInSidebar = sidebarConversations.value.find(
-        (c) => c.id === conversationId
-      );
-      if (convInSidebar) {
-        convInSidebar.latest_message = {
-          id: sentMessage.value.id,
-          text_content: sentMessage.value.text_content,
-          sent_at: sentMessage.value.sent_at,
-          sender: sentMessage.value.sender,
-        };
-      }
-      await scrollToBottom("smooth");
+    messages.value.push(sentMessageData);
+    newMessageText.value = "";
+    // Update latest message in sidebar
+    const convInSidebar = sidebarConversations.value.find(
+      (c) => c.id === conversationId
+    );
+    if (convInSidebar) {
+      convInSidebar.latest_message = {
+        id: sentMessageData.id,
+        text_content: sentMessageData.text_content,
+        sent_at: sentMessageData.sent_at,
+        sender: sentMessageData.sender,
+      };
     }
-  } catch (e) {
-    console.error("Critical error sending message:", e);
-    alert("メッセージの送信中に予期せぬエラーが発生しました。");
+    await scrollToBottom("smooth");
+  } catch (e: unknown) {
+    console.error("Error sending message:", e);
+    alert("メッセージの送信に失敗しました。");
   } finally {
     sendingMessage.value = false;
   }
