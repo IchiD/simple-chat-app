@@ -91,8 +91,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useApi } from "../../../composables/useApi";
-import { useToast } from "../../../composables/useToast";
 
 // 型定義
 interface User {
