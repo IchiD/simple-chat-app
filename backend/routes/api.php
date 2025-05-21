@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::prefix('conversations')->controller(ConversationsController::class)->group(function () {
     Route::get('/', 'index'); // ユーザーの会話一覧
     Route::post('/', 'store'); // 新規会話開始
+    Route::get('/token/{room_token}', 'showByToken'); // トークンで特定の会話情報を取得
     Route::get('/{conversation}', 'show'); // 特定の会話情報を取得 (詳細表示用、任意)
     Route::post('/{conversation}/read', 'markAsRead'); // 既読にする
 

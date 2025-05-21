@@ -28,6 +28,7 @@ class ConversationsController extends Controller
       }, 'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
       }])
+      ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
       ->withCount([
         'messages as unread_messages_count' => function ($query) use ($user) {
           // $query は Message モデルに対するクエリビルダ
@@ -114,6 +115,7 @@ class ConversationsController extends Controller
     DB::transaction(function () use ($currentUser, $recipient, &$conversation) {
       $newConversation = Conversation::create([
         'type' => 'direct',
+        // room_token は Conversation モデルの creating イベントで自動生成される
       ]);
 
       // 参加者を追加
@@ -133,6 +135,10 @@ class ConversationsController extends Controller
           $query->select('id', 'name');
         }
       ]);
+      // 明示的にroom_tokenをロードしなくても、fresh()がモデルインスタンスを再取得するため
+      // booted()で設定されたroom_tokenは含まれるはずですが、念のため確認。
+      // 通常、Conversation::create() 後、モデルインスタンスにはidとbooted()で設定された値が含まれる。
+      // fresh()はDBから最新の状態を読み込むため、room_tokenも含まれる。
       return response()->json($conversation, 201);
     }
 
@@ -199,5 +205,36 @@ class ConversationsController extends Controller
   public function destroy(string $id)
   {
     //
+  }
+
+  /**
+   * room_token を使用して特定の会話情報を取得
+   */
+  public function showByToken(Request $request, string $room_token)
+  {
+    $user = Auth::user();
+    $conversation = Conversation::where('room_token', $room_token)->firstOrFail();
+
+    // ユーザーがこの会話の参加者であることを確認
+    if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
+      return response()->json(['message' => 'アクセス権がありません。'], 403);
+    }
+
+    // 既存の show メソッドと同様の情報をロード
+    $conversation->load([
+      'participants' => function ($query) use ($user) {
+        // 自分以外の参加者情報を取得
+        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+      },
+      'latestMessage.sender' => function ($query) {
+        $query->select('id', 'name');
+      },
+      // 必要であれば、メッセージもここでページネーションしてロードすることも検討できます
+      // 'messages' => function ($query) {
+      //   $query->orderBy('sent_at', 'desc')->paginate(15); // 例: 最新15件
+      // }
+    ]);
+
+    return response()->json($conversation);
   }
 }
