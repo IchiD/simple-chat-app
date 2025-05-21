@@ -68,30 +68,6 @@
       </button>
     </div>
 
-    <!-- Search Bar (Optional UI) -->
-    <div class="mt-4">
-      <div class="relative">
-        <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
-          <svg
-            class="h-5 w-5 text-gray-400"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </span>
-        <input
-          type="text"
-          class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          placeholder="検索..."
-        />
-      </div>
-    </div>
-
     <!-- Conversation List -->
     <div class="flex flex-col mt-4 overflow-y-auto">
       <div v-if="pending" class="flex justify-center items-center h-48">
@@ -179,15 +155,6 @@
         </div>
       </button>
     </div>
-
-    <!-- New Chat Button (Optional UI) -->
-    <div class="mt-auto mb-4">
-      <button
-        class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
-      >
-        新しいチャット
-      </button>
-    </div>
   </div>
 </template>
 
@@ -195,10 +162,10 @@
 import { ref, computed } from "vue";
 import type { PropType } from "vue";
 import { useRoute } from "vue-router";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
 
-// Types (Copied from pages/chat/index.vue, consider moving to a shared types file)
+// Types (Copied from pages/chat/index.vue, consider moo a shared types file)
 type Participant = {
   id: number;
   name: string;
@@ -228,9 +195,9 @@ type Conversation = {
   updated_at?: string;
 };
 
-const props = defineProps({
+defineProps({
   conversations: {
-    type: Array as PropType<Conversation[]>,
+    type: Array as PropType<Conversation[] | undefined>,
     required: true,
   },
   pending: {
@@ -249,8 +216,6 @@ const props = defineProps({
 
 const emit = defineEmits(["conversationSelected", "closeSidebar"]);
 
-const authStore = useAuthStore();
-const { user: authUser } = storeToRefs(authStore);
 const route = useRoute();
 
 const isSidebarOpen = ref(true); // Default to open on larger screens, parent can control this for mobile
@@ -259,6 +224,8 @@ const navigationTabs = [
   { name: "ホーム", path: "/" },
   { name: "友達", path: "/friends" },
 ];
+
+const { user: authUser } = storeToRefs(useAuthStore());
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 

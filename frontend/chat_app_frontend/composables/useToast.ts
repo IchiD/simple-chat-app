@@ -7,6 +7,7 @@ export interface Toast {
   color?: "success" | "error" | "info" | "warning";
   duration?: number;
   persistent?: boolean;
+  timeout?: number;
 }
 
 // グローバルなトースト通知ストア

@@ -14,7 +14,7 @@
         <AppToast
           :title="toast.title"
           :description="toast.description"
-          :color="toast.color"
+          :color="toast.color || 'info'"
           :timeout="toast.timeout"
           @close="removeToast(toast.id)"
         />
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from "~/composables/useToast";
+import { useToast } from "../composables/useToast";
 
-const { toasts, remove: removeToast } = useToast();
+const { toasts, removeToast } = useToast();
 </script>

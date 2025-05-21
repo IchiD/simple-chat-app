@@ -314,10 +314,14 @@ async function onRegister() {
         color: "error",
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    let message = "予期せぬエラーが発生しました";
+    if (error instanceof Error) {
+      message = error.message;
+    }
     toast.add({
       title: "エラー",
-      description: error.message || "予期せぬエラーが発生しました",
+      description: message,
       color: "error",
     });
   }
