@@ -27,11 +27,14 @@ interface ApiOptions {
   headers?: Record<string, string>;
   body?: Record<string, unknown>;
   params?: Record<string, string>;
+  skipAuthRedirect?: boolean; // 認証リダイレクトをスキップするオプション
   [key: string]: unknown;
 }
 
 export function useApi() {
   const config = useRuntimeConfig();
+  const router = useRouter();
+  const toast = useToast();
   console.log("Runtime config apiBase:", config.public.apiBase);
 
   // 認証トークンをヘッダーに追加する関数
@@ -88,6 +91,25 @@ export function useApi() {
     });
 
     return sanitized;
+  };
+
+  // 認証エラー時のハンドリング
+  const handleAuthError = () => {
+    if (import.meta.client) {
+      // ローカルストレージの認証情報をクリア
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user");
+
+      // エラーメッセージを表示
+      toast.add({
+        title: "認証エラー",
+        description: "ログインが必要です。ログインページに移動します。",
+        color: "error",
+      });
+
+      // ログインページへリダイレクト
+      router.push("/auth/login");
+    }
   };
 
   // APIクライアントの作成
@@ -160,6 +182,13 @@ export function useApi() {
         const enhancedError = error as FetchError<unknown>;
 
         console.error(`API Error (${url}):`, error.message, error.data);
+
+        // 認証エラー（401）の場合、ログインページにリダイレクト
+        if (error.status === 401 && !options.skipAuthRedirect) {
+          console.log("認証エラーを検出: ログインページへリダイレクトします");
+          handleAuthError();
+        }
+
         throw enhancedError;
       }
 
