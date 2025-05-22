@@ -10,9 +10,30 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\NotificationController;
+use Illuminate\Http\JsonResponse;
 
 class FriendshipController extends Controller
 {
+  /**
+   * 認証されたユーザーを取得し、認証チェックを行う
+   * ミドルウェアに加えて二重のセキュリティレイヤーとして機能
+   *
+   * @return User|JsonResponse ユーザーオブジェクトまたはエラーレスポンス
+   */
+  private function getAuthenticatedUser()
+  {
+    $user = Auth::user();
+
+    if (!$user) {
+      return response()->json([
+        'status' => 'error',
+        'message' => '認証が必要です。再ログインしてください。'
+      ], 401);
+    }
+
+    return $user;
+  }
+
   /**
    * 友達一覧を取得
    *
@@ -20,7 +41,12 @@ class FriendshipController extends Controller
    */
   public function getFriends()
   {
-    $user = Auth::user();
+    // 認証チェック - ミドルウェアのバックアップとして機能
+    $user = $this->getAuthenticatedUser();
+    if ($user instanceof JsonResponse) {
+      return $user; // 認証エラーレスポンスを返す
+    }
+
     $friends = $user->friends();
 
     return response()->json([
@@ -36,7 +62,12 @@ class FriendshipController extends Controller
    */
   public function getSentRequests()
   {
-    $user = Auth::user();
+    // 認証チェック
+    $user = $this->getAuthenticatedUser();
+    if ($user instanceof JsonResponse) {
+      return $user;
+    }
+
     $requests = $user->pendingFriendRequests();
 
     return response()->json([
@@ -52,7 +83,12 @@ class FriendshipController extends Controller
    */
   public function getReceivedRequests()
   {
-    $user = Auth::user();
+    // 認証チェック
+    $user = $this->getAuthenticatedUser();
+    if ($user instanceof JsonResponse) {
+      return $user;
+    }
+
     $requests = $user->friendRequests();
 
     return response()->json([
@@ -69,6 +105,12 @@ class FriendshipController extends Controller
    */
   public function searchByFriendId(Request $request)
   {
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
     $validator = Validator::make($request->all(), [
       'friend_id' => 'required|string|size:6'
     ]);
@@ -82,7 +124,6 @@ class FriendshipController extends Controller
     }
 
     $friendId = $request->input('friend_id');
-    $currentUser = Auth::user();
 
     // 自分自身のフレンドIDでの検索を防止
     if ($currentUser->friend_id === $friendId) {
@@ -124,6 +165,12 @@ class FriendshipController extends Controller
    */
   public function sendRequest(Request $request)
   {
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
     $validator = Validator::make($request->all(), [
       'user_id' => 'required|integer|exists:users,id',
       'message' => 'nullable|string|max:255'
@@ -137,7 +184,6 @@ class FriendshipController extends Controller
       ], 422);
     }
 
-    $currentUser = Auth::user();
     $friendId = $request->input('user_id');
     $message = $request->input('message');
 
@@ -156,7 +202,7 @@ class FriendshipController extends Controller
       if ($existingFriendship->status === Friendship::STATUS_ACCEPTED) {
         return response()->json([
           'status' => 'error',
-          'message' => '既に友達です'
+          'message' => 'すでに友達です'
         ], 422);
       } elseif ($existingFriendship->status === Friendship::STATUS_PENDING) {
         // 自分が送った申請の場合とそうでない場合で分ける
@@ -222,6 +268,12 @@ class FriendshipController extends Controller
    */
   public function acceptRequest(Request $request)
   {
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
     $validator = Validator::make($request->all(), [
       'user_id' => 'required|integer|exists:users,id'
     ]);
@@ -234,7 +286,6 @@ class FriendshipController extends Controller
       ], 422);
     }
 
-    $currentUser = Auth::user();
     $userId = $request->input('user_id');
 
     $result = $currentUser->acceptFriendRequest($userId);
@@ -260,6 +311,12 @@ class FriendshipController extends Controller
    */
   public function rejectRequest(Request $request)
   {
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
     $validator = Validator::make($request->all(), [
       'user_id' => 'required|integer|exists:users,id'
     ]);
@@ -272,7 +329,6 @@ class FriendshipController extends Controller
       ], 422);
     }
 
-    $currentUser = Auth::user();
     $userId = $request->input('user_id');
 
     $result = $currentUser->rejectFriendRequest($userId);
@@ -298,6 +354,12 @@ class FriendshipController extends Controller
    */
   public function unfriend(Request $request)
   {
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
     $validator = Validator::make($request->all(), [
       'user_id' => 'required|integer|exists:users,id'
     ]);
@@ -310,7 +372,6 @@ class FriendshipController extends Controller
       ], 422);
     }
 
-    $currentUser = Auth::user();
     $friendId = $request->input('user_id');
 
     $result = $currentUser->unfriend($friendId);
@@ -336,7 +397,19 @@ class FriendshipController extends Controller
    */
   public function cancelSentRequest($requestId)
   {
-    $currentUser = Auth::user();
+    // 認証チェック
+    $currentUser = $this->getAuthenticatedUser();
+    if ($currentUser instanceof JsonResponse) {
+      return $currentUser;
+    }
+
+    // リクエストIDの基本的なバリデーション
+    if (!is_numeric($requestId) || (int)$requestId <= 0) {
+      return response()->json([
+        'status' => 'error',
+        'message' => '無効なリクエストIDです'
+      ], 422);
+    }
 
     // 指定されたIDの申請を検索（自分が送った申請に限定）
     $request = Friendship::where('id', $requestId)
