@@ -6,7 +6,7 @@
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
               <NuxtLink to="/" class="text-xl font-bold text-blue-600"
-                >Chat App</NuxtLink
+                >LumoChat</NuxtLink
               >
             </div>
           </div>

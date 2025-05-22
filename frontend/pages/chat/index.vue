@@ -43,7 +43,7 @@
               />
             </svg>
           </button>
-          <h2 class="ml-4 text-xl font-semibold">チャット</h2>
+          <h2 class="ml-4 text-xl font-semibold">LumoChat</h2>
         </div>
 
         <div

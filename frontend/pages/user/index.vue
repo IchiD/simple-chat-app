@@ -545,7 +545,7 @@
           <!-- フッター -->
           <div class="mt-8 text-center">
             <p class="text-sm text-gray-500">
-              &copy; {{ new Date().getFullYear() }} Chat App. All Rights
+              &copy; {{ new Date().getFullYear() }} LumoChat. All Rights
               Reserved.
             </p>
           </div>

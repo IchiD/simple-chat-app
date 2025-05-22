@@ -44,7 +44,7 @@
         </svg>
       </div>
 
-      <div class="ml-2 text-2xl font-bold">チャット</div>
+      <div class="ml-2 text-2xl font-bold">LumoChat</div>
       <!-- Close button for sidebar on mobile -->
       <button
         class="ml-auto mr-2 md:hidden rounded-md p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"

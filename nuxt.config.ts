@@ -4,11 +4,14 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "@nuxt/ui"],
   app: {
     head: {
-      title: "チャットアプリ",
+      title: "LumoChat",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { name: "description", content: "シンプルなチャットアプリケーション" },
+        {
+          name: "description",
+          content: "LumoChat - 光のようにつながるシンプルなチャットアプリ",
+        },
       ],
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
     },
