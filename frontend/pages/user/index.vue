@@ -18,7 +18,7 @@
             <div>
               <h1 class="text-3xl font-bold text-gray-800">ホーム</h1>
               <p v-if="authStore.user" class="text-lg text-gray-600 mt-1">
-                ようこそ、<span class="text-blue-600 font-medium">{{
+                ようこそ、<span style="color: var(--primary)">{{
                   authStore.user.name
                 }}</span
                 >さん
@@ -49,11 +49,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <NuxtLink to="/friends" class="block">
                 <div
-                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border-blue-300 border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                  style="border-color: var(--primary-light)"
                 >
                   <div class="flex items-center">
                     <div
-                      class="bg-blue-100 text-blue-700 p-3 rounded-full mr-4"
+                      style="
+                        background-color: white;
+                        color: var(--primary);
+                        border: 1px solid var(--primary-light);
+                      "
+                      class="p-3 rounded-full mr-4"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -78,10 +84,18 @@
 
               <NuxtLink to="/chat" class="block">
                 <div
-                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border-blue-300 border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                  style="border-color: var(--primary-light)"
                 >
                   <div class="flex items-center">
-                    <div class="bg-sky-100 text-sky-700 p-3 rounded-full mr-4">
+                    <div
+                      style="
+                        background-color: white;
+                        color: var(--primary);
+                        border: 1px solid var(--primary-light);
+                      "
+                      class="p-3 rounded-full mr-4"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-6 w-6"
@@ -108,15 +122,18 @@
             </div>
             <!-- フレンドID表示エリア（カラフルでモダンな表示） -->
             <div
-              class="bg-gradient-to-r from-blue-50 to-sky-50 border-l-4 border-blue-500 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+              class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+              style="border-left-color: var(--primary)"
             >
               <div class="relative">
                 <!-- 装飾用背景要素 -->
                 <div
-                  class="absolute -top-10 -right-10 w-40 h-40 bg-blue-200 rounded-full opacity-20"
+                  class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20"
+                  style="background-color: var(--primary-light)"
                 />
                 <div
-                  class="absolute -bottom-12 -left-12 w-32 h-32 bg-sky-200 rounded-full opacity-20"
+                  class="absolute -bottom-12 -left-12 w-32 h-32 rounded-full opacity-20"
+                  style="background-color: var(--primary)"
                 />
 
                 <div
@@ -124,7 +141,8 @@
                 >
                   <div class="flex-1">
                     <h3
-                      class="text-lg font-semibold text-blue-800 mb-2 flex items-center"
+                      class="text-lg font-semibold mb-2 flex items-center"
+                      style="color: var(--primary)"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -141,10 +159,12 @@
                       あなたのフレンドID
                     </h3>
                     <div
-                      class="bg-white/70 backdrop-blur-sm rounded-lg p-3 inline-block"
+                      class="bg-white border rounded-lg p-3 inline-block"
+                      style="border-color: var(--primary-light)"
                     >
                       <p
-                        class="text-2xl font-bold tracking-wider text-gray-800"
+                        class="text-2xl font-bold tracking-wider"
+                        style="color: var(--primary-dark)"
                       >
                         {{ authStore.user.friend_id || "未設定" }}
                       </p>
@@ -155,7 +175,12 @@
                   </div>
                   <button
                     v-if="authStore.user.friend_id"
-                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center"
+                    class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center"
+                    style="
+                      background-color: white;
+                      color: var(--primary);
+                      border: 1px solid var(--primary-light);
+                    "
                     @click="copyFriendId"
                   >
                     <svg
@@ -186,7 +211,8 @@
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2 text-gray-600"
+                  class="h-5 w-5 mr-2"
+                  style="color: var(--primary)"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -205,7 +231,8 @@
                     <p class="text-sm text-gray-500">メールアドレス</p>
                     <button
                       v-if="!isChangingEmail && !pendingEmailChange"
-                      class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                      class="text-sm hover:text-opacity-80 transition-colors"
+                      style="color: var(--primary)"
                       @click="isChangingEmail = true"
                     >
                       変更
@@ -300,7 +327,8 @@
                     <p class="text-sm text-gray-500">ユーザーネーム</p>
                     <button
                       v-if="!isEditingName"
-                      class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                      style="color: var(--primary)"
                       @click="editName"
                     >
                       変更
@@ -337,7 +365,8 @@
                           editingName.trim().length > 10 ||
                           editingName.trim() === authStore.user.name
                         "
-                        class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+                        class="px-3 py-1 text-sm font-medium text-white rounded-md disabled:opacity-50"
+                        style="background-color: var(--primary)"
                         @click="saveName"
                       >
                         保存
@@ -352,7 +381,8 @@
                     <p class="text-sm text-gray-500">パスワード</p>
                     <button
                       v-if="!isChangingPassword"
-                      class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                      style="color: var(--primary)"
                       @click="isChangingPassword = true"
                     >
                       変更
@@ -413,7 +443,8 @@
                         </button>
                         <button
                           type="submit"
-                          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md"
+                          class="px-4 py-2 text-sm font-medium text-white border-transparent rounded-md"
+                          style="background-color: var(--primary)"
                           :disabled="passwordChangeLoading"
                         >
                           <span v-if="passwordChangeLoading">
@@ -441,7 +472,8 @@
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2 text-gray-600"
+                  class="h-5 w-5 mr-2"
+                  style="color: var(--primary)"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -463,7 +495,8 @@
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2 text-blue-600"
+                  class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                  style="color: var(--primary)"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -479,7 +512,8 @@
                 <li class="flex items-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5"
+                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                    style="color: var(--primary)"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -496,7 +530,8 @@
                 <li class="flex items-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5"
+                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                    style="color: var(--primary)"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -511,7 +546,8 @@
                 <li class="flex items-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5"
+                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                    style="color: var(--primary)"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -526,7 +562,8 @@
                 <li class="flex items-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5"
+                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                    style="color: var(--primary)"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -540,14 +577,6 @@
                 </li>
               </ul>
             </div>
-          </div>
-
-          <!-- フッター -->
-          <div class="mt-8 text-center">
-            <p class="text-sm text-gray-500">
-              &copy; {{ new Date().getFullYear() }} LumoChat. All Rights
-              Reserved.
-            </p>
           </div>
         </div>
       </template>

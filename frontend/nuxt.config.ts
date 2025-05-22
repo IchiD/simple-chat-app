@@ -17,9 +17,13 @@ export default defineNuxtConfig({
   // アプリケーション設定
   app: {
     head: {
-      title: "Chat App",
+      title: "LumoChat",
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
+        {
+          name: "description",
+          content: "LumoChat - 光のようにつながるシンプルなチャットアプリ",
+        },
         // CSPを追加してXSS攻撃からサイトを保護
         {
           "http-equiv": "Content-Security-Policy",
@@ -31,7 +35,7 @@ export default defineNuxtConfig({
   },
 
   // CSSの設定を追加
-  css: ["~/assets/css/tailwind.css"],
+  css: ["~/assets/css/main.css"],
 
   // PostCSSの設定
   postcss: {

@@ -1,0 +1,41 @@
+:root {
+  --primary: #3cb68a; /* ティールグリーン（青緑）- ロゴの主要な色 */
+  --primary-light: #8bd5a8; /* ライトグリーン - ロゴのハイライト色 */
+  --primary-dark: #29a37a; /* 暗めのティールグリーン - ホバー状態などに */
+  --text-primary: #2c3e50; /* 暗めのグレー - 主要なテキスト色 */
+  --text-secondary: #4a5568; /* ミディアムグレー - 二次的なテキスト色 */
+  --background-light: #f8fafc; /* かなり明るめの背景色 */
+  --background: #f1f5f9; /* 明るめの背景色 */
+  --border: #e2e8f0; /* 薄いグレー - 境界線の色 */
+}
+
+/* プライマリーボタン */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+/* セカンダリーボタン */
+.btn-secondary {
+  background-color: white;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* リンク色 */
+a {
+  color: var(--primary);
+}
+
+a:hover {
+  color: var(--primary-dark);
+} 

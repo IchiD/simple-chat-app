@@ -12,6 +12,11 @@ export default defineNuxtConfig({
           name: "description",
           content: "LumoChat - 光のようにつながるシンプルなチャットアプリ",
         },
+        {
+          "http-equiv": "Content-Security-Policy",
+          content:
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost ws://localhost:*; font-src 'self'; object-src 'none'",
+        },
       ],
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
     },

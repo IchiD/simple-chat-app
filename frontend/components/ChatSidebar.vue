@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed inset-y-0 left-0 z-30 flex w-full flex-col transform border-r border-gray-200 bg-white py-8 pl-6 pr-6 transition-transform duration-300 ease-in-out md:static md:w-80 md:flex-shrink-0 md:transform-none"
+    class="fixed inset-y-0 left-0 z-30 flex w-full flex-col transform border-r border-gray-200 bg-white pb-8 pl-6 pr-6 transition-transform duration-300 ease-in-out md:static md:w-80 md:flex-shrink-0 md:transform-none"
     :class="{
       'translate-x-0': isSidebarOpen,
       '-translate-x-full': !isSidebarOpen,
@@ -24,9 +24,9 @@
         </li>
       </ul>
     </nav>
-    <div class="flex h-12 w-full flex-row items-center justify-center">
+    <div class="flex h-10 w-full flex-row items-center justify-center">
       <div
-        class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700"
+        class="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700"
       >
         <svg
           class="h-6 w-6"
@@ -44,7 +44,7 @@
         </svg>
       </div>
 
-      <div class="ml-2 text-2xl font-bold">LumoChat</div>
+      <div class="ml-2 text-xl font-bold">トークリスト</div>
       <!-- Close button for sidebar on mobile -->
       <button
         class="ml-auto mr-2 md:hidden rounded-md p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"

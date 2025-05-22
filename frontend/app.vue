@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <ToastContainer />
-    <NuxtLayout>
+    <NuxtLayout name="default">
       <NuxtPage />
     </NuxtLayout>
   </div>
