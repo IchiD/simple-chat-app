@@ -210,11 +210,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, watchEffect } from "vue";
+import { ref, computed, watch, nextTick, watchEffect, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import ChatSidebar from "~/components/ChatSidebar.vue";
+import { useToast } from "~/composables/useToast";
 
 // Type definitions (Consider moving to a shared file if not already)
 type Participant = {
@@ -293,6 +294,35 @@ const { user: authUser } = storeToRefs(authStore);
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
+const toast = useToast();
+
+// 明示的な認証チェックを追加
+onMounted(async () => {
+  try {
+    // 認証状態をチェック
+    await authStore.checkAuth();
+
+    if (!authStore.isAuthenticated) {
+      // 認証されていない場合はログインページにリダイレクト
+      toast.add({
+        title: "認証エラー",
+        description: "ログインが必要です。ログインページに移動します。",
+        color: "error",
+      });
+      router.push("/auth/login");
+      return;
+    }
+  } catch (error) {
+    console.error("Auth check error:", error);
+    toast.add({
+      title: "エラー",
+      description: "認証情報の取得に失敗しました",
+      color: "error",
+    });
+    // エラー時も認証ページへリダイレクト
+    router.push("/auth/login");
+  }
+});
 
 const currentRoomToken = computed(() => route.params.room_token as string);
 

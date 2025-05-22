@@ -634,7 +634,12 @@ onMounted(async () => {
 
     if (!authStore.isAuthenticated) {
       // 認証されていない場合はログインページにリダイレクト
-      // router.push("/auth/login");
+      toast.add({
+        title: "認証エラー",
+        description: "ログインが必要です。ログインページに移動します。",
+        color: "error",
+      });
+      return router.push("/auth/login");
     }
   } catch (error) {
     console.error("Auth check error:", error);
@@ -643,6 +648,8 @@ onMounted(async () => {
       description: "認証情報の取得に失敗しました",
       color: "error",
     });
+    // エラー時も認証ページへリダイレクト
+    return router.push("/auth/login");
   } finally {
     isLoading.value = false;
   }

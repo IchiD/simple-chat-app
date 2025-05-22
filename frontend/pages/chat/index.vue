@@ -78,10 +78,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import { useRouter } from "vue-router";
 import ChatSidebar from "~/components/ChatSidebar.vue";
+import { useToast } from "~/composables/useToast";
 
 type Participant = {
   id: number;
@@ -129,13 +130,41 @@ type PaginatedConversationsResponse = {
 };
 
 const authStore = useAuthStore();
+const router = useRouter();
+const toast = useToast();
 
 const chatSidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
 const isMobileSidebarOpen = ref(false);
 
-const router = useRouter();
-
 const config = useRuntimeConfig();
+
+// 明示的な認証チェックを追加
+onMounted(async () => {
+  try {
+    // 認証状態をチェック
+    await authStore.checkAuth();
+
+    if (!authStore.isAuthenticated) {
+      // 認証されていない場合はログインページにリダイレクト
+      toast.add({
+        title: "認証エラー",
+        description: "ログインが必要です。ログインページに移動します。",
+        color: "error",
+      });
+      router.push("/auth/login");
+      return;
+    }
+  } catch (error) {
+    console.error("Auth check error:", error);
+    toast.add({
+      title: "エラー",
+      description: "認証情報の取得に失敗しました",
+      color: "error",
+    });
+    // エラー時も認証ページへリダイレクト
+    router.push("/auth/login");
+  }
+});
 
 const {
   data: apiResponse,
