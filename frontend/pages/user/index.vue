@@ -506,7 +506,7 @@
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <span>友達のフレンドIDを使って友達を追加できます</span>
+                  <span>フレンドIDを使って友達を追加できます</span>
                 </li>
                 <li class="flex items-start">
                   <svg
@@ -536,7 +536,7 @@
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <span>画像も送信できます</span>
+                  <span>画像も送信できます（今後実装予定）</span>
                 </li>
               </ul>
             </div>
@@ -544,8 +544,9 @@
 
           <!-- フッター -->
           <div class="mt-8 text-center">
-            <p class="text-sm text-gray-500 italic">
-              今日も素敵なチャットをお楽しみください！
+            <p class="text-sm text-gray-500">
+              &copy; {{ new Date().getFullYear() }} Chat App. All Rights
+              Reserved.
             </p>
           </div>
         </div>
