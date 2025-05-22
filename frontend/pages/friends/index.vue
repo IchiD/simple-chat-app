@@ -329,7 +329,7 @@ interface User {
   id: number;
   name: string;
   friend_id: string;
-  status: number;
+  status?: number;
 }
 
 interface FriendRequest {

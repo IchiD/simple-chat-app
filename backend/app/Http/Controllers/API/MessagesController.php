@@ -25,6 +25,25 @@ class MessagesController extends Controller
       return response()->json(['message' => 'アクセス権がありません。'], 403);
     }
 
+    // ダイレクトメッセージの場合、友達関係を確認
+    if ($conversation->type === 'direct') {
+      // 会話の相手を取得
+      $otherParticipant = $conversation->participants()
+        ->where('users.id', '!=', $user->id)
+        ->first();
+
+      if ($otherParticipant) {
+        // 友達関係を確認
+        $currentFriends = $user->friends()->pluck('id')->toArray();
+        if (!in_array($otherParticipant->id, $currentFriends)) {
+          return response()->json([
+            'message' => '友達関係が解除されたため、このチャットにアクセスできません。',
+            'friendship_status' => 'unfriended'
+          ], 403);
+        }
+      }
+    }
+
     $messages = $conversation->messages()
       ->with(['sender' => function ($query) {
         $query->select('id', 'name', 'avatar', 'friend_id'); // 送信者の基本情報を選択

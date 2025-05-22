@@ -21,6 +21,9 @@ class ConversationsController extends Controller
   {
     $user = Auth::user();
 
+    // 現在の友達IDリストを取得
+    $friendIds = $user->friends()->pluck('id')->toArray();
+
     $conversations = $user->conversations()
       ->with(['participants' => function ($query) use ($user) {
         // 自分以外の参加者情報を取得
@@ -29,6 +32,18 @@ class ConversationsController extends Controller
         $query->select('id', 'name');
       }])
       ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
+      ->where(function ($query) use ($user, $friendIds) {
+        // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
+        $query->where('type', '!=', 'direct') // グループチャットは常に表示
+          ->orWhere(function ($query) use ($user, $friendIds) {
+            // ダイレクトメッセージで、かつ相手が友達である場合
+            $query->where('type', 'direct')
+              ->whereHas('participants', function ($query) use ($user, $friendIds) {
+                $query->where('users.id', '!=', $user->id)
+                  ->whereIn('users.id', $friendIds);
+              });
+          });
+      })
       ->withCount([
         'messages as unread_messages_count' => function ($query) use ($user) {
           // $query は Message モデルに対するクエリビルダ
@@ -218,6 +233,25 @@ class ConversationsController extends Controller
     // ユーザーがこの会話の参加者であることを確認
     if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
       return response()->json(['message' => 'アクセス権がありません。'], 403);
+    }
+
+    // ダイレクトメッセージの場合、友達関係を確認
+    if ($conversation->type === 'direct') {
+      // 会話の相手を取得
+      $otherParticipant = $conversation->participants()
+        ->where('users.id', '!=', $user->id)
+        ->first();
+
+      if ($otherParticipant) {
+        // 友達関係を確認
+        $currentFriends = $user->friends()->pluck('id')->toArray();
+        if (!in_array($otherParticipant->id, $currentFriends)) {
+          return response()->json([
+            'message' => '友達関係が解除されたため、このチャットにアクセスできません。',
+            'friendship_status' => 'unfriended'
+          ], 403);
+        }
+      }
     }
 
     // 既存の show メソッドと同様の情報をロード

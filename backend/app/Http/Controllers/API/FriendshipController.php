@@ -327,4 +327,36 @@ class FriendshipController extends Controller
       'message' => '友達を削除しました'
     ]);
   }
+
+  /**
+   * 送信済みの友達申請を取り消す
+   *
+   * @param int $requestId 友達申請ID
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function cancelSentRequest($requestId)
+  {
+    $currentUser = Auth::user();
+
+    // 指定されたIDの申請を検索（自分が送った申請に限定）
+    $request = Friendship::where('id', $requestId)
+      ->where('user_id', $currentUser->id)
+      ->where('status', Friendship::STATUS_PENDING)
+      ->first();
+
+    if (!$request) {
+      return response()->json([
+        'status' => 'error',
+        'message' => '取り消し可能な友達申請が見つかりません'
+      ], 404);
+    }
+
+    // 申請を削除
+    $request->delete();
+
+    return response()->json([
+      'status' => 'success',
+      'message' => '友達申請を取り消しました'
+    ]);
+  }
 }
