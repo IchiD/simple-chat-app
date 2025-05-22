@@ -4,7 +4,7 @@
       <div v-if="loading" class="py-12 text-center">
         <!-- ローディングスピナー -->
         <div
-          class="h-10 w-10 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+          class="h-10 w-10 mx-auto border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"
         />
         <p class="mt-4 text-gray-600">友達情報を読み込み中...</p>
       </div>
@@ -14,7 +14,7 @@
           <!-- ヘッダー -->
           <div class="p-6 border-b border-gray-200">
             <div class="flex justify-between items-center">
-              <h1 class="text-xl font-semibold text-gray-900">友達管理</h1>
+              <h1 class="text-xl font-semibold text-gray-900">友達</h1>
               <div class="flex space-x-2">
                 <NuxtLink
                   to="/user"
@@ -70,7 +70,7 @@
                   class="py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2"
                   :class="[
                     activeTab === 'friends'
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'border-[var(--primary)] text-[var(--primary)]'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                   ]"
                   @click="activeTab = 'friends'"
@@ -92,7 +92,7 @@
                   class="py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2"
                   :class="[
                     activeTab === 'requests'
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'border-[var(--primary)] text-[var(--primary)]'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                   ]"
                   @click="activeTab = 'requests'"
@@ -107,14 +107,14 @@
                       d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                     />
                   </svg>
-                  <span>友達申請</span>
+                  <span>受け取った友達申請</span>
                 </button>
 
                 <button
                   class="py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2"
                   :class="[
                     activeTab === 'sent'
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'border-[var(--primary)] text-[var(--primary)]'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
                   ]"
                   @click="activeTab = 'sent'"
@@ -129,7 +129,7 @@
                       d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
                     />
                   </svg>
-                  <span>送信済み</span>
+                  <span>送信済みの友達申請</span>
                 </button>
               </nav>
             </div>
@@ -169,7 +169,7 @@
                   </div>
                   <div class="flex space-x-2">
                     <button
-                      class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
                       @click="startChat(friend.id)"
                     >
                       <svg
@@ -225,7 +225,9 @@
                     d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                   />
                 </svg>
-                <p class="text-gray-500 font-medium">友達申請はありません</p>
+                <p class="text-gray-500 font-medium">
+                  受け取った友達申請はありません
+                </p>
               </div>
               <ul v-else class="divide-y divide-gray-200">
                 <li
@@ -241,7 +243,7 @@
                     </div>
                     <div class="flex space-x-2">
                       <button
-                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
                         @click="acceptRequest(request.user.id)"
                       >
                         承認
@@ -264,7 +266,7 @@
               </ul>
             </div>
 
-            <!-- 送信した友達申請 -->
+            <!-- 送信済みの友達申請 -->
             <div v-if="activeTab === 'sent'" class="mt-6">
               <div v-if="sentRequests.length === 0" class="text-center py-8">
                 <svg
@@ -282,7 +284,7 @@
                   />
                 </svg>
                 <p class="text-gray-500 font-medium">
-                  送信した友達申請はありません
+                  送信済みの友達申請はありません
                 </p>
               </div>
               <ul v-else class="divide-y divide-gray-200">
@@ -291,22 +293,22 @@
                   :key="request.id"
                   class="py-4 flex justify-between items-center"
                 >
-                  <div>
-                    <span class="font-medium text-gray-900">{{
-                      request.friend.name
-                    }}</span>
-                    <p class="text-xs text-gray-400 mt-1">
-                      {{
-                        new Date(request.created_at).toLocaleDateString()
-                      }}に申請
-                    </p>
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-900">
+                      {{ request.friend.name }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      送信日: {{ formatDate(request.created_at) }}
+                    </div>
                   </div>
-                  <button
-                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    @click="cancelRequest(request.id)"
-                  >
-                    取消
-                  </button>
+                  <div>
+                    <button
+                      class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      @click="cancelRequest(request.id)"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
                 </li>
               </ul>
             </div>
@@ -314,15 +316,86 @@
         </div>
       </template>
     </div>
+
+    <!-- 友達追加確認モーダル -->
+    <div
+      v-if="showAddFriendModal"
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-xl transform transition-all"
+      >
+        <div class="p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">友達追加</h3>
+          <p class="text-gray-600 mb-6">
+            <span class="font-semibold">{{ pendingFriend?.name }}</span>
+            さんに友達申請を送信しますか？
+          </p>
+          <div class="flex justify-end space-x-2">
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              @click="showAddFriendModal = false"
+            >
+              キャンセル
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
+              @click="addFriend"
+            >
+              送信する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 友達削除確認モーダル -->
+    <div
+      v-if="showUnfriendModal"
+      class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-xl transform transition-all"
+      >
+        <div class="p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">友達削除</h3>
+          <p class="text-gray-600 mb-6">
+            <span class="font-semibold">{{
+              friends.find((f) => f.id === pendingUnfriendId)?.name
+            }}</span>
+            さんを友達から削除しますか？
+          </p>
+          <div class="flex justify-end space-x-2">
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              @click="showUnfriendModal = false"
+            >
+              キャンセル
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              @click="confirmUnfriend"
+            >
+              削除する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useApi } from "../../composables/useApi";
 import { useToast } from "../../composables/useToast";
-import { useAuthStore } from "~/stores/auth";
 import { useRouter } from "vue-router";
+import { formatDistanceToNow } from "date-fns";
+import { ja } from "date-fns/locale";
 
 // 型定義
 interface User {
@@ -341,12 +414,29 @@ interface FriendRequest {
   status: number;
 }
 
-// Conversation 型定義 (チャットページから持ってくるか、共通化が必要)
-type Conversation = {
-  id: number;
-  room_token: string;
-  // 他のプロパティも必要に応じて追加
-};
+// APIレスポンス型定義
+interface ApiResponse<T> {
+  status: string;
+  message?: string;
+  data?: T;
+}
+
+// 特定のAPIレスポンス型
+interface FriendsResponse extends ApiResponse<User[]> {
+  friends?: User[]; // 後方互換性のため
+}
+
+interface RequestsResponse extends ApiResponse<FriendRequest[]> {
+  received_requests?: FriendRequest[]; // 後方互換性のため
+}
+
+interface SentRequestsResponse extends ApiResponse<FriendRequest[]> {
+  sent_requests?: FriendRequest[]; // 後方互換性のため
+}
+
+interface ConversationResponse extends ApiResponse<{ room_token: string }> {
+  room_token?: string; // 後方互換性のため
+}
 
 // ページメタデータ
 definePageMeta({
@@ -357,7 +447,6 @@ definePageMeta({
 // API関連の設定
 const { api } = useApi();
 const toast = useToast();
-const authStore = useAuthStore();
 const router = useRouter();
 
 // 状態管理
@@ -367,31 +456,44 @@ const friendRequests = ref<FriendRequest[]>([]);
 const sentRequests = ref<FriendRequest[]>([]);
 const activeTab = ref("friends");
 
-// データ読み込み
-const fetchData = async () => {
+// モーダル関連の状態
+const showAddFriendModal = ref(false);
+const pendingFriend = ref<User | null>(null);
+const showUnfriendModal = ref(false);
+const pendingUnfriendId = ref<number | null>(null);
+
+// 初期データ読み込み
+onMounted(async () => {
+  await refreshData();
+});
+
+// データのリフレッシュ
+const refreshData = async () => {
   loading.value = true;
   try {
-    // 友達一覧を取得
-    const friendsResponse = await api<{ friends: User[] }>("/friends");
-    friends.value = friendsResponse.friends;
+    const [friendsData, requestsData, sentData] = await Promise.all([
+      api<FriendsResponse>("/friends"),
+      api<RequestsResponse>("/friends/requests/received"),
+      api<SentRequestsResponse>("/friends/requests/sent"),
+    ]);
 
-    // 受け取った友達申請を取得
-    const receivedRequestsResponse = await api<{
-      received_requests: FriendRequest[];
-    }>("/friends/requests/received");
-    friendRequests.value = receivedRequestsResponse.received_requests;
-    console.log("受け取った友達申請:", friendRequests.value);
+    console.log("Friends API response:", friendsData);
+    console.log("Requests API response:", requestsData);
+    console.log("Sent requests API response:", sentData);
 
-    // 送信した友達申請を取得
-    const sentRequestsResponse = await api<{ sent_requests: FriendRequest[] }>(
-      "/friends/requests/sent"
-    );
-    sentRequests.value = sentRequestsResponse.sent_requests;
-  } catch (error) {
+    // API レスポンスの構造に合わせて処理
+    // data プロパティがある場合はそれを使用し、ない場合は従来のプロパティを使用
+    friends.value = friendsData.data || friendsData.friends || [];
+    friendRequests.value =
+      requestsData.data || requestsData.received_requests || [];
+    sentRequests.value = sentData.data || sentData.sent_requests || [];
+
+    console.log("Friends array after processing:", friends.value);
+  } catch (error: unknown) {
     console.error("Error fetching friend data:", error);
     toast.add({
       title: "エラー",
-      description: "友達情報の取得に失敗しました",
+      description: extractErrorMessage(error, "友達情報の取得に失敗しました"),
       color: "error",
     });
   } finally {
@@ -399,184 +501,233 @@ const fetchData = async () => {
   }
 };
 
-// 友達申請の送信
-const sendFriendRequest = async (userId: number, message: string = "") => {
+// 日付フォーマット
+const formatDate = (dateString: string) => {
   try {
-    await api("/friends/request", {
+    const date = new Date(dateString);
+    return formatDistanceToNow(date, {
+      addSuffix: true,
+      locale: ja,
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// 友達選択ハンドラー
+const handleFriendSelected = (user: User) => {
+  pendingFriend.value = user;
+  showAddFriendModal.value = true;
+};
+
+// APIからのエラーメッセージを抽出するユーティリティ関数
+const extractErrorMessage = (
+  error: unknown,
+  defaultMessage: string
+): string => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "data" in error &&
+    typeof error.data === "object" &&
+    error.data !== null &&
+    "message" in error.data
+  ) {
+    return error.data.message as string;
+  } else if (error instanceof Error) {
+    return error.message;
+  }
+  return defaultMessage;
+};
+
+// 友達追加
+const addFriend = async () => {
+  if (!pendingFriend.value) return;
+
+  try {
+    const response = await api<ApiResponse<void>>("/friends/requests", {
       method: "POST",
-      body: { user_id: userId, message },
+      body: { user_id: pendingFriend.value.id },
+    });
+
+    // レスポンスに含まれるメッセージをそのまま表示
+    toast.add({
+      title: "成功",
+      description: response.message || "友達申請を送信しました",
+      color: "success",
+    });
+
+    // 申請リストの更新
+    await refreshData();
+  } catch (error: unknown) {
+    console.error("Error adding friend:", error);
+
+    toast.add({
+      title: "エラー",
+      description: extractErrorMessage(error, "友達申請の送信に失敗しました"),
+      color: "error",
+    });
+  } finally {
+    showAddFriendModal.value = false;
+    pendingFriend.value = null;
+  }
+};
+
+// 友達削除モーダル表示
+const unfriend = (userId: number) => {
+  pendingUnfriendId.value = userId;
+  showUnfriendModal.value = true;
+};
+
+// 友達削除の確認と実行
+const confirmUnfriend = async () => {
+  if (!pendingUnfriendId.value) return;
+
+  try {
+    const response = await api<ApiResponse<void>>(`/friends/unfriend`, {
+      method: "DELETE",
+      body: { user_id: pendingUnfriendId.value },
     });
 
     toast.add({
       title: "成功",
-      description: "友達申請を送信しました",
+      description: response.message || "友達を削除しました",
       color: "success",
     });
 
-    await fetchData(); // データを再取得
-  } catch (error) {
-    console.error("Error sending friend request:", error);
+    friends.value = friends.value.filter(
+      (f) => f.id !== pendingUnfriendId.value
+    );
+  } catch (error: unknown) {
+    console.error("Error removing friend:", error);
+
     toast.add({
       title: "エラー",
-      description: "友達申請の送信に失敗しました",
+      description: extractErrorMessage(error, "友達の削除に失敗しました"),
       color: "error",
     });
+  } finally {
+    showUnfriendModal.value = false;
+    pendingUnfriendId.value = null;
   }
 };
 
-// 友達申請を承認
+// 友達申請の承認
 const acceptRequest = async (userId: number) => {
   try {
-    await api("/friends/accept", {
+    const response = await api<ApiResponse<void>>(`/friends/requests/accept`, {
       method: "POST",
       body: { user_id: userId },
     });
 
     toast.add({
       title: "成功",
-      description: "友達申請を承認しました",
+      description: response.message || "友達申請を承認しました",
       color: "success",
     });
 
-    await fetchData(); // データを再取得
-  } catch (error) {
+    await refreshData();
+  } catch (error: unknown) {
     console.error("Error accepting friend request:", error);
+
     toast.add({
       title: "エラー",
-      description: "友達申請の承認に失敗しました",
+      description: extractErrorMessage(error, "友達申請の承認に失敗しました"),
       color: "error",
     });
   }
 };
 
-// 友達申請を拒否
+// 友達申請の拒否
 const rejectRequest = async (userId: number) => {
   try {
-    await api("/friends/reject", {
+    const response = await api<ApiResponse<void>>(`/friends/requests/reject`, {
       method: "POST",
       body: { user_id: userId },
     });
 
     toast.add({
       title: "成功",
-      description: "友達申請を拒否しました",
-      color: "info",
+      description: response.message || "友達申請を拒否しました",
+      color: "success",
     });
 
-    await fetchData(); // データを再取得
-  } catch (error) {
+    friendRequests.value = friendRequests.value.filter(
+      (req) => req.user.id !== userId
+    );
+  } catch (error: unknown) {
     console.error("Error rejecting friend request:", error);
+
     toast.add({
       title: "エラー",
-      description: "友達申請の拒否に失敗しました",
+      description: extractErrorMessage(error, "友達申請の拒否に失敗しました"),
       color: "error",
     });
   }
 };
 
-// 友達を削除
-const unfriend = async (userId: number) => {
-  try {
-    await api("/friends/unfriend", {
-      method: "DELETE",
-      body: { user_id: userId },
-    });
-
-    toast.add({
-      title: "成功",
-      description: "友達を削除しました",
-      color: "info",
-    });
-
-    await fetchData(); // データを再取得
-  } catch (error) {
-    console.error("Error unfriending user:", error);
-    toast.add({
-      title: "エラー",
-      description: "友達の削除に失敗しました",
-      color: "error",
-    });
-  }
-};
-
-// 送信した友達申請の取り消し
+// 送信済み友達申請のキャンセル
 const cancelRequest = async (requestId: number) => {
   try {
-    await api(`/friends/cancel/${requestId}`, {
-      method: "DELETE",
-    });
+    const response = await api<ApiResponse<void>>(
+      `/friends/requests/cancel/${requestId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     toast.add({
       title: "成功",
-      description: "友達申請を取り消しました",
-      color: "info",
+      description: response.message || "友達申請をキャンセルしました",
+      color: "success",
     });
 
-    await fetchData(); // データを再取得
-  } catch (error) {
+    sentRequests.value = sentRequests.value.filter(
+      (req) => req.id !== requestId
+    );
+  } catch (error: unknown) {
     console.error("Error canceling friend request:", error);
+
     toast.add({
       title: "エラー",
-      description: "友達申請の取り消しに失敗しました",
+      description: extractErrorMessage(
+        error,
+        "友達申請のキャンセルに失敗しました"
+      ),
       color: "error",
     });
   }
 };
 
-// 検索結果の友達を選択した時の処理
-const handleFriendSelected = (user: User) => {
-  if (user) {
-    // 確認ダイアログを表示
-    if (confirm(`${user.name}さんに友達申請を送りますか？`)) {
-      sendFriendRequest(user.id);
-    }
-  }
-};
-
-// チャット開始処理
+// チャット開始
 const startChat = async (friendId: number) => {
-  if (!authStore.user?.id) {
-    toast.add({
-      title: "エラー",
-      description: "ログインしていません。",
-      color: "error",
-    });
-    return;
-  }
-
   try {
-    const response = await api<Conversation>("/conversations", {
+    const response = await api<ConversationResponse>("/conversations", {
       method: "POST",
-      body: {
-        recipient_id: friendId,
-      },
+      body: { recipient_id: friendId },
     });
 
-    if (response && response.room_token) {
-      router.push(`/chat/${response.room_token}/`);
+    if (response.room_token || (response.data && response.data.room_token)) {
+      const roomToken = response.room_token || response.data?.room_token;
+      router.push(`/chat/${roomToken}`);
     } else {
-      throw new Error("チャットルームの取得に失敗しました。");
+      throw new Error(
+        response.message || "チャットルームのトークンが取得できませんでした"
+      );
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error starting chat:", error);
-    let errorMessage = "チャットの開始に失敗しました。";
-    if (error instanceof Error && error.message) {
-      errorMessage = error.message;
-    }
-    // APIからのエラーメッセージを優先して表示 (もしあれば)
-    const apiError = error as { data?: { message?: string } };
-    if (apiError?.data?.message) {
-      errorMessage = apiError.data.message;
-    }
 
     toast.add({
       title: "エラー",
-      description: errorMessage,
+      description: extractErrorMessage(error, "チャットの開始に失敗しました"),
       color: "error",
     });
   }
 };
 
-// 初期データ読み込み
-onMounted(fetchData);
+// タブ切り替え時にページの最上部にスクロール
+watch(activeTab, () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 </script>

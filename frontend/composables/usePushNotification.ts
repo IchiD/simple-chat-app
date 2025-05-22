@@ -183,7 +183,7 @@ export function usePushNotification() {
       state.value.isSubscribed = true;
       toast.add({
         title: "通知設定完了",
-        description: "プッシュ通知の購読が完了しました",
+        description: "プッシュ通知を有効にしました",
         color: "success",
       });
 
@@ -191,11 +191,11 @@ export function usePushNotification() {
     } catch (error) {
       console.error("購読エラー:", error);
       state.value.error =
-        "通知の有効化処理中にエラーが発生しました。プッシュ通知は Chrome、Firefox、Edge、Safariなどの最新ブラウザで利用できます。プライベートブラウジングモードではご利用いただけません。";
+        "プッシュ通知の有効化処理中にエラーが発生しました。プッシュ通知は Chrome、Firefox、Edge、Safariなどの最新ブラウザで利用できます。また、プライベートブラウジングモードではご利用いただけません。";
       toast.add({
         title: "エラー",
         description:
-          "通知の設定に失敗しました。最新のChrome、Firefox、Edge、Safariをご利用ください。",
+          "プッシュ通知の設定に失敗しました。最新のChrome、Firefox、Edge、Safariをご利用ください。",
         color: "error",
       });
 
@@ -234,18 +234,18 @@ export function usePushNotification() {
 
       toast.add({
         title: "通知設定解除",
-        description: "プッシュ通知の購読を解除しました",
+        description: "プッシュ通知を無効にしました",
         color: "success",
       });
 
       return result;
     } catch (error) {
-      console.error("購読解除エラー:", error);
-      state.value.error = "購読解除に失敗しました";
+      console.error("プッシュ通知の無効化エラー:", error);
+      state.value.error = "プッシュ通知の無効化に失敗しました";
 
       toast.add({
         title: "エラー",
-        description: "通知設定の解除に失敗しました",
+        description: "プッシュ通知の無効化に失敗しました",
         color: "error",
       });
 

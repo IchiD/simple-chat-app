@@ -42,16 +42,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/search', [FriendshipController::class, 'searchByFriendId']);
 
     // 友達申請の送信
-    Route::post('/request', [FriendshipController::class, 'sendRequest']);
+    Route::post('/requests', [FriendshipController::class, 'sendRequest']);
 
     // 友達申請の承認/拒否
-    Route::post('/accept', [FriendshipController::class, 'acceptRequest']);
-    Route::post('/reject', [FriendshipController::class, 'rejectRequest']);
+    Route::post('requests/accept', [FriendshipController::class, 'acceptRequest']);
+    Route::post('requests/reject', [FriendshipController::class, 'rejectRequest']);
 
     // 友達削除
     Route::delete('/unfriend', [FriendshipController::class, 'unfriend']);
     // 送信済み申請の取り消し (FriendshipController にメソッド追加が必要)
-    Route::delete('/cancel/{requestId}', [FriendshipController::class, 'cancelSentRequest']);
+    Route::delete('/requests/cancel/{requestId}', [FriendshipController::class, 'cancelSentRequest']);
   });
 
   // チャット機能のAPI (会話とメッセージ)

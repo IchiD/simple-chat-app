@@ -31,4 +31,14 @@ export default defineNuxtConfig({
     strict: true,
   },
   ssr: false,
+  postcss: {
+    plugins: {
+      "@tailwindcss/postcss": {},
+      autoprefixer: {},
+    },
+  },
+  tailwindcss: {
+    exposeConfig: true,
+    viewer: true,
+  },
 });

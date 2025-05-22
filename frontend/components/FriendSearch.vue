@@ -6,7 +6,7 @@
           v-model="searchTerm"
           type="text"
           placeholder="6桁のフレンドIDを入力"
-          class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)]"
           maxlength="6"
           pattern="[A-Za-z0-9]{6}"
           title="6桁の英数字を入力してください"
@@ -15,7 +15,7 @@
       </div>
       <button
         type="submit"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
         :disabled="isLoading"
       >
         <svg
@@ -71,7 +71,7 @@
             <div class="text-sm text-gray-500">ID: {{ result.friend_id }}</div>
           </div>
           <button
-            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
             @click="selectFriend(result)"
           >
             選択
@@ -122,6 +122,8 @@ const searchFriend = async () => {
   try {
     // レスポンスの型を修正
     type SearchResponse = {
+      status?: string;
+      message?: string;
       user?: User;
       users?: User[];
       friendship_status?: number;
@@ -131,6 +133,18 @@ const searchFriend = async () => {
       method: "POST",
       body: { friend_id: searchTerm.value.trim() },
     });
+
+    // エラーメッセージがあれば表示
+    if (response.status === "error" && response.message) {
+      toast.add({
+        title: "エラー",
+        description: response.message,
+        color: "error",
+      });
+      searchResults.value = [];
+      hasSearched.value = true;
+      return;
+    }
 
     // レスポンスの形式に合わせて処理
     if (response.user) {
@@ -145,11 +159,23 @@ const searchFriend = async () => {
     }
 
     hasSearched.value = true;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error searching for friends:", error);
+
+    // APIからのエラーメッセージを取得
+    let errorMsg = "友達の検索中にエラーが発生しました";
+
+    // @ts-expect-error - エラーオブジェクトの構造を確認
+    if (error && error.data && error.data.message) {
+      // @ts-expect-error - APIエラーレスポンスからメッセージを取得するため、型安全性を一時的に無視します
+      errorMsg = error.data.message;
+    } else if (error instanceof Error) {
+      errorMsg = error.message;
+    }
+
     toast.add({
       title: "エラー",
-      description: "友達の検索中にエラーが発生しました",
+      description: errorMsg,
       color: "error",
     });
   } finally {
