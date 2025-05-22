@@ -55,7 +55,8 @@ export function usePushNotification() {
   const initialize = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
       state.value.isSupported = false;
-      state.value.error = "このブラウザはプッシュ通知をサポートしていません";
+      state.value.error =
+        "このブラウザはプッシュ通知をサポートしていません。最新のChrome、Firefox、Edge、Safariをご利用ください。プライベートブラウジングモードではご利用いただけません。";
       return false;
     }
 
@@ -86,7 +87,8 @@ export function usePushNotification() {
       return true;
     } catch (error) {
       console.error("初期化エラー:", error);
-      state.value.error = "初期化中にエラーが発生しました";
+      state.value.error =
+        "通知機能の初期化中にエラーが発生しました。最新のブラウザを使用しているか、プライベートブラウジングモードになっていないか確認してください。";
       return false;
     }
   };
@@ -188,10 +190,12 @@ export function usePushNotification() {
       return true;
     } catch (error) {
       console.error("購読エラー:", error);
-      state.value.error = "通知の購読処理中にエラーが発生しました";
+      state.value.error =
+        "通知の有効化処理中にエラーが発生しました。プッシュ通知は Chrome、Firefox、Edge、Safariなどの最新ブラウザで利用できます。プライベートブラウジングモードではご利用いただけません。";
       toast.add({
         title: "エラー",
-        description: "通知の設定に失敗しました",
+        description:
+          "通知の設定に失敗しました。最新のChrome、Firefox、Edge、Safariをご利用ください。",
         color: "error",
       });
 
