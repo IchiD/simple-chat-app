@@ -166,9 +166,6 @@
                     <span class="font-medium text-gray-900">{{
                       friend.name
                     }}</span>
-                    <p class="text-sm text-gray-500">
-                      ID: {{ friend.friend_id }}
-                    </p>
                   </div>
                   <div class="flex space-x-2">
                     <button
@@ -241,9 +238,6 @@
                       <span class="font-medium text-gray-900">{{
                         request.user.name
                       }}</span>
-                      <p class="text-sm text-gray-500">
-                        ID: {{ request.user.friend_id }}
-                      </p>
                     </div>
                     <div class="flex space-x-2">
                       <button
@@ -301,9 +295,6 @@
                     <span class="font-medium text-gray-900">{{
                       request.friend.name
                     }}</span>
-                    <p class="text-sm text-gray-500">
-                      ID: {{ request.friend.friend_id }}
-                    </p>
                     <p class="text-xs text-gray-400 mt-1">
                       {{
                         new Date(request.created_at).toLocaleDateString()

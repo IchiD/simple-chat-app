@@ -78,7 +78,7 @@ class MessagesController extends Controller
 
     // プッシュ通知の送信
     // 同じ会話の参加者全員（自分以外）に通知を送信する
-    $participants = $conversation->participants()
+    $participants = $conversation->conversationParticipants()
       ->where('user_id', '!=', $user->id)
       ->with('user')
       ->get();
@@ -94,12 +94,14 @@ class MessagesController extends Controller
 
       foreach ($participants as $participant) {
         // 各参加者にプッシュ通知を送信
-        $notificationController->sendNewMessageNotification(
-          $participant->user,
-          $user->name,
-          $messagePreview,
-          $conversation->id
-        );
+        if ($participant->user) {
+          $notificationController->sendNewMessageNotification(
+            $participant->user,
+            $user->name,
+            $messagePreview,
+            $conversation->id
+          );
+        }
       }
     }
 
