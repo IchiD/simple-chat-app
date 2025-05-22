@@ -11,41 +11,54 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   }
 
   const authStore = useAuthStore();
+  const toast = useToast();
 
-  // /auth/ で始まるパス（認証関連ページ）へのアクセスで、かつ認証済みの場合はユーザーページにリダイレクト
-  if (to.path.startsWith("/auth/")) {
-    // メール認証確認ページはリダイレクト対象外とする
-    if (to.path === "/auth/verify-email-change") {
-      console.log("メール認証確認ページなのでリダイレクトをスキップ:", to.path);
-      return;
+  // 認証免除パス - 認証不要のパスリスト
+  const exemptPaths = [
+    "/", // トップページ
+    "/auth/login", // ログインページ
+    "/auth/register", // 登録ページ
+    "/auth/verify-email", // メール認証ページ
+    "/auth/forgot-password", // パスワードリセットページ
+    "/auth/reset-password", // パスワードリセットページ
+    "/auth/verify-email-change", // メール変更認証ページ
+  ];
+
+  // 任意のパスが免除パスのプレフィックスで始まるかチェック
+  const isExemptPath = (path: string) => {
+    return exemptPaths.some(
+      (exemptPath) => path === exemptPath || path.startsWith(`${exemptPath}/`)
+    );
+  };
+
+  // 認証不要のパスはチェックをスキップ
+  if (isExemptPath(to.path)) {
+    console.log("認証チェック免除パスのためスキップ:", to.path);
+
+    // ログイン状態で認証ページにアクセスしている場合はリダイレクト
+    if (
+      to.path.startsWith("/auth/") &&
+      to.path !== "/auth/verify-email-change"
+    ) {
+      await authStore.checkAuth();
+
+      if (authStore.isAuthenticated) {
+        console.log(
+          "認証済みユーザーの認証ページアクセスを/userにリダイレクト:",
+          to.path
+        );
+        return navigateTo("/user");
+      }
     }
 
-    await authStore.checkAuth();
-
-    if (authStore.isAuthenticated) {
-      console.log(
-        "認証済みユーザーの認証ページアクセスを/userにリダイレクト:",
-        to.path
-      );
-      return navigateTo("/user");
-    }
-
-    // 認証ページでは認証チェックをスキップ
-    console.log("認証ページなのでチェックをスキップ:", to.path);
     return;
   }
 
-  // インデックスページには認証チェックしない
-  if (to.path === "/") {
-    console.log("認証チェックをスキップ:", to.path);
-    return;
-  }
-
+  // 認証状態をチェック（ページの保護）
   console.log("ミドルウェア認証チェック開始:", {
     isAuthenticated: authStore.isAuthenticated,
   });
 
-  // 認証状態をチェック
   if (!authStore.isAuthenticated) {
     console.log("認証がまだ済んでいないため、checkAuth()を実行");
     await authStore.checkAuth();
@@ -54,8 +67,17 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     });
 
     if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
+      // 認証されていない場合はエラーメッセージを表示してログインページにリダイレクト
       console.log("未認証のため、ログインページにリダイレクト");
+
+      if (import.meta.client) {
+        toast.add({
+          title: "認証エラー",
+          description: "ログインが必要です。ログインページに移動します。",
+          color: "error",
+        });
+      }
+
       return navigateTo("/auth/login");
     }
   }
