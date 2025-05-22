@@ -1,5 +1,6 @@
 import { useFetch, useRuntimeConfig } from "#app";
 import { useAuthStore } from "~/stores/auth";
+import { useErrorHandler } from "~/composables/useErrorHandler";
 
 interface ApiOptions {
   method?: string;
@@ -12,6 +13,7 @@ export const useApi = () => {
   const config = useRuntimeConfig();
   const baseURL = config.public.apiBase || "http://localhost:8000/api";
   const authStore = useAuthStore();
+  const { handleApiError } = useErrorHandler();
   console.log("Current API baseURL:", baseURL);
 
   // API呼び出し用の関数
@@ -45,21 +47,30 @@ export const useApi = () => {
     }
     console.log("[useApi] fetchHeaders:", fetchHeaders);
 
-    // API呼び出し実行
-    const { data, error } = await useFetch<T>(url, {
-      method,
-      headers: fetchHeaders,
-      body: body ? JSON.stringify(body) : undefined,
-      params,
-    });
+    try {
+      // API呼び出し実行
+      const { data, error } = await useFetch<T>(url, {
+        // Nuxt 3のuseFetchでは、オプションがfetchオプションとしてネストされる
+        key: endpoint,
+        method: method,
+        headers: fetchHeaders,
+        body: body ? body : undefined,
+        params: params,
+        // TypeScriptの型エラーを回避するためにasを使用
+      } as any);
 
-    // エラーハンドリング
-    if (error.value) {
-      console.error(`API Error (${url}):`, error.value);
-      throw error.value;
+      // エラーハンドリング
+      if (error.value) {
+        console.error(`API Error (${url}):`, error.value);
+        throw error.value;
+      }
+
+      return data.value as T;
+    } catch (error) {
+      // 統合されたエラーハンドラーでエラーを処理
+      handleApiError(error);
+      throw error;
     }
-
-    return data.value as T;
   };
 
   return { api };
