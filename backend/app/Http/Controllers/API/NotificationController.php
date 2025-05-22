@@ -114,15 +114,16 @@ class NotificationController extends Controller
    * @param string $senderName 送信者名
    * @param string $messagePreview メッセージプレビュー
    * @param int $roomId チャットルームID
+   * @param string $roomToken チャットルームトークン
    * @return void
    */
-  public function sendNewMessageNotification(User $recipient, string $senderName, string $messagePreview, int $roomId): void
+  public function sendNewMessageNotification(User $recipient, string $senderName, string $messagePreview, int $roomId, string $roomToken): void
   {
     $notification = new PushNotification(
       $senderName . 'からのメッセージ',
       $messagePreview,
       [
-        'url' => '/chat/' . $roomId,
+        'url' => '/chat/' . $roomToken,
         'type' => 'new_message',
         'room_id' => $roomId,
         'timestamp' => now()->timestamp

@@ -118,7 +118,8 @@ class MessagesController extends Controller
             $participant->user,
             $user->name,
             $messagePreview,
-            $conversation->id
+            $conversation->id,
+            $conversation->room_token
           );
         }
       }
