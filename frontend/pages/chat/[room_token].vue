@@ -122,12 +122,7 @@
                       "
                     >
                       <div
-                        class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
-                        :class="
-                          isMyMessage(message.sender_id)
-                            ? 'bg-white text-[var(--primary)]'
-                            : 'bg-gray-300'
-                        "
+                        class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0 bg-gray-300"
                       >
                         {{ getAvatarInitials(message.sender?.name) }}
                       </div>

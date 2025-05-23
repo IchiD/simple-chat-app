@@ -73,7 +73,7 @@
             <div class="border-b border-gray-200">
               <nav class="-mb-px flex">
                 <button
-                  class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
+                  class="py-3 px-3 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
                   :class="[
                     activeTab === 'friends'
                       ? 'border-[var(--primary)] text-[var(--primary)]'
@@ -96,7 +96,7 @@
                 </button>
 
                 <button
-                  class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
+                  class="py-3 px-3 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
                   :class="[
                     activeTab === 'requests'
                       ? 'border-[var(--primary)] text-[var(--primary)]'
@@ -119,7 +119,7 @@
                 </button>
 
                 <button
-                  class="py-3 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
+                  class="py-3 px-3 border-b-2 font-medium text-xs sm:text-sm flex items-center justify-center flex-1 sm:flex-none sm:space-x-2"
                   :class="[
                     activeTab === 'sent'
                       ? 'border-[var(--primary)] text-[var(--primary)]'

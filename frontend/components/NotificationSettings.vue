@@ -95,7 +95,7 @@
           ]"
           :style="
             state.isSubscribed
-              ? 'background-color: #e11d48;'
+              ? 'background-color: #ef4444;'
               : 'background-color: var(--primary);'
           "
           @click="toggleSubscription"
