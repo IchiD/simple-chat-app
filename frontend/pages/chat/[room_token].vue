@@ -24,7 +24,7 @@
         <!-- Header for Chat Area (with toggle button for mobile) -->
         <div class="mb-4 flex items-center md:hidden">
           <button
-            class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--primary)]"
             @click="openMobileSidebar"
           >
             <span class="sr-only">Open sidebar</span>
@@ -125,7 +125,7 @@
                         class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
                         :class="
                           isMyMessage(message.sender_id)
-                            ? 'bg-indigo-500 text-white'
+                            ? 'bg-white text-[var(--primary)]'
                             : 'bg-gray-300'
                         "
                       >
@@ -135,7 +135,7 @@
                         class="relative ml-3 mr-3 text-sm py-2 px-4 shadow rounded-xl"
                         :class="
                           isMyMessage(message.sender_id)
-                            ? 'bg-indigo-100'
+                            ? 'bg-[var(--primary-light)]/30'
                             : 'bg-white'
                         "
                       >
@@ -169,13 +169,15 @@
                 @keydown="handleKeydown"
               />
               <button
-                :disabled="
-                  !currentConversation ||
-                  !newMessageText.trim() ||
-                  sendingMessage ||
-                  isLoadingInitialData
-                "
-                class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit"
+                class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white font-bold focus:outline-none"
+                style="background-color: var(--primary)"
+                :style="{
+                  'background-color': sendingMessage
+                    ? 'var(--text-secondary)'
+                    : 'var(--primary)',
+                }"
+                :disabled="sendingMessage || !newMessageText.trim()"
                 @click="sendMessage"
               >
                 <svg

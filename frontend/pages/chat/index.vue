@@ -24,7 +24,7 @@
         <!-- Header for Chat Area (with toggle button for mobile) -->
         <div class="mb-4 flex items-center md:hidden">
           <button
-            class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--primary)]"
             @click="openMobileSidebar"
           >
             <span class="sr-only">Open sidebar</span>

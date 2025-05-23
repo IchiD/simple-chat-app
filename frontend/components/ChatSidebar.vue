@@ -15,7 +15,7 @@
             class="inline-block py-3 px-2 text-sm font-medium text-center border-b-2"
             :class="[
               route.path === tab.path
-                ? 'text-indigo-600 border-indigo-600 active'
+                ? 'text-[var(--primary)] border-[var(--primary)] active'
                 : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300',
             ]"
           >
@@ -26,7 +26,8 @@
     </nav>
     <div class="flex h-10 w-full flex-row items-center justify-center">
       <div
-        class="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700"
+        class="flex h-9 w-9 items-center justify-center rounded-2xl text-white"
+        style="background-color: var(--primary-light)"
       >
         <svg
           class="h-6 w-6"
@@ -47,7 +48,7 @@
       <div class="ml-2 text-xl font-bold">トークリスト</div>
       <!-- Close button for sidebar on mobile -->
       <button
-        class="ml-auto mr-2 md:hidden rounded-md p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        class="ml-auto mr-2 md:hidden rounded-md p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--primary)]"
         @click="isSidebarOpen = false"
       >
         <span class="sr-only">Close sidebar</span>
@@ -72,7 +73,8 @@
     <div class="flex flex-col mt-4 overflow-y-auto">
       <div v-if="pending" class="flex justify-center items-center h-48">
         <svg
-          class="animate-spin h-8 w-8 text-indigo-600"
+          class="animate-spin h-8 w-8"
+          style="color: var(--primary)"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -104,14 +106,16 @@
       <button
         v-for="convo in conversations"
         :key="convo.id"
-        class="flex flex-row items-start hover:bg-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        class="flex flex-row items-start hover:bg-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         :class="{
-          'bg-indigo-100': selectedConversationRoomToken === convo.room_token,
+          'bg-[var(--primary-light)]/20':
+            selectedConversationRoomToken === convo.room_token,
         }"
         @click="onConversationClick(convo)"
       >
         <div
-          class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-semibold"
+          class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold"
+          style="background-color: var(--primary)"
         >
           <img
             v-if="convo.participants[0]?.avatar"
