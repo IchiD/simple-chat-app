@@ -132,7 +132,7 @@
                         {{ getAvatarInitials(message.sender?.name) }}
                       </div>
                       <div
-                        class="relative ml-3 mr-3 text-sm py-2 px-4 shadow rounded-xl"
+                        class="relative ml-3 mr-3 text-sm py-2 px-4 shadow rounded-xl bg-white"
                         :class="
                           isMyMessage(message.sender_id)
                             ? 'bg-[var(--primary-light)]/30'
