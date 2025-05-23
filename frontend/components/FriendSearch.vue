@@ -1,12 +1,15 @@
 <template>
   <div>
-    <form class="flex items-center space-x-2" @submit.prevent="searchFriend">
+    <form
+      class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2"
+      @submit.prevent="searchFriend"
+    >
       <div class="flex-1">
         <input
           v-model="searchTerm"
           type="text"
           placeholder="6桁のフレンドIDを入力"
-          class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)]"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)] text-sm"
           maxlength="6"
           pattern="[A-Za-z0-9]{6}"
           title="6桁の英数字を入力してください"
@@ -15,7 +18,7 @@
       </div>
       <button
         type="submit"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
+        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] w-full sm:w-auto"
         :disabled="isLoading"
       >
         <svg
@@ -58,20 +61,20 @@
 
     <div
       v-if="searchResults.length > 0"
-      class="mt-4 border rounded-md overflow-hidden"
+      class="mt-3 border rounded-md overflow-hidden"
     >
       <ul class="divide-y divide-gray-200">
         <li
           v-for="result in searchResults"
           :key="result.id"
-          class="p-4 hover:bg-gray-50 transition flex justify-between items-center"
+          class="p-3 hover:bg-gray-50 transition flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0"
         >
-          <div>
+          <div class="flex-1">
             <div class="font-medium text-gray-900">{{ result.name }}</div>
             <div class="text-sm text-gray-500">ID: {{ result.friend_id }}</div>
           </div>
           <button
-            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)]"
+            class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] w-full sm:w-auto"
             @click="selectFriend(result)"
           >
             選択
@@ -82,7 +85,7 @@
 
     <div
       v-else-if="hasSearched && !isLoading"
-      class="mt-4 p-4 bg-gray-50 rounded-md text-center text-gray-500"
+      class="mt-3 p-3 bg-gray-50 rounded-md text-center text-gray-500 text-sm"
     >
       該当するユーザーが見つかりませんでした
     </div>
