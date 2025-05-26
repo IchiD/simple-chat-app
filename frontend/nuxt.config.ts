@@ -1,6 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@nuxt/eslint", "@nuxt/image", "@pinia/nuxt"],
+  modules: [
+    "@nuxt/eslint",
+    "@nuxt/image",
+    "@pinia/nuxt",
+    "@nuxt/ui",
+    "@nuxtjs/tailwindcss",
+  ],
 
   // 互換性日付を追加
   nitro: {
@@ -34,14 +40,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // CSSの設定を追加
+  // CSSの設定
   css: ["~/assets/css/main.css"],
-
-  // PostCSSの設定
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
 });
