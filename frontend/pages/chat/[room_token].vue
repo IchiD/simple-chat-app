@@ -84,7 +84,7 @@
               >
                 <button
                   :disabled="loadingMoreMessages"
-                  class="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-100 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                  class="px-4 py-2 text-sm font-medium text-indigo-600 rounded-md focus:underline focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                   @click="loadMoreMessages"
                 >
                   <span v-if="loadingMoreMessages">読み込み中...</span>
@@ -213,6 +213,7 @@ import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import ChatSidebar from "~/components/ChatSidebar.vue";
 import { useToast } from "~/composables/useToast";
+import { useApi } from "~/composables/useApi";
 
 // Type definitions (Consider moving to a shared file if not already)
 type Participant = {
@@ -292,6 +293,7 @@ const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
 const toast = useToast();
+const { api } = useApi();
 
 // 明示的な認証チェックを追加
 onMounted(async () => {
@@ -705,18 +707,10 @@ const sendMessage = async () => {
   const textContent = newMessageText.value;
 
   try {
-    const sendMessageHeaders = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(authStore.token
-        ? { Authorization: `Bearer ${authStore.token}` }
-        : {}),
-    };
-    const sentMessageData = await $fetch<Message>(
-      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages`,
+    const sentMessageData = await api<Message>(
+      `/conversations/room/${currentConversation.value.room_token}/messages`,
       {
         method: "POST",
-        headers: sendMessageHeaders,
         body: { text_content: textContent },
       }
     );
@@ -738,7 +732,7 @@ const sendMessage = async () => {
     await scrollToBottom("smooth");
   } catch (e: unknown) {
     console.error("Error sending message:", e);
-    alert("メッセージの送信に失敗しました。");
+    // alert("メッセージの送信に失敗しました。"); // この行をコメントアウトまたは削除
   } finally {
     sendingMessage.value = false;
   }
