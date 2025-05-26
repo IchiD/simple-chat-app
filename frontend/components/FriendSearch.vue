@@ -9,7 +9,7 @@
           v-model="searchTerm"
           type="text"
           placeholder="6桁のフレンドIDを入力"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)] text-sm"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 text-sm"
           maxlength="6"
           pattern="[A-Za-z0-9]{6}"
           title="6桁の英数字を入力してください"
@@ -18,7 +18,7 @@
       </div>
       <button
         type="submit"
-        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] w-full sm:w-auto"
+        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 w-full sm:w-auto transition-colors duration-200"
         :disabled="isLoading"
       >
         <svg
@@ -44,7 +44,7 @@
         </svg>
         <svg
           v-else
-          class="h-4 w-4 mr-1"
+          class="h-4 w-4 mr-2"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
@@ -61,31 +61,31 @@
 
     <div
       v-if="searchResults.length > 0"
-      class="mt-3 border rounded-md overflow-hidden"
+      class="mt-4 border border-gray-200 rounded-lg overflow-hidden shadow-sm"
     >
-      <ul class="divide-y divide-gray-200">
-        <li
+      <div class="divide-y divide-gray-200">
+        <div
           v-for="result in searchResults"
           :key="result.id"
-          class="p-3 hover:bg-gray-50 transition flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0"
+          class="p-4 hover:bg-gray-50 transition-colors duration-200 flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0"
         >
           <div class="flex-1">
-            <div class="font-medium text-gray-900">{{ result.name }}</div>
-            <div class="text-sm text-gray-500">ID: {{ result.friend_id }}</div>
+            <h4 class="font-medium text-gray-900 text-lg">{{ result.name }}</h4>
+            <p class="text-sm text-gray-500 mt-1">ID: {{ result.friend_id }}</p>
           </div>
           <button
-            class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] w-full sm:w-auto"
+            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 w-full sm:w-auto transition-colors duration-200"
             @click="selectFriend(result)"
           >
             選択
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
 
     <div
       v-else-if="hasSearched && !isLoading"
-      class="mt-3 p-3 bg-gray-50 rounded-md text-center text-gray-500 text-sm"
+      class="mt-4 p-4 bg-gray-50 rounded-lg text-center text-gray-500 text-sm border border-gray-200"
     >
       該当するユーザーが見つかりませんでした
     </div>

@@ -1,33 +1,62 @@
 <template>
   <div class="min-h-screen flex flex-col justify-center">
-    <UCard class="mx-auto w-full max-w-md text-center">
-      <template #header>
-        <h1 class="text-xl font-semibold">メールアドレス変更確認</h1>
-      </template>
+    <div
+      class="mx-auto w-full max-w-md bg-white rounded-lg shadow-md p-6 text-center"
+    >
+      <h1 class="text-xl font-semibold mb-6">メールアドレス変更確認</h1>
 
       <div class="py-4">
         <template v-if="loading">
-          <UIcon
-            name="i-heroicons-arrow-path"
-            class="text-5xl mb-4 text-primary animate-spin"
-          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="text-5xl mb-4 text-blue-500 animate-spin mx-auto h-12 w-12"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+              clip-rule="evenodd"
+            />
+          </svg>
           <p class="mb-4">メールアドレス変更を確認中です...</p>
         </template>
 
         <template v-else-if="error">
-          <UIcon
-            name="i-heroicons-exclamation-triangle"
-            class="text-5xl mb-4 text-error"
-          />
-          <p class="mb-4 text-error">{{ error }}</p>
-          <UButton to="/user" color="primary"> プロフィールに戻る </UButton>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="text-5xl mb-4 text-red-500 mx-auto h-12 w-12"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <p class="mb-4 text-red-600">{{ error }}</p>
+          <NuxtLink
+            to="/user"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            プロフィールに戻る
+          </NuxtLink>
         </template>
 
         <template v-else-if="success">
-          <UIcon
-            name="i-heroicons-check-circle"
-            class="text-5xl mb-4 text-success"
-          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="text-5xl mb-4 text-green-500 mx-auto h-12 w-12"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
           <p class="mb-4">{{ message }}</p>
           <p v-if="email" class="text-sm mb-4">
             メールアドレスが
@@ -38,7 +67,7 @@
           </p>
         </template>
       </div>
-    </UCard>
+    </div>
   </div>
 </template>
 
@@ -46,8 +75,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useApi } from "../../composables/useApi";
-// import { useToast } from "../../composables/useToast"; // 未使用のためコメントアウト
-import { FetchError } from "ofetch"; // FetchErrorをインポート。type指定を削除
+import { FetchError } from "ofetch";
 
 // ページメタデータの設定
 definePageMeta({
@@ -58,7 +86,6 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const { api } = useApi();
-// const toast = useToast(); // 未使用のため削除
 
 const loading = ref(true);
 const error = ref<string | null>(null);
@@ -94,8 +121,6 @@ const verifyEmailChange = async (token: string) => {
   } catch (err) {
     console.error("Verification error details:", err);
     if (err instanceof FetchError) {
-      // err.data はバックエンドからのレスポンスボディの型に応じて適切にキャストする
-      // ここでは、バックエンドが { message: string, ... } のようなエラーオブジェクトを返すと仮定
       const errorData = err.data as {
         message?: string;
         errors?: Record<string, string[]>;
@@ -103,7 +128,6 @@ const verifyEmailChange = async (token: string) => {
       if (errorData && errorData.message) {
         error.value = errorData.message;
       } else if (errorData && errorData.errors) {
-        // バリデーションエラーなどの詳細がある場合
         error.value =
           Object.values(errorData.errors).flat().join(" ") ||
           "サーバーエラーが発生しました";
