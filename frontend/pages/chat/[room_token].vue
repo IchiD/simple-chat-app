@@ -1,203 +1,402 @@
 <template>
-  <div class="relative flex h-screen antialiased text-gray-800">
-    <div class="flex h-full w-full">
-      <ChatSidebar
-        ref="chatSidebarRef"
-        :conversations="sidebarConversations"
-        :pending="sidebarPending"
-        :error="sidebarError"
-        :selected-conversation-room-token="currentRoomToken"
-        @conversation-selected="handleSidebarConversationSelected"
-        @close-sidebar="closeMobileSidebar"
-      />
-
-      <!-- Overlay for mobile when sidebar is open -->
-      <div
-        v-if="isMobileSidebarOpen"
-        class="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
-        aria-hidden="true"
-        @click="closeMobileSidebar"
-      />
-
-      <!-- Main Chat Area -->
-      <div class="flex h-full flex-auto flex-col p-6">
-        <!-- Header for Chat Area (with toggle button for mobile) -->
-        <div class="mb-4 flex items-center md:hidden">
-          <button
-            class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--primary)]"
-            @click="openMobileSidebar"
-          >
-            <span class="sr-only">Open sidebar</span>
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
-          </button>
-          <h2 class="ml-4 text-xl font-semibold">
-            {{ currentConversation?.participants[0]?.name || "チャット" }}
-          </h2>
-        </div>
-
-        <div
-          class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-gray-100 p-4"
-        >
-          <!-- Messages Display Area -->
-          <div
-            ref="messageContainerRef"
-            class="flex flex-col h-full overflow-x-auto mb-4"
-          >
-            <div
-              v-if="
-                isLoadingInitialData ||
-                (!currentConversation && !conversationError && !messagesError)
-              "
-              class="flex items-center justify-center h-full"
-            >
-              <p>メッセージを読み込み中...</p>
-            </div>
-            <div
-              v-else-if="conversationError"
-              class="flex items-center justify-center h-full"
-            >
-              <p class="text-red-500">会話情報の読み込みに失敗しました。</p>
-            </div>
-            <div
-              v-else-if="!currentConversation"
-              class="flex items-center justify-center h-full"
-            >
-              <p>会話が見つかりません。</p>
-            </div>
-            <div v-else>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- ナビゲーションバー -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center">
+            <div class="flex items-center space-x-3">
               <div
-                v-if="hasNextPage && !messagesPending && !loadingMoreMessages"
-                class="text-center my-2"
+                class="h-8 w-8 bg-emerald-600 rounded-lg flex items-center justify-center"
               >
-                <button
-                  :disabled="loadingMoreMessages"
-                  class="px-4 py-2 text-sm font-medium text-indigo-600 rounded-md focus:underline focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                  @click="loadMoreMessages"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  <span v-if="loadingMoreMessages">読み込み中...</span>
-                  <span v-else>さらに読み込む</span>
-                </button>
+                  <path
+                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                  />
+                </svg>
               </div>
-              <div class="grid grid-cols-12 gap-y-2">
-                <template
-                  v-for="(message, index) in messages"
-                  :key="message.id"
+              <h1 class="text-xl font-bold text-gray-900">
+                {{ currentConversation?.participants[0]?.name || "LumoChat" }}
+              </h1>
+            </div>
+          </div>
+          <div class="flex items-center space-x-3">
+            <NuxtLink
+              to="/user"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                />
+              </svg>
+              ホーム
+            </NuxtLink>
+            <NuxtLink
+              to="/friends"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+                />
+              </svg>
+              友達
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="relative flex h-screen antialiased text-gray-800">
+      <div class="flex h-full w-full">
+        <ChatSidebar
+          ref="chatSidebarRef"
+          :conversations="sidebarConversations"
+          :pending="sidebarPending"
+          :error="sidebarError"
+          :selected-conversation-room-token="currentRoomToken"
+          @conversation-selected="handleSidebarConversationSelected"
+          @close-sidebar="closeMobileSidebar"
+        />
+
+        <!-- Overlay for mobile when sidebar is open -->
+        <div
+          v-if="isMobileSidebarOpen"
+          class="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
+          aria-hidden="true"
+          @click="closeMobileSidebar"
+        />
+
+        <!-- Main Chat Area -->
+        <div class="flex h-full flex-auto flex-col p-6">
+          <!-- Header for Chat Area (with toggle button for mobile) -->
+          <div
+            class="mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+          >
+            <div class="flex items-center">
+              <button
+                class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
+                @click="openMobileSidebar"
+              >
+                <span class="sr-only">Open sidebar</span>
+                <svg
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
                 >
-                  <div
-                    v-if="shouldShowDateSeparator(message, index, messages)"
-                    class="col-span-12 text-center my-2"
-                  >
-                    <span
-                      class="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full"
-                    >
-                      -- {{ formatDateSeparatorText(message.sent_at) }} --
-                    </span>
-                  </div>
-                  <div
-                    :class="
-                      isMyMessage(message.sender_id)
-                        ? 'col-start-6 col-end-13'
-                        : 'col-start-1 col-end-8'
-                    "
-                    class="p-3 rounded-lg"
-                  >
-                    <div
-                      :class="
-                        isMyMessage(message.sender_id)
-                          ? 'flex items-center justify-start flex-row-reverse'
-                          : 'flex flex-row items-center'
-                      "
-                    >
-                      <div
-                        class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0 bg-gray-300"
-                      >
-                        {{ getAvatarInitials(message.sender?.name) }}
-                      </div>
-                      <div
-                        class="relative ml-3 mr-3 text-sm py-2 px-4 shadow rounded-xl bg-white"
-                        :class="
-                          isMyMessage(message.sender_id)
-                            ? 'bg-[var(--primary-light)]/30'
-                            : 'bg-white'
-                        "
-                      >
-                        <div class="whitespace-pre-line">
-                          {{ message.text_content }}
-                        </div>
-                        <div
-                          class="absolute text-xs bottom-0 right-0 -mb-4 mr-2 text-gray-500 min-w-[3.5rem]"
-                        >
-                          {{ formatMessageTime(message.sent_at) }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </template>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+              </button>
+              <div class="flex items-center space-x-3">
+                <div
+                  class="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center"
+                >
+                  <span class="text-emerald-600 font-semibold text-sm">
+                    {{
+                      currentConversation?.participants[0]?.name
+                        ?.charAt(0)
+                        ?.toUpperCase() || "?"
+                    }}
+                  </span>
+                </div>
+                <div>
+                  <h2 class="text-lg font-semibold text-gray-900">
+                    {{
+                      currentConversation?.participants[0]?.name || "チャット"
+                    }}
+                  </h2>
+                  <p class="text-sm text-emerald-600">オンライン</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Message Input Area -->
-          <div class="mt-auto border-t border-gray-200 pt-4">
-            <div class="flex items-center space-x-2">
-              <textarea
-                v-model="newMessageText"
-                :disabled="
-                  !currentConversation || sendingMessage || isLoadingInitialData
+          <div
+            class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+          >
+            <!-- Messages Display Area -->
+            <div
+              ref="messageContainerRef"
+              class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+            >
+              <div
+                v-if="
+                  isLoadingInitialData ||
+                  (!currentConversation && !conversationError && !messagesError)
                 "
-                class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                rows="1"
-                placeholder="メッセージを入力..."
-                @keydown="handleKeydown"
-              />
-              <button
-                type="submit"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white font-bold focus:outline-none"
-                style="background-color: var(--primary)"
-                :style="{
-                  'background-color': sendingMessage
-                    ? 'var(--text-secondary)'
-                    : 'var(--primary)',
-                }"
-                :disabled="sendingMessage || !newMessageText.trim()"
-                @click="sendMessage"
+                class="flex items-center justify-center h-full"
               >
-                <svg
-                  v-if="sendingMessage"
-                  class="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
+                <div class="text-center">
+                  <div
+                    class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"
+                  />
+                  <p class="text-gray-600 font-medium">
+                    メッセージを読み込み中...
+                  </p>
+                </div>
+              </div>
+              <div
+                v-else-if="conversationError"
+                class="flex items-center justify-center h-full"
+              >
+                <div class="text-center">
+                  <div
+                    class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-8 w-8 text-red-600"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <p class="text-red-600 font-medium">
+                    会話情報の読み込みに失敗しました
+                  </p>
+                  <p class="text-gray-500 text-sm mt-1">
+                    ページを再読み込みしてください
+                  </p>
+                </div>
+              </div>
+              <div
+                v-else-if="!currentConversation"
+                class="flex items-center justify-center h-full"
+              >
+                <div class="text-center">
+                  <div
+                    class="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-8 w-8 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p class="text-gray-600 font-medium">会話が見つかりません</p>
+                  <p class="text-gray-500 text-sm mt-1">
+                    会話一覧から選択してください
+                  </p>
+                </div>
+              </div>
+              <div v-else>
+                <div
+                  v-if="hasNextPage && !messagesPending && !loadingMoreMessages"
+                  class="text-center my-4"
                 >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
+                  <button
+                    :disabled="loadingMoreMessages"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition duration-200 shadow-sm disabled:opacity-50"
+                    @click="loadMoreMessages"
+                  >
+                    <svg
+                      v-if="!loadingMoreMessages"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <div
+                      v-else
+                      class="h-4 w-4 mr-2 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"
+                    />
+                    <span v-if="loadingMoreMessages">読み込み中...</span>
+                    <span v-else>さらに読み込む</span>
+                  </button>
+                </div>
+                <div class="grid grid-cols-12 gap-y-2">
+                  <template
+                    v-for="(message, index) in messages"
+                    :key="message.id"
+                  >
+                    <div
+                      v-if="shouldShowDateSeparator(message, index, messages)"
+                      class="col-span-12 text-center my-4"
+                    >
+                      <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                          <div class="w-full border-t border-gray-300" />
+                        </div>
+                        <div class="relative flex justify-center">
+                          <span
+                            class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-300 shadow-sm"
+                          >
+                            {{ formatDateSeparatorText(message.sent_at) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      :class="
+                        isMyMessage(message.sender_id)
+                          ? 'col-start-6 col-end-13'
+                          : 'col-start-1 col-end-8'
+                      "
+                      class="p-3 rounded-lg"
+                    >
+                      <div
+                        :class="
+                          isMyMessage(message.sender_id)
+                            ? 'flex items-center justify-start flex-row-reverse'
+                            : 'flex flex-row items-center'
+                        "
+                      >
+                        <div
+                          class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
+                          :class="
+                            isMyMessage(message.sender_id)
+                              ? 'bg-emerald-100'
+                              : 'bg-gray-200'
+                          "
+                        >
+                          <span
+                            class="text-sm font-semibold"
+                            :class="
+                              isMyMessage(message.sender_id)
+                                ? 'text-emerald-600'
+                                : 'text-gray-600'
+                            "
+                          >
+                            {{ getAvatarInitials(message.sender?.name) }}
+                          </span>
+                        </div>
+                        <div
+                          class="relative ml-3 mr-3 text-sm py-3 px-4 shadow-md rounded-2xl max-w-xs lg:max-w-md"
+                          :class="
+                            isMyMessage(message.sender_id)
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-white border border-gray-200'
+                          "
+                        >
+                          <div class="whitespace-pre-line leading-relaxed">
+                            {{ message.text_content }}
+                          </div>
+                          <div
+                            class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 min-w-[3.5rem] text-right"
+                            :class="
+                              isMyMessage(message.sender_id)
+                                ? 'text-emerald-600'
+                                : 'text-gray-500'
+                            "
+                          >
+                            {{ formatMessageTime(message.sent_at) }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="border-t border-gray-200 bg-white p-4">
+              <div class="flex items-end space-x-3">
+                <div class="flex-grow">
+                  <textarea
+                    v-model="newMessageText"
+                    :disabled="
+                      !currentConversation ||
+                      sendingMessage ||
+                      isLoadingInitialData
+                    "
+                    class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                    rows="1"
+                    placeholder="メッセージを入力..."
+                    @keydown="handleKeydown"
                   />
-                  <path
-                    class="opacity-75"
+                </div>
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  :class="
+                    sendingMessage || !newMessageText.trim()
+                      ? 'bg-gray-400'
+                      : 'bg-emerald-600 hover:bg-emerald-700'
+                  "
+                  :disabled="sendingMessage || !newMessageText.trim()"
+                  @click="sendMessage"
+                >
+                  <svg
+                    v-if="sendingMessage"
+                    class="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
                     fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span v-else>送信</span>
-              </button>
+                  >
+                    <path
+                      d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div class="mt-2 text-xs text-gray-500">
+                Enterで送信、Shift+Enterで改行
+              </div>
             </div>
           </div>
         </div>
