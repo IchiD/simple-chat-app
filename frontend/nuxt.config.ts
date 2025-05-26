@@ -8,9 +8,7 @@ export default defineNuxtConfig({
   ],
 
   // 互換性日付を追加
-  nitro: {
-    compatibilityDate: "2025-05-15",
-  },
+  compatibilityDate: "2025-05-26",
 
   // ランタイム設定
   runtimeConfig: {
