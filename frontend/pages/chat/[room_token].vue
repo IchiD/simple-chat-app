@@ -18,6 +18,9 @@
                   <path
                     d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
                   />
+                  <path
+                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                  />
                 </svg>
               </div>
               <h1 class="text-xl font-bold text-gray-900">
@@ -94,9 +97,9 @@
             :pending="sidebarPending"
             :error="sidebarError"
             :selected-conversation-room-token="currentRoomToken"
+            class="h-full"
             @conversation-selected="handleSidebarConversationSelected"
             @close-sidebar="closeMobileSidebar"
-            class="h-full"
           />
         </div>
 
@@ -329,7 +332,7 @@
                           </span>
                         </div>
                         <div
-                          class="relative ml-3 mr-3 text-sm py-3 px-4 shadow-md rounded-2xl max-w-xs lg:max-w-md"
+                          class="relative ml-3 mr-3 text-sm py-1 px-4 shadow-md rounded-2xl max-w-xs lg:max-w-md"
                           :class="
                             isMyMessage(message.sender_id)
                               ? 'bg-emerald-500 text-white'

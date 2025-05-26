@@ -5,15 +5,15 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <h1 class="text-xl font-bold text-gray-900">友達</h1>
+            <h1 class="text-lg sm:text-xl font-bold text-gray-900">友達</h1>
           </div>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2 sm:space-x-3">
             <NuxtLink
               to="/user"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
-                class="w-4 h-4 mr-2"
+                class="w-4 h-4"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -22,27 +22,26 @@
                   d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
                 />
               </svg>
-              ホーム
+              <span class="hidden sm:inline">ホーム</span>
             </NuxtLink>
             <NuxtLink
               to="/chat"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                class="w-4 h-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                />
+                <path
+                  d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
                 />
               </svg>
-              チャット
+              <span class="hidden sm:inline">チャット</span>
             </NuxtLink>
           </div>
         </div>
@@ -50,7 +49,7 @@
     </nav>
 
     <!-- メインコンテンツ -->
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div v-if="loading" class="flex justify-center items-center py-20">
         <div class="text-center">
           <div
@@ -62,7 +61,7 @@
 
       <template v-else>
         <!-- 友達追加セクション -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
           <div class="flex items-center mb-4">
             <div
               class="h-8 w-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3"
@@ -78,7 +77,9 @@
                 />
               </svg>
             </div>
-            <h2 class="text-lg font-semibold text-gray-900">友達を追加</h2>
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">
+              友達を追加
+            </h2>
           </div>
           <FriendSearch @friend-selected="handleFriendSelected" />
         </div>
@@ -88,7 +89,7 @@
           <div class="border-b border-gray-200">
             <nav class="flex">
               <button
-                class="flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 relative"
+                class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
                 :class="[
                   activeTab === 'friends'
                     ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -96,10 +97,12 @@
                 ]"
                 @click="activeTab = 'friends'"
               >
-                <div class="flex items-center justify-center space-x-2">
+                <div
+                  class="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
+                    class="h-4 w-4 sm:h-5 sm:w-5"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -107,12 +110,12 @@
                       d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
                     />
                   </svg>
-                  <span>友達一覧</span>
+                  <span class="text-xs sm:text-sm">友達一覧</span>
                 </div>
               </button>
 
               <button
-                class="flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 relative"
+                class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
                 :class="[
                   activeTab === 'requests'
                     ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -120,10 +123,12 @@
                 ]"
                 @click="activeTab = 'requests'"
               >
-                <div class="flex items-center justify-center space-x-2">
+                <div
+                  class="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
+                    class="h-4 w-4 sm:h-5 sm:w-5"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -131,12 +136,12 @@
                       d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                     />
                   </svg>
-                  <span>受信申請</span>
+                  <span class="text-xs sm:text-sm">受信申請</span>
                 </div>
               </button>
 
               <button
-                class="flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 relative"
+                class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
                 :class="[
                   activeTab === 'sent'
                     ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -144,10 +149,12 @@
                 ]"
                 @click="activeTab = 'sent'"
               >
-                <div class="flex items-center justify-center space-x-2">
+                <div
+                  class="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
+                    class="h-4 w-4 sm:h-5 sm:w-5"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -155,23 +162,26 @@
                       d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
                     />
                   </svg>
-                  <span>送信済み</span>
+                  <span class="text-xs sm:text-sm">送信済み</span>
                 </div>
               </button>
             </nav>
           </div>
 
           <!-- コンテンツエリア -->
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <!-- 友達一覧 -->
             <div v-if="activeTab === 'friends'">
-              <div v-if="friends.length === 0" class="text-center py-16">
+              <div
+                v-if="friends.length === 0"
+                class="text-center py-12 sm:py-16"
+              >
                 <div
-                  class="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                  class="h-16 w-16 sm:h-20 sm:w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-10 w-10 text-gray-400"
+                    class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -184,10 +194,10 @@
                     />
                   </svg>
                 </div>
-                <p class="text-xl text-gray-500 font-medium mb-2">
+                <p class="text-lg sm:text-xl text-gray-500 font-medium mb-2">
                   まだ友達がいません
                 </p>
-                <p class="text-gray-400">
+                <p class="text-sm sm:text-base text-gray-400">
                   フレンドIDで友達を検索してみましょう
                 </p>
               </div>
@@ -195,48 +205,57 @@
                 <div
                   v-for="friend in friends"
                   :key="friend.id"
-                  class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition duration-200"
+                  class="bg-gray-50 rounded-lg p-3 sm:p-4 hover:bg-gray-100 transition duration-200"
                 >
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
+                  <div class="flex flex-row items-center justify-between">
+                    <div class="flex items-center space-x-3 sm:space-x-4">
                       <div
-                        class="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center"
+                        class="h-10 w-10 sm:h-12 sm:w-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"
                       >
-                        <span class="text-emerald-600 font-semibold text-lg">
+                        <span
+                          class="text-emerald-600 font-semibold text-base sm:text-lg"
+                        >
                           {{ friend.name.charAt(0).toUpperCase() }}
                         </span>
                       </div>
-                      <div>
-                        <h3 class="font-semibold text-gray-900 text-lg">
+                      <div class="min-w-0 flex-1">
+                        <h3
+                          class="font-semibold text-gray-900 text-base sm:text-lg truncate"
+                        >
                           {{ friend.name }}
                         </h3>
-                        <p class="text-sm text-gray-500">オンライン</p>
+                        <p class="text-xs sm:text-sm text-gray-500">
+                          オンライン
+                        </p>
                       </div>
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-row space-x-2">
                       <button
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
+                        class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
                         @click="startChat(friend.id)"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 mr-2"
+                          class="h-4 w-4"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
                           <path
                             d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
                           />
+                          <path
+                            d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                          />
                         </svg>
-                        チャット
+                        <span class="hidden sm:inline">チャット</span>
                       </button>
                       <button
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
+                        class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
                         @click="unfriend(friend.id)"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 mr-2"
+                          class="h-4 w-4"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
@@ -244,7 +263,7 @@
                             d="M11 6a3 3 0 11-6 0 3 3 0 016 0zM14 17a6 6 0 00-12 0h12zM13 8a1 1 0 100 2h4a1 1 0 100-2h-4z"
                           />
                         </svg>
-                        削除
+                        <span class="hidden sm:inline">削除</span>
                       </button>
                     </div>
                   </div>
@@ -254,13 +273,16 @@
 
             <!-- 受け取った友達申請 -->
             <div v-if="activeTab === 'requests'">
-              <div v-if="friendRequests.length === 0" class="text-center py-16">
+              <div
+                v-if="friendRequests.length === 0"
+                class="text-center py-12 sm:py-16"
+              >
                 <div
-                  class="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                  class="h-16 w-16 sm:h-20 sm:w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-10 w-10 text-gray-400"
+                    class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -273,49 +295,59 @@
                     />
                   </svg>
                 </div>
-                <p class="text-xl text-gray-500 font-medium mb-2">
+                <p class="text-lg sm:text-xl text-gray-500 font-medium mb-2">
                   受け取った友達申請はありません
                 </p>
-                <p class="text-gray-400">友達申請が届くとここに表示されます</p>
+                <p class="text-sm sm:text-base text-gray-400">
+                  友達申請が届くとここに表示されます
+                </p>
               </div>
               <div v-else class="grid gap-4">
                 <div
                   v-for="request in friendRequests"
                   :key="request.id"
-                  class="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border border-blue-100"
+                  class="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-4 sm:p-6 border border-blue-100"
                 >
-                  <div class="flex items-start justify-between">
-                    <div class="flex items-center space-x-4 flex-1">
+                  <div
+                    class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
+                  >
+                    <div
+                      class="flex items-center space-x-3 sm:space-x-4 flex-1"
+                    >
                       <div
-                        class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center"
+                        class="h-10 w-10 sm:h-12 sm:w-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
                       >
-                        <span class="text-blue-600 font-semibold text-lg">
+                        <span
+                          class="text-blue-600 font-semibold text-base sm:text-lg"
+                        >
                           {{ request.user.name.charAt(0).toUpperCase() }}
                         </span>
                       </div>
-                      <div class="flex-1">
-                        <h3 class="font-semibold text-gray-900 text-lg">
+                      <div class="flex-1 min-w-0">
+                        <h3
+                          class="font-semibold text-gray-900 text-base sm:text-lg truncate"
+                        >
                           {{ request.user.name }}
                         </h3>
-                        <p class="text-sm text-gray-500 mb-2">
+                        <p class="text-xs sm:text-sm text-gray-500 mb-2">
                           友達申請を送信しました
                         </p>
                         <p
                           v-if="request.message"
-                          class="text-sm text-gray-700 bg-white rounded-lg p-3 border border-gray-200"
+                          class="text-xs sm:text-sm text-gray-700 bg-white rounded-lg p-3 border border-gray-200"
                         >
                           {{ request.message }}
                         </p>
                       </div>
                     </div>
-                    <div class="flex space-x-3 ml-4">
+                    <div class="flex space-x-3 sm:ml-4">
                       <button
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
+                        class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
                         @click="acceptRequest(request.user.id)"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 mr-2"
+                          class="h-4 w-4"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
@@ -325,15 +357,16 @@
                             clip-rule="evenodd"
                           />
                         </svg>
-                        承認
+                        <span class="hidden sm:inline">承認</span>
+                        <span class="sm:hidden">承認</span>
                       </button>
                       <button
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
+                        class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
                         @click="rejectRequest(request.user.id)"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 mr-2"
+                          class="h-4 w-4"
                           viewBox="0 0 20 20"
                           fill="currentColor"
                         >
@@ -343,7 +376,8 @@
                             clip-rule="evenodd"
                           />
                         </svg>
-                        拒否
+                        <span class="hidden sm:inline">拒否</span>
+                        <span class="sm:hidden">拒否</span>
                       </button>
                     </div>
                   </div>
@@ -353,13 +387,16 @@
 
             <!-- 送信済みの友達申請 -->
             <div v-if="activeTab === 'sent'">
-              <div v-if="sentRequests.length === 0" class="text-center py-16">
+              <div
+                v-if="sentRequests.length === 0"
+                class="text-center py-12 sm:py-16"
+              >
                 <div
-                  class="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                  class="h-16 w-16 sm:h-20 sm:w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-10 w-10 text-gray-400"
+                    class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -372,10 +409,10 @@
                     />
                   </svg>
                 </div>
-                <p class="text-xl text-gray-500 font-medium mb-2">
+                <p class="text-lg sm:text-xl text-gray-500 font-medium mb-2">
                   送信済みの友達申請はありません
                 </p>
-                <p class="text-gray-400">
+                <p class="text-sm sm:text-base text-gray-400">
                   友達申請を送信するとここに表示されます
                 </p>
               </div>
@@ -383,22 +420,28 @@
                 <div
                   v-for="request in sentRequests"
                   :key="request.id"
-                  class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border border-orange-100"
+                  class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 sm:p-6 border border-orange-100"
                 >
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
+                  <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
+                  >
+                    <div class="flex items-center space-x-3 sm:space-x-4">
                       <div
-                        class="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center"
+                        class="h-10 w-10 sm:h-12 sm:w-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0"
                       >
-                        <span class="text-orange-600 font-semibold text-lg">
+                        <span
+                          class="text-orange-600 font-semibold text-base sm:text-lg"
+                        >
                           {{ request.friend.name.charAt(0).toUpperCase() }}
                         </span>
                       </div>
-                      <div>
-                        <h3 class="font-semibold text-gray-900 text-lg">
+                      <div class="min-w-0 flex-1">
+                        <h3
+                          class="font-semibold text-gray-900 text-base sm:text-lg truncate"
+                        >
                           {{ request.friend.name }}
                         </h3>
-                        <p class="text-sm text-gray-500">
+                        <p class="text-xs sm:text-sm text-gray-500">
                           送信日: {{ formatDate(request.created_at) }}
                         </p>
                         <div class="flex items-center mt-1">
@@ -412,12 +455,12 @@
                       </div>
                     </div>
                     <button
-                      class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
+                      class="self-start sm:self-center inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
                       @click="cancelRequest(request.id)"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 mr-2"
+                        class="h-4 w-4"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -427,7 +470,8 @@
                           clip-rule="evenodd"
                         />
                       </svg>
-                      キャンセル
+                      <span class="hidden sm:inline">キャンセル</span>
+                      <span class="sm:hidden">キャンセル</span>
                     </button>
                   </div>
                 </div>
