@@ -27,6 +27,24 @@
           </div>
           <div class="flex items-center space-x-3">
             <NuxtLink
+              to="/chat"
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition duration-150 ease-in-out"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              チャット一覧
+            </NuxtLink>
+            <NuxtLink
               to="/user"
               class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
             >
@@ -63,17 +81,24 @@
       </div>
     </nav>
 
-    <div class="relative flex h-screen antialiased text-gray-800">
+    <div
+      class="relative flex antialiased text-gray-800"
+      style="height: calc(100vh - 4rem)"
+    >
       <div class="flex h-full w-full">
-        <ChatSidebar
-          ref="chatSidebarRef"
-          :conversations="sidebarConversations"
-          :pending="sidebarPending"
-          :error="sidebarError"
-          :selected-conversation-room-token="currentRoomToken"
-          @conversation-selected="handleSidebarConversationSelected"
-          @close-sidebar="closeMobileSidebar"
-        />
+        <!-- モバイル専用サイドバー（デスクトップでは非表示） -->
+        <div v-if="isMobileSidebarOpen" class="fixed inset-0 z-30 md:hidden">
+          <ChatSidebar
+            ref="chatSidebarRef"
+            :conversations="sidebarConversations"
+            :pending="sidebarPending"
+            :error="sidebarError"
+            :selected-conversation-room-token="currentRoomToken"
+            @conversation-selected="handleSidebarConversationSelected"
+            @close-sidebar="closeMobileSidebar"
+            class="h-full"
+          />
+        </div>
 
         <!-- Overlay for mobile when sidebar is open -->
         <div
@@ -84,7 +109,7 @@
         />
 
         <!-- Main Chat Area -->
-        <div class="flex h-full flex-auto flex-col p-6">
+        <div class="flex h-full w-full flex-col p-6">
           <!-- Header for Chat Area (with toggle button for mobile) -->
           <div
             class="mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200"
@@ -745,9 +770,8 @@ const handleSidebarConversationSelected = (roomToken: string) => {
   if (roomToken && roomToken !== currentRoomToken.value) {
     router.push(`/chat/${roomToken}/`);
   }
-  if (isMobileSidebarOpen.value && window.innerWidth < 768) {
-    closeMobileSidebar();
-  }
+  // モバイルでサイドバーを閉じる
+  closeMobileSidebar();
 };
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);

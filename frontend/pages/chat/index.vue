@@ -61,7 +61,10 @@
       </div>
     </nav>
 
-    <div class="relative flex h-screen antialiased text-gray-800">
+    <div
+      class="relative flex antialiased text-gray-800"
+      style="height: calc(100vh - 4rem)"
+    >
       <div class="flex h-full w-full">
         <ChatSidebar
           ref="chatSidebarRef"

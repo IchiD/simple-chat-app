@@ -39,4 +39,18 @@ export default defineNuxtConfig({
 
   // CSSの設定
   css: ["~/assets/css/main.css"],
+
+  // SSR無効化（クライアントサイドのみ）
+  ssr: false,
+
+  // TypeScript設定
+  typescript: {
+    strict: true,
+  },
+
+  // TailwindCSS設定
+  tailwindcss: {
+    exposeConfig: true,
+    viewer: true,
+  },
 });
