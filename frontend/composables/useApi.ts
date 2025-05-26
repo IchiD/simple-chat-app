@@ -5,6 +5,7 @@ import {
   sanitizeInput,
 } from "~/utils/security";
 import { handleAuthError } from "~/utils/error-handler";
+import type { Toast } from "~/composables/useToast";
 
 // HTTP メソッドの型定義
 type HttpMethod =
@@ -160,23 +161,57 @@ export function useApi() {
     } catch (error) {
       // エラーの処理と変換
       if (error instanceof FetchError) {
-        // エラーの詳細情報を追加
         const enhancedError = error as FetchError<unknown>;
-
         console.error(`API Error (${url}):`, error.message, error.data);
 
-        // 認証エラー（401）の場合、ログインページにリダイレクト
         if (error.status === 401 && !options.skipAuthRedirect) {
           console.log("認証エラーを検出: ログインページへリダイレクトします");
-          // 共通の認証エラーハンドリングを使用
-          handleAuthError(router, toast);
+          handleAuthError(router, toast); // 共通の認証エラーハンドリング
+          // 認証エラーの場合は、ここで処理を中断させるか、特定のメッセージをthrowすることも検討
+          throw enhancedError; // or throw new Error("認証が必要です。ログインしてください。");
+        } else if (error.status === 429) {
+          console.warn("APIレート制限超過 (429)");
+          toast.add({
+            title: "リクエスト上限超過",
+            description:
+              "メッセージの送信回数が上限に達しました。しばらくしてから再度お試しください。",
+            color: "warning",
+          } as Omit<Toast, "id">);
+          throw enhancedError; // 必要に応じてエラーを再スロー
+        } else {
+          // その他のFetchError (400, 500系など)
+          let errorMessage = "サーバーとの通信に失敗しました。";
+          if (enhancedError.data && typeof enhancedError.data === "object") {
+            const errorData = enhancedError.data as {
+              message?: string;
+              errors?: Record<string, string[]>;
+            };
+            if (errorData.message) {
+              errorMessage = errorData.message;
+            } else if (errorData.errors) {
+              const firstErrorKey = Object.keys(errorData.errors)[0];
+              if (firstErrorKey && errorData.errors[firstErrorKey][0]) {
+                errorMessage = errorData.errors[firstErrorKey][0];
+              }
+            }
+          }
+          toast.add({
+            title: "エラー",
+            description: errorMessage,
+            color: "error",
+          } as Omit<Toast, "id">);
+          throw enhancedError;
         }
-
-        throw enhancedError;
       }
 
-      // その他のエラー
+      // FetchError以外の予期せぬエラー
       console.error(`Unexpected API Error (${url}):`, error);
+      toast.add({
+        title: "予期せぬエラー",
+        description:
+          "予期せぬエラーが発生しました。時間をおいて再度お試しください。",
+        color: "error",
+      } as Omit<Toast, "id">);
       throw error;
     }
   };

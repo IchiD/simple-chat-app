@@ -64,7 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // 特定の会話のメッセージ関連 (room_token を使用)
     Route::prefix('room/{conversation:room_token}/messages')->controller(MessagesController::class)->group(function () {
       Route::get('/', 'index'); // メッセージ一覧
-      Route::post('/', 'store'); // メッセージ送信
+      Route::post('/', 'store')->middleware('throttle:10,1'); // メッセージ送信
     });
   });
 

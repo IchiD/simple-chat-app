@@ -8,7 +8,7 @@ import type { Router } from "vue-router";
 // トーストインターフェース（Nuxt UIのトーストに合わせる）
 interface Toast {
   id?: number;
-  title?: string;
+  title: string;
   description?: string;
   color?: "error" | "success" | "info" | "warning";
   timeout?: number;
