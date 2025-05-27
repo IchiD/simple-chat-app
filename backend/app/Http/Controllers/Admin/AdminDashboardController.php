@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\Conversation;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
@@ -22,7 +25,25 @@ class AdminDashboardController extends Controller
         $userCount = User::count();
         $adminCount = Admin::count();
         
-        return view('admin.dashboard', compact('admin', 'userCount', 'adminCount'));
+        // チャットルーム数
+        $chatRoomCount = Conversation::count();
+        
+        // 本日送信されたメッセージ数
+        $todayMessagesCount = Message::whereDate('sent_at', date('Y-m-d'))->count();
+        
+        // 本日のアクティブユーザー数（本日メッセージを送信したユーザー）
+        $todayActiveUsersCount = Message::whereDate('sent_at', date('Y-m-d'))
+            ->distinct('sender_id')
+            ->count('sender_id');
+        
+        return view('admin.dashboard', compact(
+            'admin', 
+            'userCount', 
+            'adminCount', 
+            'chatRoomCount', 
+            'todayMessagesCount', 
+            'todayActiveUsersCount'
+        ));
     }
 
     /**
