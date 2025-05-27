@@ -1,4 +1,4 @@
-<template>
+THIS SHOULD BE A LINTER ERROR<template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- ナビゲーションバー -->
     <nav class="bg-white shadow-sm border-b border-gray-200">
