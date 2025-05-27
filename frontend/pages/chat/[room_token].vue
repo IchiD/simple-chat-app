@@ -112,7 +112,7 @@
         />
 
         <!-- Main Chat Area -->
-        <div class="flex h-full w-full flex-col p-6">
+        <div class="flex h-full w-full flex-col md:p-6">
           <!-- Header for Chat Area (with toggle button for mobile) -->
           <div
             class="mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200"

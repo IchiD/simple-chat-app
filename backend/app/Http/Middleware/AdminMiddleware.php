@@ -17,6 +17,19 @@ class AdminMiddleware
    */
   public function handle(Request $request, Closure $next)
   {
+    // 管理画面へのアクセス制限（一時的に無効化してIP確認）
+    // $allowedIPs = ['127.0.0.1', '::1', 'localhost']; // 許可するIPアドレス
+    // if (!in_array($request->ip(), $allowedIPs)) {
+    //     abort(403, 'Access denied from this IP address.');
+    // }
+
+    // デバッグ: 実際のIPアドレスを確認
+    \Log::info('Admin access attempt', [
+      'ip' => $request->ip(),
+      'user_agent' => $request->userAgent(),
+      'url' => $request->url()
+    ]);
+
     if (!Auth::guard('admin')->check()) {
       return redirect()->route('admin.login');
     }
