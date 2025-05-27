@@ -300,8 +300,8 @@
                     <div
                       :class="
                         isMyMessage(message.sender_id)
-                          ? 'col-start-6 col-end-13'
-                          : 'col-start-1 col-end-8'
+                          ? 'col-start-4 col-end-13'
+                          : 'col-start-1 col-end-10'
                       "
                       class="p-3 rounded-lg"
                     >
@@ -332,12 +332,12 @@
                           </span>
                         </div>
                         <div
-                          class="relative ml-3 mr-3 text-sm py-1 px-4 shadow-md rounded-2xl max-w-xs lg:max-w-md"
-                          :class="
+                          class="relative ml-3 mr-3 text-sm py-1 px-4 shadow-md rounded-2xl"
+                          :class="[
                             isMyMessage(message.sender_id)
-                              ? 'bg-emerald-500 text-white'
-                              : 'bg-white border border-gray-200'
-                          "
+                              ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'
+                              : 'bg-white border border-gray-200 max-w-md lg:max-w-xl',
+                          ]"
                         >
                           <div class="whitespace-pre-line leading-relaxed">
                             {{ message.text_content }}
