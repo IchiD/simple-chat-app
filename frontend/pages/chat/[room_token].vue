@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERROR<template>
+<template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- ナビゲーションバー -->
     <nav class="bg-white shadow-sm border-b border-gray-200">
@@ -112,10 +112,10 @@ THIS SHOULD BE A LINTER ERROR<template>
         />
 
         <!-- Main Chat Area -->
-        <div class="flex h-full w-full flex-col p-6">
+        <div class="flex h-full w-full flex-col p-3 md:p-6">
           <!-- Header for Chat Area (with toggle button for mobile) -->
           <div
-            class="mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+            class="mb-3 md:mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-3 border border-gray-200"
           >
             <div class="flex items-center">
               <button
@@ -140,9 +140,9 @@ THIS SHOULD BE A LINTER ERROR<template>
               </button>
               <div class="flex items-center space-x-3">
                 <div
-                  class="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center"
+                  class="h-8 w-8 md:h-10 md:w-10 bg-emerald-100 rounded-full flex items-center justify-center"
                 >
-                  <span class="text-emerald-600 font-semibold text-sm">
+                  <span class="text-emerald-600 font-semibold text-xs md:text-sm">
                     {{
                       currentConversation?.participants[0]?.name
                         ?.charAt(0)
@@ -151,12 +151,12 @@ THIS SHOULD BE A LINTER ERROR<template>
                   </span>
                 </div>
                 <div>
-                  <h2 class="text-lg font-semibold text-gray-900">
+                  <h2 class="text-base md:text-lg font-semibold text-gray-900">
                     {{
                       currentConversation?.participants[0]?.name || "チャット"
                     }}
                   </h2>
-                  <p class="text-sm text-emerald-600">オンライン</p>
+                  <p class="text-xs md:text-sm text-emerald-600">オンライン</p>
                 </div>
               </div>
             </div>
@@ -168,7 +168,7 @@ THIS SHOULD BE A LINTER ERROR<template>
             <!-- Messages Display Area -->
             <div
               ref="messageContainerRef"
-              class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+              class="flex flex-col h-full overflow-x-auto p-3 md:p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
             >
               <div
                 v-if="
@@ -300,10 +300,10 @@ THIS SHOULD BE A LINTER ERROR<template>
                     <div
                       :class="
                         isMyMessage(message.sender_id)
-                          ? 'col-start-4 col-end-13'
-                          : 'col-start-1 col-end-10'
+                          ? 'col-start-2 col-end-13 md:col-start-4 md:col-end-13'
+                          : 'col-start-1 col-end-12 md:col-start-1 md:col-end-10'
                       "
-                      class="p-3 rounded-lg"
+                      class="p-2 md:p-3 rounded-lg"
                     >
                       <div
                         :class="
@@ -313,7 +313,7 @@ THIS SHOULD BE A LINTER ERROR<template>
                         "
                       >
                         <div
-                          class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
+                          class="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full flex-shrink-0"
                           :class="
                             isMyMessage(message.sender_id)
                               ? 'bg-emerald-100'
@@ -321,7 +321,7 @@ THIS SHOULD BE A LINTER ERROR<template>
                           "
                         >
                           <span
-                            class="text-sm font-semibold"
+                            class="text-xs md:text-sm font-semibold"
                             :class="
                               isMyMessage(message.sender_id)
                                 ? 'text-emerald-600'
@@ -332,11 +332,11 @@ THIS SHOULD BE A LINTER ERROR<template>
                           </span>
                         </div>
                         <div
-                          class="relative ml-3 mr-3 text-sm py-1 px-4 shadow-md rounded-2xl"
+                          class="relative ml-2 mr-2 md:ml-3 md:mr-3 text-sm py-1 px-4 shadow-md rounded-2xl"
                           :class="[
                             isMyMessage(message.sender_id)
-                              ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'
-                              : 'bg-white border border-gray-200 max-w-md lg:max-w-xl',
+                              ? 'bg-emerald-500 text-white max-w-xs sm:max-w-sm lg:max-w-lg'
+                              : 'bg-white border border-gray-200 max-w-sm sm:max-w-md lg:max-w-xl',
                           ]"
                         >
                           <div class="whitespace-pre-line leading-relaxed">
@@ -361,8 +361,8 @@ THIS SHOULD BE A LINTER ERROR<template>
             </div>
 
             <!-- Message Input Area -->
-            <div class="border-t border-gray-200 bg-white p-4">
-              <div class="flex items-end space-x-3">
+            <div class="border-t border-gray-200 bg-white p-3 md:p-4">
+              <div class="flex items-end space-x-2 md:space-x-3">
                 <div class="flex-grow">
                   <textarea
                     v-model="newMessageText"
@@ -371,7 +371,7 @@ THIS SHOULD BE A LINTER ERROR<template>
                       sendingMessage ||
                       isLoadingInitialData
                     "
-                    class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                    class="w-full p-2 md:p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                     rows="1"
                     placeholder="メッセージを入力..."
                     @keydown="handleKeydown"
@@ -379,7 +379,7 @@ THIS SHOULD BE A LINTER ERROR<template>
                 </div>
                 <button
                   type="submit"
-                  class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="inline-flex items-center justify-center rounded-full w-10 h-10 md:w-12 md:h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   :class="
                     sendingMessage || !newMessageText.trim()
                       ? 'bg-gray-400'
