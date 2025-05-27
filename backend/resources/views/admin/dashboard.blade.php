@@ -31,10 +31,52 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <div class="mb-3">
-                    <i class="fas fa-user-shield fa-3x text-success"></i>
+                    <i class="fas fa-comments fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">チャットルーム数</h5>
+                <h2 class="text-success">{{ number_format($chatRoomCount) }}</h2>
+                <p class="text-muted mb-0">作成済みルーム</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-clock fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">本日のアクティブユーザー数</h5>
+                <h2 class="text-warning">{{ number_format($todayActiveUsersCount) }}</h2>
+                <p class="text-muted mb-0">本日メッセージ送信</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-envelope fa-3x text-info"></i>
+                </div>
+                <h5 class="card-title">本日送信されたメッセージ数</h5>
+                <h2 class="text-info">{{ number_format($todayMessagesCount) }}</h2>
+                <p class="text-muted mb-0">本日の投稿</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 管理者統計カード -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-shield fa-3x text-danger"></i>
                 </div>
                 <h5 class="card-title">管理者数</h5>
-                <h2 class="text-success">{{ number_format($adminCount) }}</h2>
+                <h2 class="text-danger">{{ number_format($adminCount) }}</h2>
                 <p class="text-muted mb-0">システム管理者</p>
             </div>
         </div>
@@ -44,23 +86,10 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <div class="mb-3">
-                    <i class="fas fa-chart-line fa-3x text-warning"></i>
-                </div>
-                <h5 class="card-title">今日のアクセス</h5>
-                <h2 class="text-warning">{{ rand(100, 500) }}</h2>
-                <p class="text-muted mb-0">本日のアクセス数</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-lg-3 mb-3">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <i class="fas fa-cog fa-3x text-info"></i>
+                    <i class="fas fa-cog fa-3x text-secondary"></i>
                 </div>
                 <h5 class="card-title">システム状態</h5>
-                <h2 class="text-info">正常</h2>
+                <h2 class="text-secondary">正常</h2>
                 <p class="text-muted mb-0">全システム稼働中</p>
             </div>
         </div>
