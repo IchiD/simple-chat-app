@@ -6,7 +6,7 @@
       <div class="mb-6">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">友達</h1>
       </div>
-      
+
       <div v-if="loading" class="flex justify-center items-center py-20">
         <div class="text-center">
           <div
@@ -266,7 +266,7 @@
                   class="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-4 sm:p-6 border border-blue-100"
                 >
                   <div
-                    class="flex flex-col space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
+                    class="flex flex-row space-y-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0"
                   >
                     <div
                       class="flex items-center space-x-3 sm:space-x-4 flex-1"
