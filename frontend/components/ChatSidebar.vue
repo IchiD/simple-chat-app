@@ -2,24 +2,6 @@
   <div
     class="static flex w-full h-full flex-col bg-gradient-to-b from-white to-gray-50/50 backdrop-blur-sm pb-8 pl-4 pr-4 shadow-lg border-r border-gray-200/50"
   >
-    <!-- Navigation Tabs -->
-    <nav class="mt-6 mb-4 border-b border-gray-200">
-      <ul class="flex justify-around -mb-px">
-        <li v-for="tab in navigationTabs" :key="tab.name">
-          <NuxtLink
-            :to="tab.path"
-            class="inline-block py-3 px-2 text-sm font-medium text-center border-b-2"
-            :class="[
-              route.path === tab.path
-                ? 'text-[var(--primary)] border-[var(--primary)] active'
-                : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300',
-            ]"
-          >
-            {{ tab.name }}
-          </NuxtLink>
-        </li>
-      </ul>
-    </nav>
     <div class="flex h-10 w-full flex-row items-center justify-center">
       <div
         class="flex h-9 w-9 items-center justify-center rounded-2xl text-white"
@@ -208,7 +190,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { PropType } from "vue";
-import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
 
@@ -262,13 +243,6 @@ defineProps({
 });
 
 const emit = defineEmits(["conversationSelected", "closeSidebar"]);
-
-const route = useRoute();
-
-const navigationTabs = [
-  { name: "ホーム", path: "/" },
-  { name: "友達", path: "/friends" },
-];
 
 const { user: authUser } = storeToRefs(useAuthStore());
 
