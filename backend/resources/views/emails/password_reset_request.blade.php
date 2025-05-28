@@ -18,7 +18,7 @@
       background-color: #fff;
       padding: 20px;
       border: 1px solid #ddd;
-      border-radius: 4px;
+      border-radius: 0;
     }
 
     .button {
@@ -28,7 +28,7 @@
       background-color: #3490dc;
       color: #ffffff !important;
       text-decoration: none;
-      border-radius: 4px;
+      border-radius: 0;
     }
   </style>
 </head>
