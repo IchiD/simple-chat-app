@@ -168,7 +168,7 @@
                         </div>
                         <div class="relative flex justify-center">
                           <span
-                            class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-300 shadow-sm"
+                            class="text-xs text-gray-500 bg-white px-3 py-1 border border-gray-300 shadow-sm"
                           >
                             {{ formatDateSeparatorText(message.sent_at) }}
                           </span>
@@ -186,31 +186,12 @@
                       <div
                         :class="
                           isMyMessage(message.sender_id)
-                            ? 'flex items-center justify-start flex-row-reverse'
-                            : 'flex flex-row items-center'
+                            ? 'flex justify-start flex-row-reverse'
+                            : 'flex flex-row'
                         "
                       >
                         <div
-                          class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
-                          :class="
-                            isMyMessage(message.sender_id)
-                              ? 'bg-emerald-100'
-                              : 'bg-gray-200'
-                          "
-                        >
-                          <span
-                            class="text-sm font-semibold"
-                            :class="
-                              isMyMessage(message.sender_id)
-                                ? 'text-emerald-600'
-                                : 'text-gray-600'
-                            "
-                          >
-                            {{ getAvatarInitials(message.sender?.name) }}
-                          </span>
-                        </div>
-                        <div
-                          class="relative ml-3 mr-3 text-sm py-1 px-4 shadow-md rounded-2xl"
+                          class="relative text-sm py-2 px-4 shadow-md rounded-2xl"
                           :class="[
                             isMyMessage(message.sender_id)
                               ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'
@@ -220,16 +201,16 @@
                           <div class="whitespace-pre-line leading-relaxed">
                             {{ message.text_content }}
                           </div>
-                          <div
-                            class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 min-w-[3.5rem] text-right"
-                            :class="
-                              isMyMessage(message.sender_id)
-                                ? 'text-emerald-600'
-                                : 'text-gray-500'
-                            "
-                          >
-                            {{ formatMessageTime(message.sent_at) }}
-                          </div>
+                        </div>
+                        <div
+                          class="text-xs min-w-[3.5rem] flex items-end self-end mb-1"
+                          :class="[
+                            isMyMessage(message.sender_id)
+                              ? 'text-emerald-600 mr-2 justify-end'
+                              : 'text-gray-500 ml-2 justify-end',
+                          ]"
+                        >
+                          {{ formatMessageTime(message.sent_at) }}
                         </div>
                       </div>
                     </div>
@@ -760,15 +741,6 @@ const sendMessage = async () => {
   } finally {
     sendingMessage.value = false;
   }
-};
-
-const getAvatarInitials = (name?: string): string => {
-  if (!name) return "?";
-  const nameParts = name.split(" ");
-  if (nameParts.length > 1 && nameParts[0] && nameParts[nameParts.length - 1]) {
-    return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-  }
-  return name?.[0]?.toUpperCase() || "?";
 };
 
 const formatMessageTime = (sentAt?: string | null): string => {
