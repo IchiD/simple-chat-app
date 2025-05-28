@@ -146,14 +146,13 @@ class FriendshipController extends Controller
     $friendshipStatus = Friendship::getFriendshipStatus($currentUser->id, $user->id);
 
     return response()->json([
-      'status' => 'success',
+      'found' => true,
       'user' => [
         'id' => $user->id,
         'name' => $user->name,
         'friend_id' => $user->friend_id,
-        'avatar' => $user->avatar,
       ],
-      'friendship_status' => $friendshipStatus
+      'message' => 'ユーザーが見つかりました。'
     ]);
   }
 

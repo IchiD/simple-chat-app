@@ -46,7 +46,7 @@ class MessagesController extends Controller
 
     $messages = $conversation->messages()
       ->with(['sender' => function ($query) {
-        $query->select('id', 'name', 'avatar', 'friend_id'); // 送信者の基本情報を選択
+        $query->select('id', 'name', 'friend_id'); // 送信者の基本情報を選択
       }])
       ->orderBy('sent_at', 'desc') // 最新のメッセージから表示
       ->paginate(20); // ページネーション
@@ -92,7 +92,7 @@ class MessagesController extends Controller
     ]);
 
     $message->load(['sender' => function ($query) {
-      $query->select('id', 'name', 'avatar', 'friend_id');
+      $query->select('id', 'name', 'friend_id');
     }]);
 
     // プッシュ通知の送信

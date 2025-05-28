@@ -27,7 +27,7 @@ class ConversationsController extends Controller
     $conversations = $user->conversations()
       ->with(['participants' => function ($query) use ($user) {
         // 自分以外の参加者情報を取得
-        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
       }, 'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
       }])
@@ -112,7 +112,7 @@ class ConversationsController extends Controller
 
     $existingConversation = $existingConversationQuery->with([
       'participants' => function ($query) use ($currentUser) {
-        $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+        $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.friend_id');
       },
       'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
@@ -144,7 +144,7 @@ class ConversationsController extends Controller
     if ($conversation) {
       $conversation = $conversation->fresh([
         'participants' => function ($query) use ($currentUser) {
-          $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+          $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.friend_id');
         },
         'latestMessage.sender' => function ($query) {
           $query->select('id', 'name');
@@ -172,7 +172,7 @@ class ConversationsController extends Controller
     }
 
     $conversation->load(['participants' => function ($query) use ($user) {
-      $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+      $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
     }, 'latestMessage.sender' => function ($query) {
       $query->select('id', 'name');
     }]);
@@ -258,7 +258,7 @@ class ConversationsController extends Controller
     $conversation->load([
       'participants' => function ($query) use ($user) {
         // 自分以外の参加者情報を取得
-        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.avatar', 'users.friend_id');
+        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
       },
       'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');

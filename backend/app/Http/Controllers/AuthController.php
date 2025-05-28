@@ -202,13 +202,9 @@ class AuthController extends Controller
     // 必要な情報のみを返す
     return response()->json([
       'id' => $user->id,
-      'friend_id' => $user->friend_id,
       'name' => $user->name,
       'email' => $user->email,
-      'avatar' => $user->avatar,
-      'bio' => $user->bio,
-      'last_active_at' => $user->last_active_at,
-      'created_at' => $user->created_at,
+      'friend_id' => $user->friend_id,
     ]);
   }
 
@@ -245,9 +241,6 @@ class AuthController extends Controller
           'friend_id' => $user->friend_id,
           'name' => $user->name,
           'email' => $user->email,
-          'avatar' => $user->avatar,
-          'bio' => $user->bio,
-          'last_active_at' => $user->last_active_at,
           'created_at' => $user->created_at,
         ]
       ], 200);
