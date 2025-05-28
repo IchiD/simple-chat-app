@@ -18,6 +18,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     "/", // トップページ
     "/auth/login", // ログインページ
     "/auth/register", // 登録ページ
+    "/auth/verification", // メール確認ページ
+    "/auth/verify", // メール認証リンク（本登録）
     "/auth/verify-email", // メール認証ページ
     "/auth/forgot-password", // パスワードリセットページ
     "/auth/reset-password", // パスワードリセットページ
