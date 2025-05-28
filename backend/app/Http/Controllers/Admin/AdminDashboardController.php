@@ -77,6 +77,10 @@ class AdminDashboardController extends Controller
         $query->where('is_verified', true);
       } elseif ($status === 'unverified') {
         $query->where('is_verified', false);
+      } elseif ($status === 'deleted') {
+        $query->whereNotNull('deleted_at');
+      } elseif ($status === 'banned') {
+        $query->where('is_banned', true);
       }
     }
     
@@ -98,13 +102,214 @@ class AdminDashboardController extends Controller
         break;
     }
     
-    // ページネーション実行
-    $users = $query->paginate(20);
+    // ページネーション実行（削除されたユーザーも含む）
+    $users = $query->with('deletedByAdmin')->paginate(20);
     
     // 検索パラメータをページネーションに追加
     $users->appends($request->query());
 
     return view('admin.users.index', compact('admin', 'users'));
+  }
+
+  /**
+   * ユーザー詳細表示
+   */
+  public function showUser($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::with(['deletedByAdmin', 'conversations.participants', 'messages'])
+                ->findOrFail($id);
+    
+    // ユーザーの統計情報
+    $stats = [
+      'total_conversations' => $user->conversations()->count(),
+      'total_messages' => $user->messages()->count(),
+      'friends_count' => $user->friends()->count(),
+      'last_login' => null, // TODO: ログイン履歴があれば追加
+    ];
+
+    return view('admin.users.show', compact('admin', 'user', 'stats'));
+  }
+
+  /**
+   * ユーザー編集画面
+   */
+  public function editUser($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($id);
+
+    return view('admin.users.edit', compact('admin', 'user'));
+  }
+
+  /**
+   * ユーザー情報更新
+   */
+  public function updateUser(Request $request, $id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($id);
+
+    $request->validate([
+      'name' => 'required|string|max:255',
+      'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+      'is_verified' => 'boolean',
+      'friend_id' => 'required|string|size:6|unique:users,friend_id,' . $user->id,
+    ]);
+
+    $user->update([
+      'name' => $request->name,
+      'email' => $request->email,
+      'is_verified' => $request->boolean('is_verified'),
+      'friend_id' => strtoupper($request->friend_id),
+    ]);
+
+    return redirect()->route('admin.users.show', $user->id)
+                     ->with('success', 'ユーザー情報を更新しました。');
+  }
+
+  /**
+   * ユーザー削除（論理削除）
+   */
+  public function deleteUser(Request $request, $id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($id);
+
+    if ($user->isDeleted()) {
+      return redirect()->back()->with('error', 'このユーザーは既に削除されています。');
+    }
+
+    $request->validate([
+      'reason' => 'required|string|max:500',
+    ]);
+
+    $user->deleteByAdmin($admin->id, $request->reason);
+
+    // ユーザーが参加している会話も削除
+    $conversations = $user->conversations;
+    foreach ($conversations as $conversation) {
+      if (!$conversation->isDeleted()) {
+        $conversation->deleteByAdmin($admin->id, 'ユーザー削除に伴う会話削除');
+      }
+    }
+
+    return redirect()->route('admin.users')
+                     ->with('success', 'ユーザーを削除しました。');
+  }
+
+  /**
+   * ユーザー削除の取り消し
+   */
+  public function restoreUser($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($id);
+
+    if (!$user->isDeleted()) {
+      return redirect()->back()->with('error', 'このユーザーは削除されていません。');
+    }
+
+    $user->restoreByAdmin();
+
+    return redirect()->route('admin.users.show', $user->id)
+                     ->with('success', 'ユーザーの削除を取り消しました。');
+  }
+
+  /**
+   * ユーザーの会話管理画面
+   */
+  public function userConversations($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($id);
+    
+    $conversations = $user->conversations()
+                          ->with(['participants', 'latestMessage', 'deletedByAdmin'])
+                          ->paginate(10);
+
+    return view('admin.users.conversations', compact('admin', 'user', 'conversations'));
+  }
+
+  /**
+   * 会話の詳細と管理
+   */
+  public function conversationDetail($userId, $conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $user = User::findOrFail($userId);
+    $conversation = Conversation::with(['participants', 'messages.sender', 'deletedByAdmin'])
+                                ->findOrFail($conversationId);
+    
+    $messages = $conversation->messages()
+                             ->with(['sender', 'adminDeletedBy'])
+                             ->orderBy('sent_at', 'desc')
+                             ->paginate(20);
+
+    return view('admin.users.conversation-detail', compact('admin', 'user', 'conversation', 'messages'));
+  }
+
+  /**
+   * 会話削除（論理削除）
+   */
+  public function deleteConversation(Request $request, $userId, $conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $conversation = Conversation::findOrFail($conversationId);
+
+    if ($conversation->isDeleted()) {
+      return redirect()->back()->with('error', 'この会話は既に削除されています。');
+    }
+
+    $request->validate([
+      'reason' => 'required|string|max:500',
+    ]);
+
+    $conversation->deleteByAdmin($admin->id, $request->reason);
+
+    return redirect()->route('admin.users.conversations', $userId)
+                     ->with('success', '会話を削除しました。');
+  }
+
+  /**
+   * メッセージ更新
+   */
+  public function updateMessage(Request $request, $userId, $conversationId, $messageId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $message = Message::findOrFail($messageId);
+
+    $request->validate([
+      'text_content' => 'required|string|max:1000',
+    ]);
+
+    $message->update([
+      'text_content' => $request->text_content,
+      'edited_at' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'メッセージを更新しました。');
+  }
+
+  /**
+   * メッセージ削除（管理者による削除）
+   */
+  public function deleteMessage(Request $request, $userId, $conversationId, $messageId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $message = Message::findOrFail($messageId);
+
+    if ($message->isAdminDeleted()) {
+      return redirect()->back()->with('error', 'このメッセージは既に削除されています。');
+    }
+
+    $request->validate([
+      'reason' => 'string|max:500',
+    ]);
+
+    $message->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
+
+    return redirect()->back()->with('success', 'メッセージを削除しました。');
   }
 
   /**

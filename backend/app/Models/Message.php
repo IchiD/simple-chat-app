@@ -18,12 +18,16 @@ class Message extends Model
     'sent_at',
     'edited_at',
     'deleted_at',
+    'admin_deleted_at',
+    'admin_deleted_by',
+    'admin_deleted_reason',
   ];
 
   protected $casts = [
     'sent_at' => 'datetime',
     'edited_at' => 'datetime',
     'deleted_at' => 'datetime',
+    'admin_deleted_at' => 'datetime',
   ];
 
   /**
@@ -40,5 +44,45 @@ class Message extends Model
   public function sender(): BelongsTo
   {
     return $this->belongsTo(User::class, 'sender_id');
+  }
+
+  /**
+   * 管理者による削除を実行した管理者を取得
+   */
+  public function adminDeletedBy(): BelongsTo
+  {
+    return $this->belongsTo(Admin::class, 'admin_deleted_by');
+  }
+
+  /**
+   * メッセージが管理者によって削除されているかチェック
+   */
+  public function isAdminDeleted(): bool
+  {
+    return !is_null($this->admin_deleted_at);
+  }
+
+  /**
+   * 管理者によるメッセージ削除
+   */
+  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  {
+    return $this->update([
+      'admin_deleted_at' => now(),
+      'admin_deleted_reason' => $reason,
+      'admin_deleted_by' => $adminId,
+    ]);
+  }
+
+  /**
+   * 管理者による削除を取り消し
+   */
+  public function restoreByAdmin(): bool
+  {
+    return $this->update([
+      'admin_deleted_at' => null,
+      'admin_deleted_reason' => null,
+      'admin_deleted_by' => null,
+    ]);
   }
 }

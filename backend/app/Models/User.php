@@ -34,6 +34,10 @@ class User extends Authenticatable
     'friend_id',
     'new_email',
     'email_change_token',
+    'deleted_at',
+    'deleted_reason',
+    'deleted_by',
+    'is_banned',
   ];
 
   /**
@@ -55,6 +59,8 @@ class User extends Authenticatable
   {
     return [
       'email_verified_at' => 'datetime',
+      'deleted_at' => 'datetime',
+      'is_banned' => 'boolean',
       'password' => 'hashed',
     ];
   }
@@ -308,5 +314,55 @@ class User extends Authenticatable
   public function messages(): HasMany
   {
     return $this->hasMany(Message::class, 'sender_id');
+  }
+
+  /**
+   * 削除を実行した管理者を取得
+   */
+  public function deletedByAdmin(): BelongsTo
+  {
+    return $this->belongsTo(Admin::class, 'deleted_by');
+  }
+
+  /**
+   * ユーザーが論理削除されているかチェック
+   */
+  public function isDeleted(): bool
+  {
+    return !is_null($this->deleted_at);
+  }
+
+  /**
+   * ユーザーがバンされているかチェック
+   */
+  public function isBanned(): bool
+  {
+    return $this->is_banned;
+  }
+
+  /**
+   * 管理者によるユーザー削除
+   */
+  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  {
+    return $this->update([
+      'deleted_at' => now(),
+      'deleted_reason' => $reason,
+      'deleted_by' => $adminId,
+      'is_banned' => true,
+    ]);
+  }
+
+  /**
+   * ユーザーの削除を取り消し
+   */
+  public function restoreByAdmin(): bool
+  {
+    return $this->update([
+      'deleted_at' => null,
+      'deleted_reason' => null,
+      'deleted_by' => null,
+      'is_banned' => false,
+    ]);
   }
 }

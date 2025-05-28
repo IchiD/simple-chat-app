@@ -26,7 +26,7 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('admin.users') }}">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="search" class="form-label">検索</label>
                             <input type="text" 
                                    class="form-control" 
@@ -41,6 +41,8 @@
                                 <option value="">全て</option>
                                 <option value="verified" {{ request('status') == 'verified' ? 'selected' : '' }}>認証済み</option>
                                 <option value="unverified" {{ request('status') == 'unverified' ? 'selected' : '' }}>未認証</option>
+                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>削除済み</option>
+                                <option value="banned" {{ request('status') == 'banned' ? 'selected' : '' }}>バン済み</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -52,7 +54,7 @@
                                 <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>名前（降順）</option>
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
+                        <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="fas fa-search me-1"></i>検索
                             </button>
@@ -88,12 +90,13 @@
                                     <th>認証状態</th>
                                     <th>フレンドID</th>
                                     <th>登録日</th>
+                                    <th>削除情報</th>
                                     <th>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($users as $user)
-                                <tr>
+                                <tr class="{{ $user->isDeleted() ? 'table-warning' : '' }}">
                                     <td>
                                         <span class="fw-bold text-primary">#{{ $user->id }}</span>
                                     </td>
@@ -126,6 +129,12 @@
                                                 <i class="fas fa-exclamation-circle me-1"></i>未認証
                                             </span>
                                         @endif
+                                        
+                                        @if($user->isBanned())
+                                            <br><span class="badge bg-danger mt-1">
+                                                <i class="fas fa-ban me-1"></i>バン済み
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <code class="bg-light p-1 rounded">{{ $user->friend_id }}</code>
@@ -133,6 +142,21 @@
                                     <td>
                                         <div>{{ $user->created_at->format('Y/m/d') }}</div>
                                         <small class="text-muted">{{ $user->created_at->format('H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        @if($user->isDeleted())
+                                            <div class="text-danger">
+                                                <i class="fas fa-trash me-1"></i><strong>管理側で削除</strong>
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ $user->deleted_at->format('Y/m/d H:i') }}
+                                                @if($user->deletedByAdmin)
+                                                    <br>削除者: {{ $user->deletedByAdmin->name }}
+                                                @endif
+                                            </small>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="dropdown">
@@ -143,24 +167,39 @@
                                             </button>
                                             <ul class="dropdown-menu">
                                                 <li>
-                                                    <a class="dropdown-item" href="#" 
-                                                       onclick="alert('詳細機能は今後実装予定です')">
+                                                    <a class="dropdown-item" href="{{ route('admin.users.show', $user->id) }}">
                                                         <i class="fas fa-eye me-2"></i>詳細を見る
                                                     </a>
                                                 </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" 
-                                                       onclick="alert('編集機能は今後実装予定です')">
-                                                        <i class="fas fa-edit me-2"></i>編集
-                                                    </a>
-                                                </li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                    <a class="dropdown-item text-danger" href="#" 
-                                                       onclick="if(confirm('本当に削除しますか？')) alert('削除機能は今後実装予定です')">
-                                                        <i class="fas fa-trash me-2"></i>削除
-                                                    </a>
-                                                </li>
+                                                @if(!$user->isDeleted())
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.users.edit', $user->id) }}">
+                                                            <i class="fas fa-edit me-2"></i>編集
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.users.conversations', $user->id) }}">
+                                                            <i class="fas fa-comments me-2"></i>会話管理
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" href="#" 
+                                                           onclick="showDeleteModal({{ $user->id }}, '{{ $user->name }}')">
+                                                            <i class="fas fa-trash me-2"></i>削除
+                                                        </a>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <form method="POST" action="{{ route('admin.users.restore', $user->id) }}" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success" 
+                                                                    onclick="return confirm('ユーザーの削除を取り消しますか？')">
+                                                                <i class="fas fa-undo me-2"></i>削除取り消し
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </td>
@@ -190,4 +229,45 @@
         </div>
     </div>
 </div>
+
+<!-- 削除確認モーダル -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ユーザー削除確認</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="deleteForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>警告:</strong> この操作により、ユーザー「<span id="deleteUserName"></span>」が論理削除され、
+                        同じメールアドレスでの再登録ができなくなります。
+                    </div>
+                    <div class="mb-3">
+                        <label for="deleteReason" class="form-label">削除理由 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="deleteReason" name="reason" rows="3" required 
+                                  placeholder="削除理由を入力してください"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-danger">削除する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showDeleteModal(userId, userName) {
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteForm').action = `/admin/users/${userId}`;
+    document.getElementById('deleteReason').value = '';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
 @endsection
