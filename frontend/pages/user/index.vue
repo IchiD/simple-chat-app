@@ -1,187 +1,38 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div v-if="isLoading" class="py-16 text-center">
-        <!-- ローディングスピナー -->
-        <div
-          class="h-10 w-10 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
-        />
-        <p class="mt-4 text-gray-600 font-medium">
-          ユーザー情報を読み込み中...
-        </p>
-      </div>
-
-      <template v-else>
-        <div class="max-w-4xl mx-auto">
-          <!-- ヘッダーエリア -->
-          <div class="mb-6 flex justify-between items-center">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-800">ホーム</h1>
-              <p v-if="authStore.user" class="text-lg text-gray-600 mt-1">
-                ようこそ、<span style="color: var(--primary)">{{
-                  authStore.user.name
-                }}</span
-                >さん
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100">
+    <div
+      class="relative flex antialiased text-gray-800"
+      style="height: calc(100vh - 7.5rem)"
+    >
+      <div class="flex h-full w-full">
+        <div class="w-full overflow-y-auto">
+          <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div v-if="isLoading" class="py-16 text-center">
+              <!-- ローディングスピナー -->
+              <div
+                class="h-10 w-10 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+              />
+              <p class="mt-4 text-gray-600 font-medium">
+                ユーザー情報を読み込み中...
               </p>
             </div>
-            <button
-              class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105"
-              @click="handleLogout"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h4v10H4V5zm6 0h4v10h-4V5z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              ログアウト
-            </button>
-          </div>
 
-          <div v-if="authStore.user" class="space-y-6">
-            <!-- メニューカード -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <NuxtLink to="/friends" class="block">
-                <div
-                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
-                  style="border-color: var(--primary-light)"
-                >
-                  <div class="flex items-center">
-                    <div
-                      style="
-                        background-color: white;
-                        color: var(--primary);
-                        border: 1px solid var(--primary-light);
-                      "
-                      class="p-3 rounded-full mr-4"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="font-semibold">友達を管理</h3>
-                      <p class="text-sm text-gray-600">
-                        友達の追加・確認ができます
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink to="/chat" class="block">
-                <div
-                  class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
-                  style="border-color: var(--primary-light)"
-                >
-                  <div class="flex items-center">
-                    <div
-                      style="
-                        background-color: white;
-                        color: var(--primary);
-                        border: 1px solid var(--primary-light);
-                      "
-                      class="p-3 rounded-full mr-4"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-                        />
-                        <path
-                          d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="font-semibold">チャット</h3>
-                      <p class="text-sm text-gray-600">
-                        友達とメッセージを交換できます
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </NuxtLink>
-            </div>
-            <!-- フレンドID表示エリア（カラフルでモダンな表示） -->
-            <div
-              class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-              style="border-left-color: var(--primary)"
-            >
-              <div class="relative">
-                <!-- 装飾用背景要素 -->
-                <div
-                  class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20"
-                  style="background-color: var(--primary-light)"
-                />
-                <div
-                  class="absolute -bottom-12 -left-12 w-32 h-32 rounded-full opacity-20"
-                  style="background-color: var(--primary)"
-                />
-
-                <div
-                  class="flex items-center justify-between relative z-10 p-6"
-                >
-                  <div class="flex-1">
-                    <h3
-                      class="text-lg font-semibold mb-2 flex items-center"
-                      style="color: var(--primary)"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      あなたのフレンドID
-                    </h3>
-                    <div
-                      class="bg-white border rounded-lg p-3 inline-block"
-                      style="border-color: var(--primary-light)"
-                    >
-                      <p
-                        class="text-2xl font-bold tracking-wider"
-                        style="color: var(--primary-dark)"
-                      >
-                        {{ authStore.user.friend_id || "未設定" }}
-                      </p>
-                    </div>
-                    <p class="text-sm text-gray-700 mt-3">
-                      このIDを友達に教えると、あなたを友達に追加できます
+            <template v-else>
+              <div class="max-w-4xl mx-auto">
+                <!-- ヘッダーエリア -->
+                <div class="mb-6 flex justify-between items-center">
+                  <div>
+                    <h1 class="text-3xl font-bold text-gray-800">ホーム</h1>
+                    <p v-if="authStore.user" class="text-lg text-gray-600 mt-1">
+                      ようこそ、<span style="color: var(--primary)">{{
+                        authStore.user.name
+                      }}</span
+                      >さん
                     </p>
                   </div>
                   <button
-                    v-if="authStore.user.friend_id"
-                    class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center"
-                    style="
-                      background-color: white;
-                      color: var(--primary);
-                      border: 1px solid var(--primary-light);
-                    "
-                    @click="copyFriendId"
+                    class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105"
+                    @click="handleLogout"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -190,420 +41,583 @@
                       fill="currentColor"
                     >
                       <path
-                        d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                      />
-                      <path
-                        d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                        fill-rule="evenodd"
+                        d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h4v10H4V5zm6 0h4v10h-4V5z"
+                        clip-rule="evenodd"
                       />
                     </svg>
-                    コピー
+                    ログアウト
                   </button>
                 </div>
-              </div>
-            </div>
 
-            <!-- ユーザー情報エリア -->
-            <div
-              class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
-            >
-              <h3
-                class="text-md font-semibold text-gray-800 mb-4 flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2"
-                  style="color: var(--primary)"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                アカウント情報
-              </h3>
-              <div class="space-y-4">
-                <!-- メールアドレス表示 -->
-                <div class="bg-gray-50 p-4 rounded-lg">
-                  <div class="flex items-center justify-between">
-                    <p class="text-sm text-gray-500">メールアドレス</p>
-                    <button
-                      v-if="!isChangingEmail && !pendingEmailChange"
-                      class="text-sm hover:text-opacity-80 transition-colors"
-                      style="color: var(--primary)"
-                      @click="isChangingEmail = true"
-                    >
-                      変更
-                    </button>
-                  </div>
-                  <p class="font-medium">{{ authStore.user.email }}</p>
-
-                  <!-- メールアドレス変更中の状態表示 -->
-                  <div
-                    v-if="pendingEmailChange"
-                    class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
-                  >
-                    <div class="flex items-start">
-                      <div class="flex-shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="text-blue-400 h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800">
-                          メールアドレス変更中
-                        </h3>
-                        <div class="mt-1 text-sm text-blue-700">
-                          <p>
-                            {{
-                              newEmail
-                            }}に確認メールを送信しました。<br />メール内のリンクをクリックすると変更が完了します。
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- メールアドレス変更フォーム -->
-                <div
-                  v-if="isChangingEmail"
-                  class="mt-4 p-4 bg-white rounded-lg border border-gray-200"
-                >
-                  <h3 class="text-lg font-medium text-gray-900 mb-3">
-                    メールアドレス変更
-                  </h3>
-                  <form @submit.prevent="changeEmail">
-                    <div class="mb-4">
-                      <label
-                        for="new_email"
-                        class="block text-sm font-medium text-gray-700 mb-1"
-                        >新しいメールアドレス</label
+                <div v-if="authStore.user" class="space-y-6">
+                  <!-- メニューカード -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <NuxtLink to="/friends" class="block">
+                      <div
+                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        style="border-color: var(--primary-light)"
                       >
-                      <input
-                        id="new_email"
-                        v-model="newEmail"
-                        type="email"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        placeholder="新しいメールアドレスを入力"
-                      />
-                      <p class="mt-1 text-sm text-gray-500">
-                        確認のため新しいメールアドレスに認証メールが送信されます。
-                      </p>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                      <button
-                        type="button"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
-                        @click="isChangingEmail = false"
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md"
-                        :disabled="emailChangeLoading"
-                      >
-                        <span v-if="emailChangeLoading">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="animate-spin h-4 w-4 mr-1 inline"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
+                        <div class="flex items-center">
+                          <div
+                            style="
+                              background-color: white;
+                              color: var(--primary);
+                              border: 1px solid var(--primary-light);
+                            "
+                            class="p-3 rounded-full mr-4"
                           >
-                            <path
-                              fill-rule="evenodd"
-                              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                              clip-rule="evenodd"
-                            />
-                          </svg>
-                          処理中...
-                        </span>
-                        <span v-else>確認メールを送信</span>
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                <!-- ユーザーネーム表示・編集 -->
-                <div class="bg-gray-50 p-4 rounded-lg">
-                  <div class="flex justify-between items-center mb-1">
-                    <p class="text-sm text-gray-500">ユーザーネーム</p>
-                    <button
-                      v-if="!isEditingName"
-                      class="text-sm hover:text-opacity-80 transition-colors font-medium"
-                      style="color: var(--primary)"
-                      @click="editName"
-                    >
-                      変更
-                    </button>
-                  </div>
-                  <div v-if="!isEditingName">
-                    <p class="font-medium">{{ authStore.user.name }}</p>
-                  </div>
-                  <div v-else class="space-y-2">
-                    <input
-                      v-model="editingName"
-                      type="text"
-                      :class="[
-                        'w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none sm:text-sm',
-                        nameEditError
-                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                          : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-                      ]"
-                      placeholder="10文字以内"
-                    />
-                    <p v-if="nameEditError" class="mt-1 text-sm text-red-600">
-                      {{ nameEditError }}
-                    </p>
-                    <div class="flex space-x-2 justify-end">
-                      <button
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
-                        @click="cancelEditName"
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        :disabled="
-                          !editingName.trim() ||
-                          editingName.trim().length > 10 ||
-                          editingName.trim() === authStore.user.name
-                        "
-                        class="px-3 py-1 text-sm font-medium text-white rounded-md disabled:opacity-50"
-                        style="background-color: var(--primary)"
-                        @click="saveName"
-                      >
-                        保存
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- パスワード変更フォーム -->
-                <div class="bg-gray-50 p-4 rounded-lg">
-                  <div class="flex justify-between items-center">
-                    <p class="text-sm text-gray-500">パスワード</p>
-                    <button
-                      v-if="!isChangingPassword"
-                      class="text-sm hover:text-opacity-80 transition-colors font-medium"
-                      style="color: var(--primary)"
-                      @click="isChangingPassword = true"
-                    >
-                      変更
-                    </button>
-                  </div>
-
-                  <div v-if="isChangingPassword" class="mt-2 space-y-4">
-                    <form @submit.prevent="changePassword">
-                      <div>
-                        <label
-                          for="current_password"
-                          class="block text-sm font-medium text-gray-700 mb-1"
-                          >現在のパスワード</label
-                        >
-                        <input
-                          id="current_password"
-                          v-model="currentPassword"
-                          type="password"
-                          required
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          for="new_password"
-                          class="block text-sm font-medium text-gray-700 mb-1"
-                          >新しいパスワード</label
-                        >
-                        <input
-                          id="new_password"
-                          v-model="newPassword"
-                          type="password"
-                          required
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          for="new_password_confirmation"
-                          class="block text-sm font-medium text-gray-700 mb-1"
-                          >新しいパスワード（確認）</label
-                        >
-                        <input
-                          id="new_password_confirmation"
-                          v-model="newPasswordConfirmation"
-                          type="password"
-                          required
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                      </div>
-                      <div class="flex justify-end space-x-3 mt-4">
-                        <button
-                          type="button"
-                          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
-                          @click="cancelChangePassword"
-                        >
-                          キャンセル
-                        </button>
-                        <button
-                          type="submit"
-                          class="px-4 py-2 text-sm font-medium text-white border-transparent rounded-md"
-                          style="background-color: var(--primary)"
-                          :disabled="passwordChangeLoading"
-                        >
-                          <span v-if="passwordChangeLoading">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              class="animate-spin h-4 w-4 mr-1 inline"
+                              class="h-6 w-6"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 class="font-semibold">友達を管理</h3>
+                            <p class="text-sm text-gray-600">
+                              友達の追加・確認ができます
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </NuxtLink>
+
+                    <NuxtLink to="/chat" class="block">
+                      <div
+                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        style="border-color: var(--primary-light)"
+                      >
+                        <div class="flex items-center">
+                          <div
+                            style="
+                              background-color: white;
+                              color: var(--primary);
+                              border: 1px solid var(--primary-light);
+                            "
+                            class="p-3 rounded-full mr-4"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-6 w-6"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                              />
+                              <path
+                                d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 class="font-semibold">チャット</h3>
+                            <p class="text-sm text-gray-600">
+                              友達とメッセージを交換できます
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </NuxtLink>
+                  </div>
+                  <!-- フレンドID表示エリア（カラフルでモダンな表示） -->
+                  <div
+                    class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    style="border-left-color: var(--primary)"
+                  >
+                    <div class="relative">
+                      <!-- 装飾用背景要素 -->
+                      <div
+                        class="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20"
+                        style="background-color: var(--primary-light)"
+                      />
+                      <div
+                        class="absolute -bottom-12 -left-12 w-32 h-32 rounded-full opacity-20"
+                        style="background-color: var(--primary)"
+                      />
+
+                      <div
+                        class="flex items-center justify-between relative z-10 p-6"
+                      >
+                        <div class="flex-1">
+                          <h3
+                            class="text-lg font-semibold mb-2 flex items-center"
+                            style="color: var(--primary)"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-5 w-5 mr-2"
                               viewBox="0 0 20 20"
                               fill="currentColor"
                             >
                               <path
                                 fill-rule="evenodd"
-                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
                                 clip-rule="evenodd"
                               />
                             </svg>
-                            処理中...
-                          </span>
-                          <span v-else>パスワードを更新</span>
+                            あなたのフレンドID
+                          </h3>
+                          <div
+                            class="bg-white border rounded-lg p-3 inline-block"
+                            style="border-color: var(--primary-light)"
+                          >
+                            <p
+                              class="text-2xl font-bold tracking-wider"
+                              style="color: var(--primary-dark)"
+                            >
+                              {{ authStore.user.friend_id || "未設定" }}
+                            </p>
+                          </div>
+                          <p class="text-sm text-gray-700 mt-3">
+                            このIDを友達に教えると、あなたを友達に追加できます
+                          </p>
+                        </div>
+                        <button
+                          v-if="authStore.user.friend_id"
+                          class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center"
+                          style="
+                            background-color: white;
+                            color: var(--primary);
+                            border: 1px solid var(--primary-light);
+                          "
+                          @click="copyFriendId"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 mr-2"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                            />
+                            <path
+                              d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                            />
+                          </svg>
+                          コピー
                         </button>
                       </div>
-                    </form>
+                    </div>
+                  </div>
+
+                  <!-- ユーザー情報エリア -->
+                  <div
+                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
+                  >
+                    <h3
+                      class="text-md font-semibold text-gray-800 mb-4 flex items-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2"
+                        style="color: var(--primary)"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      アカウント情報
+                    </h3>
+                    <div class="space-y-4">
+                      <!-- メールアドレス表示 -->
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                          <p class="text-sm text-gray-500">メールアドレス</p>
+                          <button
+                            v-if="!isChangingEmail && !pendingEmailChange"
+                            class="text-sm hover:text-opacity-80 transition-colors"
+                            style="color: var(--primary)"
+                            @click="isChangingEmail = true"
+                          >
+                            変更
+                          </button>
+                        </div>
+                        <p class="font-medium">{{ authStore.user.email }}</p>
+
+                        <!-- メールアドレス変更中の状態表示 -->
+                        <div
+                          v-if="pendingEmailChange"
+                          class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
+                        >
+                          <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="text-blue-400 h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                            <div class="ml-3">
+                              <h3 class="text-sm font-medium text-blue-800">
+                                メールアドレス変更中
+                              </h3>
+                              <div class="mt-1 text-sm text-blue-700">
+                                <p>
+                                  {{
+                                    newEmail
+                                  }}に確認メールを送信しました。<br />メール内のリンクをクリックすると変更が完了します。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- メールアドレス変更フォーム -->
+                      <div
+                        v-if="isChangingEmail"
+                        class="mt-4 p-4 bg-white rounded-lg border border-gray-200"
+                      >
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">
+                          メールアドレス変更
+                        </h3>
+                        <form @submit.prevent="changeEmail">
+                          <div class="mb-4">
+                            <label
+                              for="new_email"
+                              class="block text-sm font-medium text-gray-700 mb-1"
+                              >新しいメールアドレス</label
+                            >
+                            <input
+                              id="new_email"
+                              v-model="newEmail"
+                              type="email"
+                              required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              placeholder="新しいメールアドレスを入力"
+                            />
+                            <p class="mt-1 text-sm text-gray-500">
+                              確認のため新しいメールアドレスに認証メールが送信されます。
+                            </p>
+                          </div>
+                          <div class="flex justify-end space-x-3">
+                            <button
+                              type="button"
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+                              @click="isChangingEmail = false"
+                            >
+                              キャンセル
+                            </button>
+                            <button
+                              type="submit"
+                              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md"
+                              :disabled="emailChangeLoading"
+                            >
+                              <span v-if="emailChangeLoading">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="animate-spin h-4 w-4 mr-1 inline"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                処理中...
+                              </span>
+                              <span v-else>確認メールを送信</span>
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+
+                      <!-- ユーザーネーム表示・編集 -->
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-1">
+                          <p class="text-sm text-gray-500">ユーザーネーム</p>
+                          <button
+                            v-if="!isEditingName"
+                            class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                            style="color: var(--primary)"
+                            @click="editName"
+                          >
+                            変更
+                          </button>
+                        </div>
+                        <div v-if="!isEditingName">
+                          <p class="font-medium">{{ authStore.user.name }}</p>
+                        </div>
+                        <div v-else class="space-y-2">
+                          <input
+                            v-model="editingName"
+                            type="text"
+                            :class="[
+                              'w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none sm:text-sm',
+                              nameEditError
+                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                            ]"
+                            placeholder="10文字以内"
+                          />
+                          <p
+                            v-if="nameEditError"
+                            class="mt-1 text-sm text-red-600"
+                          >
+                            {{ nameEditError }}
+                          </p>
+                          <div class="flex space-x-2 justify-end">
+                            <button
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+                              @click="cancelEditName"
+                            >
+                              キャンセル
+                            </button>
+                            <button
+                              :disabled="
+                                !editingName.trim() ||
+                                editingName.trim().length > 10 ||
+                                editingName.trim() === authStore.user.name
+                              "
+                              class="px-3 py-1 text-sm font-medium text-white rounded-md disabled:opacity-50"
+                              style="background-color: var(--primary)"
+                              @click="saveName"
+                            >
+                              保存
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- パスワード変更フォーム -->
+                      <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                          <p class="text-sm text-gray-500">パスワード</p>
+                          <button
+                            v-if="!isChangingPassword"
+                            class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                            style="color: var(--primary)"
+                            @click="isChangingPassword = true"
+                          >
+                            変更
+                          </button>
+                        </div>
+
+                        <div v-if="isChangingPassword" class="mt-2 space-y-4">
+                          <form @submit.prevent="changePassword">
+                            <div>
+                              <label
+                                for="current_password"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >現在のパスワード</label
+                              >
+                              <input
+                                id="current_password"
+                                v-model="currentPassword"
+                                type="password"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
+                              />
+                            </div>
+                            <div>
+                              <label
+                                for="new_password"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >新しいパスワード</label
+                              >
+                              <input
+                                id="new_password"
+                                v-model="newPassword"
+                                type="password"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm mb-2"
+                              />
+                            </div>
+                            <div>
+                              <label
+                                for="new_password_confirmation"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >新しいパスワード（確認）</label
+                              >
+                              <input
+                                id="new_password_confirmation"
+                                v-model="newPasswordConfirmation"
+                                type="password"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              />
+                            </div>
+                            <div class="flex justify-end space-x-3 mt-4">
+                              <button
+                                type="button"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md"
+                                @click="cancelChangePassword"
+                              >
+                                キャンセル
+                              </button>
+                              <button
+                                type="submit"
+                                class="px-4 py-2 text-sm font-medium text-white border-transparent rounded-md"
+                                style="background-color: var(--primary)"
+                                :disabled="passwordChangeLoading"
+                              >
+                                <span v-if="passwordChangeLoading">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="animate-spin h-4 w-4 mr-1 inline"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fill-rule="evenodd"
+                                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                      clip-rule="evenodd"
+                                    />
+                                  </svg>
+                                  処理中...
+                                </span>
+                                <span v-else>パスワードを更新</span>
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 通知設定エリア -->
+                  <div
+                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
+                  >
+                    <h3
+                      class="text-md font-semibold text-gray-800 mb-4 flex items-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2"
+                        style="color: var(--primary)"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                        />
+                      </svg>
+                      通知設定
+                    </h3>
+                    <NotificationSettings :is-dev="isDevelopment" />
+                  </div>
+
+                  <!-- アプリ使い方ガイド -->
+                  <div
+                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
+                  >
+                    <h3
+                      class="text-md font-semibold text-gray-800 mb-4 flex items-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                        style="color: var(--primary)"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      アプリの使い方
+                    </h3>
+                    <ul class="space-y-3">
+                      <li class="flex items-start">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                          style="color: var(--primary)"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        <span
+                          >フレンドIDを友達に教えて友達申請を受けることができます</span
+                        >
+                      </li>
+                      <li class="flex items-start">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                          style="color: var(--primary)"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        <span>フレンドIDを使って友達を追加できます</span>
+                      </li>
+                      <li class="flex items-start">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                          style="color: var(--primary)"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        <span
+                          >友達とトークルームでメッセージを交換できます</span
+                        >
+                      </li>
+                      <li class="flex items-start">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+                          style="color: var(--primary)"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        <span>画像も送信できます（今後実装予定）</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- 通知設定エリア -->
-            <div
-              class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
-            >
-              <h3
-                class="text-md font-semibold text-gray-800 mb-4 flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2"
-                  style="color: var(--primary)"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-                  />
-                </svg>
-                通知設定
-              </h3>
-              <NotificationSettings :is-dev="isDevelopment" />
-            </div>
-
-            <!-- アプリ使い方ガイド -->
-            <div
-              class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
-            >
-              <h3
-                class="text-md font-semibold text-gray-800 mb-4 flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                  style="color: var(--primary)"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                アプリの使い方
-              </h3>
-              <ul class="space-y-3">
-                <li class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                    style="color: var(--primary)"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span
-                    >フレンドIDを友達に教えて友達申請を受けることができます</span
-                  >
-                </li>
-                <li class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                    style="color: var(--primary)"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span>フレンドIDを使って友達を追加できます</span>
-                </li>
-                <li class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                    style="color: var(--primary)"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span>友達とトークルームでメッセージを交換できます</span>
-                </li>
-                <li class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                    style="color: var(--primary)"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span>画像も送信できます（今後実装予定）</span>
-                </li>
-              </ul>
-            </div>
+            </template>
           </div>
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>

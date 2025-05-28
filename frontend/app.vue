@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="bg-gray-50">
     <ToastContainer />
     <NuxtLayout name="default">
       <NuxtPage />

@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="bg-gradient-to-br from-gray-50 to-gray-100">
     <div
       class="relative flex antialiased text-gray-800"
-      style="height: calc(100vh - 4rem)"
+      style="height: calc(100vh - 7.5rem)"
     >
       <div class="flex h-full w-full">
         <ChatSidebar

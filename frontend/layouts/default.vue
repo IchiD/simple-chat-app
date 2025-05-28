@@ -6,11 +6,7 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <NuxtLink to="/user" class="flex items-center">
-              <img
-                src="/images/rogo.png"
-                alt="LumoChat"
-                class="h-10 w-auto"
-              />
+              <img src="/images/rogo.png" alt="LumoChat" class="h-10 w-auto" />
             </NuxtLink>
           </div>
           <div class="flex items-center space-x-2 sm:space-x-3">
@@ -78,12 +74,15 @@
       </div>
     </nav>
 
-    <main class="min-h-screen">
+    <main class="">
       <slot />
     </main>
 
     <!-- 共通フッター (chat/[room_token] ページでは非表示) -->
-    <footer v-if="!isChatRoomPage" class="bg-white py-4 border-t border-gray-200">
+    <footer
+      v-if="!isChatRoomPage"
+      class="bg-white py-4 border-t border-gray-200"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center text-sm text-gray-500">
           &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
@@ -100,14 +99,14 @@ const route = useRoute();
 // 現在のページを判断する関数
 const currentPage = computed(() => {
   const path = route.path;
-  if (path === '/user' || path.startsWith('/user/')) return 'user';
-  if (path === '/friends' || path.startsWith('/friends/')) return 'friends';
-  if (path === '/chat' || path.startsWith('/chat/')) return 'chat';
+  if (path === "/user" || path.startsWith("/user/")) return "user";
+  if (path === "/friends" || path.startsWith("/friends/")) return "friends";
+  if (path === "/chat" || path.startsWith("/chat/")) return "chat";
   return null;
 });
 
 // chat/[room_token] ページかどうかを判断
 const isChatRoomPage = computed(() => {
-  return route.path.match(/^\/chat\/[^\/]+$/);
+  return route.path.match(/^\/chat\/[^/]+\/?$/);
 });
 </script>
