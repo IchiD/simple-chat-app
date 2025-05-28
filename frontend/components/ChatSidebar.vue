@@ -22,7 +22,7 @@
         </svg>
       </div>
 
-      <div class="ml-2 text-xl font-bold">トークリスト</div>
+      <div class="ml-2 text-xl font-bold">メッセージリスト</div>
     </div>
 
     <!-- Conversation List -->
@@ -82,7 +82,7 @@
       <button
         v-for="convo in conversations"
         :key="convo.id"
-        class="group relative flex flex-row items-center hover:bg-gradient-to-r hover:from-emerald-50 hover:to-blue-50 p-3 m-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 shadow-sm hover:shadow-md border border-transparent hover:border-emerald-100"
+        class="group relative flex flex-row items-center hover:bg-gradient-to-r hover:from-emerald-50 hover:to-blue-50 p-3 m-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 shadow-sm hover:shadow-md border border-transparent hover:border-emerald-100 cursor-pointer"
         :class="{
           'bg-gradient-to-r from-emerald-100 to-emerald-50 border-emerald-200 shadow-md':
             selectedConversationRoomToken === convo.room_token,

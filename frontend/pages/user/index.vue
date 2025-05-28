@@ -31,7 +31,7 @@
                     </p>
                   </div>
                   <button
-                    class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105"
+                    class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105 cursor-pointer"
                     @click="handleLogout"
                   >
                     <svg
@@ -181,7 +181,7 @@
                         </div>
                         <button
                           v-if="authStore.user.friend_id"
-                          class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center"
+                          class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center cursor-pointer"
                           style="
                             background-color: white;
                             color: var(--primary);
@@ -237,7 +237,7 @@
                           <p class="text-sm text-gray-500">メールアドレス</p>
                           <button
                             v-if="!isChangingEmail && !pendingEmailChange"
-                            class="text-sm hover:text-opacity-80 transition-colors"
+                            class="text-sm hover:text-opacity-80 transition-colors cursor-pointer"
                             style="color: var(--primary)"
                             @click="isChangingEmail = true"
                           >
@@ -349,7 +349,7 @@
                           <p class="text-sm text-gray-500">ユーザーネーム</p>
                           <button
                             v-if="!isEditingName"
-                            class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                            class="text-sm hover:text-opacity-80 transition-colors cursor-pointer font-medium"
                             style="color: var(--primary)"
                             @click="editName"
                           >
@@ -406,7 +406,7 @@
                           <p class="text-sm text-gray-500">パスワード</p>
                           <button
                             v-if="!isChangingPassword"
-                            class="text-sm hover:text-opacity-80 transition-colors font-medium"
+                            class="text-sm hover:text-opacity-80 transition-colors cursor-pointer font-medium"
                             style="color: var(--primary)"
                             @click="isChangingPassword = true"
                           >

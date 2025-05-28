@@ -56,7 +56,7 @@
                 <div class="border-b border-gray-200">
                   <nav class="flex">
                     <button
-                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
+                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative cursor-pointer"
                       :class="[
                         activeTab === 'friends'
                           ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -82,7 +82,7 @@
                     </button>
 
                     <button
-                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
+                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative cursor-pointer"
                       :class="[
                         activeTab === 'requests'
                           ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -108,7 +108,7 @@
                     </button>
 
                     <button
-                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative"
+                      class="flex-1 py-3 px-2 sm:py-4 sm:px-6 text-center font-medium text-xs sm:text-sm transition-all duration-200 relative cursor-pointer"
                       :class="[
                         activeTab === 'sent'
                           ? 'text-emerald-600 bg-emerald-50 border-b-2 border-emerald-600'
@@ -201,7 +201,7 @@
                         </div>
                         <div class="flex flex-row space-x-2">
                           <button
-                            class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
+                            class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200 cursor-pointer"
                             @click="startChat(friend.id)"
                           >
                             <svg
@@ -220,7 +220,7 @@
                             <span class="hidden sm:inline">チャット</span>
                           </button>
                           <button
-                            class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
+                            class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200 cursor-pointer"
                             @click="unfriend(friend.id)"
                           >
                             <svg
