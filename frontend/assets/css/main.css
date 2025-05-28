@@ -14,9 +14,36 @@
   --border: #e2e8f0; /* 薄いグレー - 境界線の色 */
 }
 
-/* グローバルに全ての角を角ばらせる */
+/* グローバルに全ての角を角ばらせる（例外を除く） */
 * {
   border-radius: 0 !important;
+}
+
+/* 例外: 丸いままにする要素 */
+/* ローディングサークル・アバター（完全に丸い） */
+.animate-spin,
+.rounded-full,
+[class*="rounded-full"],
+img[alt*="Avatar"],
+img[alt*="avatar"],
+.avatar,
+[class*="avatar"],
+.spinner-border,
+[class*="spinner"],
+.btn-circle,
+/* アバター用の具体的なセレクター */
+.flex.items-center.justify-center.rounded-full,
+.bg-gray-100.rounded-full,
+.bg-emerald-100.rounded-full,
+.bg-blue-100.rounded-full,
+.bg-orange-100.rounded-full {
+  border-radius: 50% !important;
+}
+
+/* チャットメッセージの枠（中程度の丸み） */
+.rounded-2xl,
+[class*="rounded-2xl"] {
+  border-radius: 1rem !important;
 }
 
 /* カスタムスタイル */
