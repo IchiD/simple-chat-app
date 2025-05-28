@@ -15,7 +15,7 @@
 <!-- 統計カード -->
 <div class="row mb-4">
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0;">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <div class="rounded-circle bg-primary bg-opacity-10 p-2">
@@ -30,7 +30,7 @@
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0;">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <div class="rounded-circle bg-success bg-opacity-10 p-2">
@@ -45,7 +45,7 @@
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0;">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <div class="rounded-circle bg-warning bg-opacity-10 p-2">
@@ -60,7 +60,7 @@
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0;">
       <div class="card-body p-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
           <div class="rounded-circle bg-info bg-opacity-10 p-2">
@@ -78,7 +78,7 @@
 <!-- システム状態一覧 -->
 <div class="row mb-4">
   <div class="col-12">
-    <div class="card border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+    <div class="card border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0;">
       <div class="card-header bg-transparent border-0 pb-0">
         <h5 class="card-title mb-0">
           <i class="fas fa-server me-2"></i>システム状態監視

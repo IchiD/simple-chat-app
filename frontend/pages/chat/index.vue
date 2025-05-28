@@ -201,7 +201,7 @@ const handleConversationSelected = (roomToken: string) => {
 }
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: #cbd5e0; /* Tailwind gray-400 */
-  border-radius: 3px;
+  border-radius: 0;
 }
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background-color: #a0aec0; /* Tailwind gray-500 */

@@ -19,7 +19,7 @@
         .sidebar .nav-link.active {
             color: white;
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 0;
         }
         .navbar-custom {
             background: white;
@@ -32,7 +32,7 @@
         .card {
             border: none;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 10px;
+            border-radius: 0;
         }
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

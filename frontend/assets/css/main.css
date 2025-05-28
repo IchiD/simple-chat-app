@@ -14,6 +14,11 @@
   --border: #e2e8f0; /* 薄いグレー - 境界線の色 */
 }
 
+/* グローバルに全ての角を角ばらせる */
+* {
+  border-radius: 0 !important;
+}
+
 /* カスタムスタイル */
 body {
   color: var(--text-primary);

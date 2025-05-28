@@ -19,7 +19,7 @@
 
     .login-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 0;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       max-width: 400px;
@@ -38,7 +38,7 @@
     }
 
     .form-control {
-      border-radius: 10px;
+      border-radius: 0;
       border: 2px solid #f0f0f0;
       padding: 12px 15px;
       transition: all 0.3s ease;
@@ -52,7 +52,7 @@
     .btn-login {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
-      border-radius: 10px;
+      border-radius: 0;
       padding: 12px;
       font-weight: 600;
       transition: all 0.3s ease;
@@ -67,12 +67,12 @@
       border: 2px solid #f0f0f0;
       border-right: none;
       background: #f8f9fa;
-      border-radius: 10px 0 0 10px;
+      border-radius: 0;
     }
 
     .input-group .form-control {
       border-left: none;
-      border-radius: 0 10px 10px 0;
+      border-radius: 0;
     }
 
     .form-check-input:checked {
