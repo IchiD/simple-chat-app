@@ -14,6 +14,13 @@ class Conversation extends Model
 
   protected $fillable = [
     'type',
+    'deleted_at',
+    'deleted_reason',
+    'deleted_by',
+  ];
+
+  protected $casts = [
+    'deleted_at' => 'datetime',
   ];
 
   /**
@@ -63,5 +70,45 @@ class Conversation extends Model
   public function latestMessage()
   {
     return $this->hasOne(Message::class)->latest('sent_at');
+  }
+
+  /**
+   * 削除を実行した管理者を取得
+   */
+  public function deletedByAdmin()
+  {
+    return $this->belongsTo(Admin::class, 'deleted_by');
+  }
+
+  /**
+   * 会話が論理削除されているかチェック
+   */
+  public function isDeleted(): bool
+  {
+    return !is_null($this->deleted_at);
+  }
+
+  /**
+   * 管理者による会話削除
+   */
+  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  {
+    return $this->update([
+      'deleted_at' => now(),
+      'deleted_reason' => $reason,
+      'deleted_by' => $adminId,
+    ]);
+  }
+
+  /**
+   * 会話の削除を取り消し
+   */
+  public function restoreByAdmin(): bool
+  {
+    return $this->update([
+      'deleted_at' => null,
+      'deleted_reason' => null,
+      'deleted_by' => null,
+    ]);
   }
 }

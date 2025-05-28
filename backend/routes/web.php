@@ -31,6 +31,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
   Route::middleware(['admin'])->group(function () {
     Route::get('dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('users', [AdminDashboardController::class, 'users'])->name('users');
+    
+    // User Management Routes
+    Route::get('users/{id}', [AdminDashboardController::class, 'showUser'])->name('users.show');
+    Route::get('users/{id}/edit', [AdminDashboardController::class, 'editUser'])->name('users.edit');
+    Route::put('users/{id}', [AdminDashboardController::class, 'updateUser'])->name('users.update');
+    Route::delete('users/{id}', [AdminDashboardController::class, 'deleteUser'])->name('users.delete');
+    Route::post('users/{id}/restore', [AdminDashboardController::class, 'restoreUser'])->name('users.restore');
+    
+    // User Conversations Management
+    Route::get('users/{id}/conversations', [AdminDashboardController::class, 'userConversations'])->name('users.conversations');
+    Route::get('users/{userId}/conversations/{conversationId}', [AdminDashboardController::class, 'conversationDetail'])->name('users.conversations.detail');
+    Route::delete('users/{userId}/conversations/{conversationId}', [AdminDashboardController::class, 'deleteConversation'])->name('users.conversations.delete');
+    
+    // Message Management
+    Route::put('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'updateMessage'])->name('users.messages.update');
+    Route::delete('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'deleteMessage'])->name('users.messages.delete');
 
     // Super Admin Only Routes
     Route::get('admins', [AdminDashboardController::class, 'admins'])->name('admins');
