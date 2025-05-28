@@ -41,6 +41,14 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         }
+        
+        /* 例外: 丸いままにする要素 */
+        .rounded-circle,
+        .spinner-border,
+        [class*="spinner"],
+        .btn-circle {
+            border-radius: 50% !important;
+        }
     </style>
 </head>
 <body>
