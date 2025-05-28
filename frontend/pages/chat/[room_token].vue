@@ -428,9 +428,6 @@ const currentPage = ref(1);
 const hasNextPage = ref(false);
 const loadingMoreMessages = ref(false);
 
-// Sidebar related state
-const sidebarConversations = computed(() => []);
-
 // Fetch headers for conversation details, reactive to authStore.token
 const conversationDetailHeaders = computed(() => {
   console.log(
@@ -746,7 +743,6 @@ const sendMessage = async () => {
     return;
 
   sendingMessage.value = true;
-  const conversationId = currentConversation.value.id;
   const textContent = newMessageText.value;
 
   try {
