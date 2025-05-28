@@ -15,82 +15,132 @@
 <!-- 統計カード -->
 <div class="row mb-4">
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-users fa-3x text-primary"></i>
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+            <i class="fas fa-users text-primary"></i>
+          </div>
+          <h3 class="mb-0 text-primary fw-bold">{{ number_format($userCount) }}</h3>
         </div>
-        <h5 class="card-title">総ユーザー数</h5>
-        <h2 class="text-primary">{{ number_format($userCount) }}</h2>
-        <p class="text-muted mb-0">登録済みユーザー</p>
+        <h6 class="text-dark mb-1">総ユーザー数</h6>
+        <p class="text-muted small mb-0">登録済みユーザー</p>
       </div>
     </div>
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-comments fa-3x text-success"></i>
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="rounded-circle bg-success bg-opacity-10 p-2">
+            <i class="fas fa-comments text-success"></i>
+          </div>
+          <h3 class="mb-0 text-success fw-bold">{{ number_format($chatRoomCount) }}</h3>
         </div>
-        <h5 class="card-title">チャットルーム数</h5>
-        <h2 class="text-success">{{ number_format($chatRoomCount) }}</h2>
-        <p class="text-muted mb-0">作成済みルーム</p>
+        <h6 class="text-dark mb-1">チャットルーム数</h6>
+        <p class="text-muted small mb-0">作成済みルーム</p>
       </div>
     </div>
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-user-clock fa-3x text-warning"></i>
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+            <i class="fas fa-user-clock text-warning"></i>
+          </div>
+          <h3 class="mb-0 text-warning fw-bold">{{ number_format($todayActiveUsersCount) }}</h3>
         </div>
-        <h5 class="card-title">本日のアクティブユーザー数</h5>
-        <h2 class="text-warning">{{ number_format($todayActiveUsersCount) }}</h2>
-        <p class="text-muted mb-0">本日メッセージ送信</p>
+        <h6 class="text-dark mb-1">本日のアクティブユーザー数</h6>
+        <p class="text-muted small mb-0">本日メッセージ送信</p>
       </div>
     </div>
   </div>
 
   <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-envelope fa-3x text-info"></i>
+    <div class="card h-100 border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="rounded-circle bg-info bg-opacity-10 p-2">
+            <i class="fas fa-envelope text-info"></i>
+          </div>
+          <h3 class="mb-0 text-info fw-bold">{{ number_format($todayMessagesCount) }}</h3>
         </div>
-        <h5 class="card-title">本日送信されたメッセージ数</h5>
-        <h2 class="text-info">{{ number_format($todayMessagesCount) }}</h2>
-        <p class="text-muted mb-0">本日の投稿</p>
+        <h6 class="text-dark mb-1">本日送信されたメッセージ数</h6>
+        <p class="text-muted small mb-0">本日の投稿</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 管理者統計カード -->
+<!-- システム状態一覧 -->
 <div class="row mb-4">
-  <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-user-shield fa-3x text-danger"></i>
-        </div>
-        <h5 class="card-title">管理者数</h5>
-        <h2 class="text-danger">{{ number_format($adminCount) }}</h2>
-        <p class="text-muted mb-0">システム管理者</p>
+  <div class="col-12">
+    <div class="card border-0" style="box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.5rem;">
+      <div class="card-header bg-transparent border-0 pb-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-server me-2"></i>システム状態監視
+        </h5>
+        <p class="text-muted small mb-0">リアルタイムでシステムの状態を監視しています</p>
       </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-3 mb-3">
-    <div class="card h-100">
-      <div class="card-body text-center">
-        <div class="mb-3">
-          <i class="fas fa-cog fa-3x text-secondary"></i>
+      <div class="card-body pt-3">
+        <div class="row">
+          @foreach($systemStatus as $key => $item)
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="d-flex align-items-start">
+              <div class="flex-shrink-0 me-3">
+                @if($item['status'] === 'success')
+                <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                  <i class="fas fa-check text-success"></i>
+                </div>
+                @elseif($item['status'] === 'warning')
+                <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                </div>
+                @else
+                <div class="rounded-circle bg-danger bg-opacity-10 p-2">
+                  <i class="fas fa-times text-danger"></i>
+                </div>
+                @endif
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="mb-1 fw-semibold">{{ $item['name'] }}</h6>
+                <p class="text-muted small mb-0" style="line-height: 1.4;">{{ $item['message'] }}</p>
+                <span class="badge 
+                  @if($item['status'] === 'success') bg-success 
+                  @elseif($item['status'] === 'warning') bg-warning 
+                  @else bg-danger @endif
+                  bg-opacity-10 
+                  @if($item['status'] === 'success') text-success 
+                  @elseif($item['status'] === 'warning') text-warning 
+                  @else text-danger @endif
+                  mt-1" style="font-size: 0.75rem;">
+                  @if($item['status'] === 'success') 正常
+                  @elseif($item['status'] === 'warning') 注意
+                  @else エラー @endif
+                </span>
+              </div>
+            </div>
+          </div>
+          @endforeach
         </div>
-        <h5 class="card-title">システム状態</h5>
-        <h2 class="text-secondary">正常</h2>
-        <p class="text-muted mb-0">全システム稼働中</p>
+
+        <!-- 更新時刻 -->
+        <div class="row mt-3">
+          <div class="col-12">
+            <hr class="my-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">
+                <i class="fas fa-clock me-1"></i>最終更新: {{ now()->format('Y年m月d日 H:i:s') }}
+              </small>
+              <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>更新
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
