@@ -1,10 +1,6 @@
 <template>
   <div
-    class="fixed inset-y-0 left-0 z-30 flex w-full flex-col transform border-r border-gray-200/50 bg-gradient-to-b from-white to-gray-50/50 backdrop-blur-sm pb-8 pl-4 pr-4 transition-transform duration-300 ease-in-out md:static md:w-80 md:flex-shrink-0 md:transform-none shadow-lg md:shadow-none"
-    :class="{
-      'translate-x-0': isSidebarOpen,
-      '-translate-x-full': !isSidebarOpen,
-    }"
+    class="static flex w-full h-full flex-col bg-gradient-to-b from-white to-gray-50/50 backdrop-blur-sm pb-8 pl-4 pr-4 shadow-lg border-r border-gray-200/50"
   >
     <!-- Navigation Tabs -->
     <nav class="mt-6 mb-4 border-b border-gray-200">
@@ -45,27 +41,6 @@
       </div>
 
       <div class="ml-2 text-xl font-bold">トークリスト</div>
-      <!-- Close button for sidebar on mobile -->
-      <button
-        class="ml-auto mr-2 md:hidden rounded-md p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--primary)]"
-        @click="isSidebarOpen = false"
-      >
-        <span class="sr-only">Close sidebar</span>
-        <svg
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
     </div>
 
     <!-- Conversation List -->
@@ -231,7 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import type { PropType } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
@@ -290,8 +265,6 @@ const emit = defineEmits(["conversationSelected", "closeSidebar"]);
 
 const route = useRoute();
 
-const isSidebarOpen = ref(true); // Default to open on larger screens, parent can control this for mobile
-
 const navigationTabs = [
   { name: "ホーム", path: "/" },
   { name: "友達", path: "/friends" },
@@ -341,18 +314,7 @@ const formatSentAt = (sentAt?: string | null): string => {
 
 const onConversationClick = (conversation: Conversation) => {
   emit("conversationSelected", conversation.room_token);
-  // On mobile, clicking a conversation should also close the sidebar.
-  // The parent component (page) will manage the actual isSidebarOpen state for mobile toggling.
-  // This component's isSidebarOpen is for the fixed/transform class logic.
-  // emit('closeSidebar'); // Parent page should handle this.
 };
-
-// Method to be called by parent to toggle sidebar on mobile
-const toggleMobileSidebar = (open: boolean) => {
-  isSidebarOpen.value = open;
-};
-
-defineExpose({ toggleMobileSidebar });
 </script>
 
 <style scoped>
