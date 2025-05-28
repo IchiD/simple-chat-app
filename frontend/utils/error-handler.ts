@@ -73,9 +73,9 @@ export function extractErrorMessage(
  */
 export function handleAuthError(router: Router, toast: ToastInterface): void {
   if (import.meta.client) {
-    // ローカルストレージの認証情報をクリア
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user");
+    // セッションストレージの認証情報をクリア
+    sessionStorage.removeItem("auth_token");
+    sessionStorage.removeItem("user");
 
     // エラーメッセージを表示
     toast.add({

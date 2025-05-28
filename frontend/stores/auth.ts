@@ -42,22 +42,22 @@ export const useAuthStore = defineStore("auth", () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  // ローカルストレージからトークンを取得（復号化）
+  // セッションストレージからトークンを取得（復号化）
   const getStoredToken = (): string | null => {
     if (!import.meta.client) return null;
 
-    const encryptedToken = localStorage.getItem("auth_token");
+    const encryptedToken = sessionStorage.getItem("auth_token");
     if (!encryptedToken) return null;
 
     return decryptToken(encryptedToken);
   };
 
-  // トークンをローカルストレージに保存（暗号化）
+  // トークンをセッションストレージに保存（暗号化）
   const storeToken = (tokenValue: string): void => {
     if (!import.meta.client || !tokenValue) return;
 
     const encryptedToken = encryptToken(tokenValue);
-    localStorage.setItem("auth_token", encryptedToken);
+    sessionStorage.setItem("auth_token", encryptedToken);
     console.log("トークンを暗号化して保存しました");
   };
 
@@ -119,13 +119,13 @@ export const useAuthStore = defineStore("auth", () => {
       };
       isAuthenticated.value = true;
 
-      console.log("認証トークンをlocalStorageに保存します:", token.value);
+      console.log("認証トークンをsessionStorageに保存します:", token.value);
 
-      // トークンをlocalStorageに暗号化して保存
+      // トークンをsessionStorageに暗号化して保存
       if (token.value && import.meta.client) {
         console.log("トークン保存処理を実行します");
         storeToken(token.value);
-        console.log("トークン保存後のlocalStorage確認: [暗号化済み]");
+        console.log("トークン保存後のsessionStorage確認: [暗号化済み]");
       } else {
         console.log("トークン保存処理をスキップします:", {
           hasToken: !!token.value,
@@ -165,7 +165,7 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = response.user || null;
       isAuthenticated.value = true;
 
-      // トークンをlocalStorageに暗号化して保存
+      // トークンをsessionStorageに暗号化して保存
       if (token.value) {
         storeToken(token.value);
         console.log("ログイン成功: トークンを保存しました");
@@ -184,7 +184,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   // 認証状態のチェック
   async function checkAuth() {
-    // クライアントサイドでのみlocalStorageにアクセス
+    // クライアントサイドでのみsessionStorageにアクセス
     console.log("認証状態チェック開始:", { isClient: import.meta.client });
 
     if (!import.meta.client) {
@@ -229,7 +229,7 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = null;
       user.value = null;
       isAuthenticated.value = false;
-      localStorage.removeItem("auth_token");
+      sessionStorage.removeItem("auth_token");
       console.log("認証情報をクリアしました");
     }
   }
@@ -251,7 +251,7 @@ export const useAuthStore = defineStore("auth", () => {
     token.value = null;
     user.value = null;
     isAuthenticated.value = false;
-    localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("auth_token");
   }
 
   return {
