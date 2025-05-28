@@ -5,28 +5,6 @@
       style="height: calc(100vh - 4rem)"
     >
       <div class="flex h-full w-full">
-        <!-- モバイル専用サイドバー（デスクトップでは非表示） -->
-        <div v-if="isMobileSidebarOpen" class="fixed inset-0 z-30 md:hidden">
-          <ChatSidebar
-            ref="chatSidebarRef"
-            :conversations="sidebarConversations"
-            :pending="sidebarPending"
-            :error="sidebarError"
-            :selected-conversation-room-token="currentRoomToken"
-            class="h-full"
-            @conversation-selected="handleSidebarConversationSelected"
-            @close-sidebar="closeMobileSidebar"
-          />
-        </div>
-
-        <!-- Overlay for mobile when sidebar is open -->
-        <div
-          v-if="isMobileSidebarOpen"
-          class="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
-          aria-hidden="true"
-          @click="closeMobileSidebar"
-        />
-
         <!-- Main Chat Area -->
         <div class="flex h-full w-full flex-col pt-3 md:p-6">
           <!-- Header for Chat Area -->
@@ -338,7 +316,6 @@ import { ref, computed, watch, nextTick, watchEffect, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
-import ChatSidebar from "~/components/ChatSidebar.vue";
 import { useToast } from "~/composables/useToast";
 import { useApi } from "~/composables/useApi";
 
@@ -380,22 +357,6 @@ type Message = {
   text_content: string | null;
   sent_at: string;
   sender: MessageSender;
-};
-
-type PaginatedConversationsResponse = {
-  current_page: number;
-  data: Conversation[];
-  first_page_url: string;
-  from: number | null;
-  last_page: number;
-  last_page_url: string;
-  links: { url: string | null; label: string; active: boolean }[];
-  next_page_url: string | null;
-  path: string;
-  per_page: number;
-  prev_page_url: string | null;
-  to: number | null;
-  total: number;
 };
 
 type PaginatedMessagesResponse = {
@@ -468,29 +429,7 @@ const hasNextPage = ref(false);
 const loadingMoreMessages = ref(false);
 
 // Sidebar related state
-const chatSidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
-const isMobileSidebarOpen = ref(false);
-const {
-  data: sidebarApiResponse,
-  pending: sidebarPending,
-  error: sidebarError,
-} = await useFetch<PaginatedConversationsResponse>(
-  `${config.public.apiBase}/conversations`,
-  {
-    method: "GET",
-    headers: computed(() => ({
-      // Make sidebar headers reactive to token too
-      Accept: "application/json",
-      ...(authStore.token
-        ? { Authorization: `Bearer ${authStore.token}` }
-        : {}),
-    })),
-    server: false,
-  }
-);
-const sidebarConversations = computed(
-  () => sidebarApiResponse.value?.data || []
-);
+const sidebarConversations = computed(() => []);
 
 // Fetch headers for conversation details, reactive to authStore.token
 const conversationDetailHeaders = computed(() => {
@@ -659,19 +598,6 @@ const isLoadingInitialData = computed(
   () => conversationPending.value || messagesPending.value
 );
 
-const closeMobileSidebar = () => {
-  isMobileSidebarOpen.value = false;
-  chatSidebarRef.value?.toggleMobileSidebar(false);
-};
-
-const handleSidebarConversationSelected = (roomToken: string) => {
-  if (roomToken && roomToken !== currentRoomToken.value) {
-    router.push(`/chat/${roomToken}/`);
-  }
-  // モバイルでサイドバーを閉じる
-  closeMobileSidebar();
-};
-
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 const isMyMessage = (messageSenderId: number): boolean => {
@@ -705,10 +631,6 @@ const markConversationAsRead = async (conversationId: number) => {
         headers: fetchPostHeaders,
       }
     );
-    const convInSidebar = sidebarConversations.value.find(
-      (c) => c.id === conversationId
-    );
-    if (convInSidebar) convInSidebar.unread_messages_count = 0;
   } catch (readError: unknown) {
     console.error(
       `Error calling $fetch for marking conversation ${conversationId} as read:`,
@@ -838,18 +760,6 @@ const sendMessage = async () => {
 
     messages.value.push(sentMessageData);
     newMessageText.value = "";
-    // Update latest message in sidebar
-    const convInSidebar = sidebarConversations.value.find(
-      (c) => c.id === conversationId
-    );
-    if (convInSidebar) {
-      convInSidebar.latest_message = {
-        id: sentMessageData.id,
-        text_content: sentMessageData.text_content,
-        sent_at: sentMessageData.sent_at,
-        sender: sentMessageData.sender,
-      };
-    }
     await scrollToBottom("smooth");
   } catch (e: unknown) {
     console.error("Error sending message:", e);
