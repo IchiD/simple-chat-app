@@ -299,6 +299,11 @@ async function onRegister() {
     )) as RegisterResult;
 
     if (result.success) {
+      // sessionStorageにメールアドレスを保存（確認メール再送信で使用）
+      if (import.meta.client) {
+        sessionStorage.setItem("registered_email", form.email);
+      }
+
       toast.add({
         title: "登録成功",
         description: result.message,

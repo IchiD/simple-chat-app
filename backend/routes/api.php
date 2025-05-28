@@ -10,6 +10,7 @@ use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\AppConfigController;
 
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail']);
 Route::get('/verify', [AuthController::class, 'verifyEmail']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

@@ -58,8 +58,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useToast } from "~/composables/useToast";
+import { useApi } from "~/composables/useApi";
 
 definePageMeta({
   layout: "default",
@@ -69,25 +70,83 @@ definePageMeta({
 const toast = useToast();
 const loading = ref(false);
 
-// 確認メール再送信（実際の実装ではAPIとの連携が必要）
+// 新規登録時のメールアドレスを取得
+const email = ref("");
+
+// レスポンス型定義
+interface ResendVerificationResponse {
+  status: string;
+  message: string;
+}
+
+// ページマウント時に登録時のメールアドレスを取得（sessionStorageから）
+onMounted(() => {
+  if (import.meta.client) {
+    const registeredEmail = sessionStorage.getItem("registered_email");
+    if (registeredEmail) {
+      email.value = registeredEmail;
+    } else {
+      // sessionStorageにメールアドレスがない場合は登録ページにリダイレクト
+      toast.add({
+        title: "エラー",
+        description: "登録情報が見つかりません。再度登録してください。",
+        color: "error",
+      });
+      navigateTo("/auth/register");
+    }
+  }
+});
+
+// 確認メール再送信
 const resendVerification = async () => {
+  if (!email.value) {
+    toast.add({
+      title: "エラー",
+      description: "メールアドレスが取得できません。再度登録してください。",
+      color: "error",
+    });
+    return;
+  }
+
   loading.value = true;
 
   try {
-    // APIリクエストをここに実装
-    // 仮の実装として1秒待機
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const { api } = useApi();
+    const response = await api<ResendVerificationResponse>(
+      "/resend-verification",
+      {
+        method: "POST",
+        body: { email: email.value },
+      }
+    );
+
+    if (response.status === "success") {
+      toast.add({
+        title: "送信完了",
+        description: response.message,
+        color: "success",
+      });
+    } else {
+      toast.add({
+        title: "エラー",
+        description: response.message || "確認メールの送信に失敗しました",
+        color: "error",
+      });
+    }
+  } catch (error: unknown) {
+    console.error("メール再送信エラー:", error);
+
+    let errorMessage = "確認メールの送信に失敗しました";
+    if (error && typeof error === "object" && "data" in error) {
+      const errorData = error.data as { message?: string };
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      }
+    }
 
     toast.add({
-      title: "送信完了",
-      description: "確認メールを再送信しました",
-      color: "success",
-    });
-  } catch (err: unknown) {
-    console.error(err);
-    toast.add({
       title: "エラー",
-      description: "確認メールの送信に失敗しました",
+      description: errorMessage,
       color: "error",
     });
   } finally {

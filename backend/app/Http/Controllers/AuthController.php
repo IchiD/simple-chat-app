@@ -385,4 +385,81 @@ class AuthController extends Controller
       return response()->json(['message' => 'パスワードの更新中にエラーが発生しました。'], 500);
     }
   }
+
+  /**
+   * 確認メールを再送信
+   *
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function resendVerificationEmail(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'email' => 'required|email|exists:users,email',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json([
+        'status' => 'error',
+        'message' => '有効なメールアドレスを入力してください。',
+        'errors' => $validator->errors()
+      ], 422);
+    }
+
+    $email = $request->input('email');
+    $ip = $request->ip();
+
+    Log::info('確認メール再送信の試行を開始しました', [
+      'email' => $email,
+      'ip' => $ip,
+    ]);
+
+    // ユーザーを検索
+    $user = User::where('email', $email)->first();
+
+    if (!$user) {
+      Log::warning('確認メール再送信: ユーザーが見つかりません', ['email' => $email]);
+      return response()->json([
+        'status' => 'error',
+        'message' => 'ユーザーが見つかりません。'
+      ], 404);
+    }
+
+    // 既に認証済みの場合
+    if ($user->is_verified) {
+      Log::info('確認メール再送信: 既に認証済み', ['email' => $email]);
+      return response()->json([
+        'status' => 'error',
+        'message' => 'このアカウントは既に認証済みです。'
+      ], 422);
+    }
+
+    try {
+      // 新しい認証トークンを生成
+      $user->updateProvisionalRegistration([
+        'password' => $user->password, // 既存のパスワードを保持
+        'name' => $user->name, // 既存の名前を保持
+      ]);
+
+      // 確認メールを再送信
+      Mail::to($user->email)->queue(new PreRegistrationEmail($user));
+
+      Log::info('確認メール再送信が完了しました', ['email' => $email]);
+
+      return response()->json([
+        'status' => 'success',
+        'message' => '確認メールを再送信しました。メール内のリンクをクリックして認証を完了してください。'
+      ], 200);
+    } catch (\Exception $e) {
+      Log::error('確認メール再送信中にエラーが発生しました', [
+        'email' => $email,
+        'error' => $e->getMessage(),
+      ]);
+
+      return response()->json([
+        'status' => 'error',
+        'message' => '確認メールの送信中にエラーが発生しました。しばらくしてから再度お試しください。'
+      ], 500);
+    }
+  }
 }
