@@ -28,19 +28,19 @@
         />
 
         <!-- Main Chat Area -->
-        <div class="flex h-full w-full flex-col md:p-6">
+        <div class="flex h-full w-full flex-col pt-3 md:p-6">
           <!-- Header for Chat Area -->
           <div
-            class="mb-4 flex items-center justify-between bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+            class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
           >
             <div class="flex items-center">
-              <button
-                class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3 md:hidden"
-                @click="openMobileSidebar"
+              <NuxtLink
+                to="/chat"
+                class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
               >
-                <span class="sr-only">Open sidebar</span>
+                <span class="sr-only">チャット一覧へ戻る</span>
                 <svg
-                  class="h-6 w-6"
+                  class="h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
@@ -53,50 +53,12 @@
                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                   />
                 </svg>
-              </button>
-              <div class="flex items-center space-x-3">
-                <div
-                  class="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center"
-                >
-                  <span class="text-emerald-600 font-semibold text-sm">
-                    {{
-                      currentConversation?.participants[0]?.name
-                        ?.charAt(0)
-                        ?.toUpperCase() || "?"
-                    }}
-                  </span>
-                </div>
-                <div>
-                  <h2 class="text-lg font-semibold text-gray-900">
-                    {{
-                      currentConversation?.participants[0]?.name || "チャット"
-                    }}
-                  </h2>
-                  <p class="text-sm text-emerald-600">オンライン</p>
-                </div>
+              </NuxtLink>
+              <div>
+                <h2 class="text-base font-semibold text-gray-900">
+                  {{ currentConversation?.participants[0]?.name || "チャット" }}
+                </h2>
               </div>
-            </div>
-            <div class="flex items-center">
-              <a
-                href="http://localhost:3000/chat"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-200"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-                チャット一覧
-              </a>
             </div>
           </div>
 
@@ -696,11 +658,6 @@ watchEffect(async () => {
 const isLoadingInitialData = computed(
   () => conversationPending.value || messagesPending.value
 );
-
-const openMobileSidebar = () => {
-  isMobileSidebarOpen.value = true;
-  chatSidebarRef.value?.toggleMobileSidebar(true);
-};
 
 const closeMobileSidebar = () => {
   isMobileSidebarOpen.value = false;
