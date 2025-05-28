@@ -29,13 +29,13 @@
 
         <!-- Main Chat Area -->
         <div class="flex h-full w-full flex-col md:p-6">
-          <!-- Header for Chat Area (with toggle button for mobile) -->
+          <!-- Header for Chat Area -->
           <div
-            class="mb-4 flex items-center justify-between md:hidden bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+            class="mb-4 flex items-center justify-between bg-white rounded-xl shadow-sm p-4 border border-gray-200"
           >
             <div class="flex items-center">
               <button
-                class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
+                class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3 md:hidden"
                 @click="openMobileSidebar"
               >
                 <span class="sr-only">Open sidebar</span>
@@ -75,6 +75,28 @@
                   <p class="text-sm text-emerald-600">オンライン</p>
                 </div>
               </div>
+            </div>
+            <div class="flex items-center">
+              <a
+                href="http://localhost:3000/chat"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+                チャット一覧
+              </a>
             </div>
           </div>
 
