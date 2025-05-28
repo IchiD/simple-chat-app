@@ -55,10 +55,54 @@ class AdminDashboardController extends Controller
   /**
    * ユーザー管理画面
    */
-  public function users()
+  public function users(Request $request)
   {
     $admin = Auth::guard('admin')->user();
-    $users = User::paginate(20);
+    
+    // クエリビルダーを初期化
+    $query = User::query();
+    
+    // 検索機能
+    if ($search = $request->get('search')) {
+      $query->where(function ($q) use ($search) {
+        $q->where('name', 'LIKE', '%' . $search . '%')
+          ->orWhere('email', 'LIKE', '%' . $search . '%')
+          ->orWhere('friend_id', 'LIKE', '%' . $search . '%');
+      });
+    }
+    
+    // 認証状態フィルター
+    if ($status = $request->get('status')) {
+      if ($status === 'verified') {
+        $query->where('is_verified', true);
+      } elseif ($status === 'unverified') {
+        $query->where('is_verified', false);
+      }
+    }
+    
+    // 並び順
+    $sort = $request->get('sort', 'created_at_desc');
+    switch ($sort) {
+      case 'created_at_asc':
+        $query->orderBy('created_at', 'asc');
+        break;
+      case 'name_asc':
+        $query->orderBy('name', 'asc');
+        break;
+      case 'name_desc':
+        $query->orderBy('name', 'desc');
+        break;
+      case 'created_at_desc':
+      default:
+        $query->orderBy('created_at', 'desc');
+        break;
+    }
+    
+    // ページネーション実行
+    $users = $query->paginate(20);
+    
+    // 検索パラメータをページネーションに追加
+    $users->appends($request->query());
 
     return view('admin.users.index', compact('admin', 'users'));
   }
