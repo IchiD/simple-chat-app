@@ -41,10 +41,10 @@ export function useApi() {
 
   // 認証トークンをヘッダーに追加する関数
   const getAuthHeader = (): Record<string, string> => {
-    // クライアントサイドでのみlocalStorageにアクセス
+    // クライアントサイドでのみsessionStorageにアクセス
     if (import.meta.client) {
       // 暗号化されたトークンを取得して復号
-      const encryptedToken = localStorage.getItem("auth_token");
+      const encryptedToken = sessionStorage.getItem("auth_token");
       const token = encryptedToken ? decryptToken(encryptedToken) : null;
 
       // ブラウザフィンガープリントを生成（追加のセキュリティ対策）
