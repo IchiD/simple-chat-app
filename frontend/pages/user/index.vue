@@ -22,7 +22,6 @@
                 <!-- ヘッダーエリア -->
                 <div class="mb-6 flex justify-between items-center">
                   <div>
-                    <h1 class="text-3xl font-bold text-gray-800">ホーム</h1>
                     <p v-if="authStore.user" class="text-lg text-gray-600 mt-1">
                       ようこそ、<span style="color: var(--primary)">{{
                         authStore.user.name

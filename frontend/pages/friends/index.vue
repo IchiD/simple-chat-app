@@ -7,11 +7,6 @@
       <div class="flex h-full w-full">
         <!-- メインコンテンツ -->
         <div class="w-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-          <!-- ページタイトル -->
-          <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">友達</h1>
-          </div>
-
           <div v-if="loading" class="flex justify-center items-center py-20">
             <div class="text-center">
               <div
