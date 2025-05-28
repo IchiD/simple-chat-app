@@ -1,69 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- ナビゲーションバー -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <div class="flex items-center space-x-3">
-              <div
-                class="h-8 w-8 bg-emerald-600 rounded-lg flex items-center justify-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 text-white"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-                  />
-                  <path
-                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                  />
-                </svg>
-              </div>
-              <h1 class="text-xl font-bold text-gray-900">LumoChat</h1>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <NuxtLink
-              to="/user"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
-            >
-              <svg
-                class="w-4 h-4 mr-2"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-                />
-              </svg>
-              ホーム
-            </NuxtLink>
-            <NuxtLink
-              to="/friends"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
-            >
-              <svg
-                class="w-4 h-4 mr-2"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
-                />
-              </svg>
-              友達
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </nav>
-
     <div
       class="relative flex antialiased text-gray-800"
       style="height: calc(100vh - 4rem)"
@@ -89,6 +25,11 @@
 
         <!-- Main Content Area for chat list page -->
         <div class="flex h-full flex-auto flex-col p-6">
+          <!-- ページタイトル (デスクトップ表示) -->
+          <div class="mb-4 hidden md:block">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">チャット</h1>
+          </div>
+          
           <!-- Header for Chat Area (with toggle button for mobile) -->
           <div class="mb-4 flex items-center md:hidden">
             <button
@@ -111,7 +52,7 @@
                 />
               </svg>
             </button>
-            <h2 class="ml-4 text-xl font-semibold">LumoChat</h2>
+            <h2 class="ml-4 text-xl font-semibold">チャット</h2>
           </div>
 
           <div
