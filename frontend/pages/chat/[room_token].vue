@@ -240,7 +240,7 @@
 
             <!-- Message Input Area -->
             <div class="border-t border-gray-200 bg-white p-4">
-              <div class="flex items-end space-x-3">
+              <div class="flex items-center space-x-3">
                 <div class="flex-grow">
                   <textarea
                     v-model="newMessageText"
@@ -299,9 +299,6 @@
                     />
                   </svg>
                 </button>
-              </div>
-              <div class="mt-2 text-xs text-gray-500">
-                Enterで送信、Shift+Enterで改行
               </div>
             </div>
           </div>
@@ -807,7 +804,7 @@ const shouldShowDateSeparator = (
 };
 
 const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === "Enter" && !event.shiftKey) {
+  if (event.key === "Enter" && event.shiftKey) {
     event.preventDefault();
     sendMessage();
   }
