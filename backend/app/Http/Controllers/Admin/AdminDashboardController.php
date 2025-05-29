@@ -887,10 +887,8 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
 
-    // サポート会話を取得（参加者が1人だけのgroup会話）
-    $query = Conversation::where('type', 'group')
-      ->withCount('conversationParticipants')
-      ->having('conversation_participants_count', '=', 1)
+    // サポート会話を取得
+    $query = Conversation::where('type', 'support')
       ->with(['participants.user', 'latestMessage.sender'])
       ->orderBy('updated_at', 'desc');
 
@@ -915,9 +913,7 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $conversation = Conversation::with(['participants.user', 'messages.sender'])
-      ->where('type', 'group')
-      ->withCount('conversationParticipants')
-      ->having('conversation_participants_count', '=', 1)
+      ->where('type', 'support')
       ->findOrFail($conversationId);
 
     $messages = $conversation->messages()
@@ -934,10 +930,7 @@ class AdminDashboardController extends Controller
   public function replyToSupport(Request $request, $conversationId)
   {
     $admin = Auth::guard('admin')->user();
-    $conversation = Conversation::where('type', 'group')
-      ->withCount('conversationParticipants')
-      ->having('conversation_participants_count', '=', 1)
-      ->findOrFail($conversationId);
+    $conversation = Conversation::where('type', 'support')->findOrFail($conversationId);
 
     $request->validate([
       'message' => 'required|string|max:1000',
