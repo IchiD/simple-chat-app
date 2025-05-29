@@ -291,9 +291,9 @@
                         同じメールアドレスでの再登録ができなくなります。
                     </div>
                     <div class="mb-3">
-                        <label for="deleteReason" class="form-label">削除理由 <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="deleteReason" name="reason" rows="3" required 
-                                  placeholder="削除理由を入力してください"></textarea>
+                        <label for="deleteReason" class="form-label">削除理由</label>
+                        <textarea class="form-control" id="deleteReason" name="reason" rows="3" 
+                                  placeholder="削除理由を入力してください（任意）"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
