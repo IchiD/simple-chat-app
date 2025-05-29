@@ -224,10 +224,14 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $user = User::with(['conversations' => function ($query) {
-      $query->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages']);
+      $query->where('type', '!=', 'support')
+        ->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages']);
     }])->findOrFail($id);
 
-    $conversations = $user->conversations()->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages'])->paginate(10);
+    $conversations = $user->conversations()
+      ->where('type', '!=', 'support')
+      ->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages'])
+      ->paginate(10);
 
     return view('admin.users.conversations', compact('admin', 'user', 'conversations'));
   }
@@ -903,6 +907,15 @@ class AdminDashboardController extends Controller
     $conversations = $query->paginate(20);
     $conversations->appends($request->query());
 
+    // 各会話の未読メッセージ数を取得
+    $conversationsWithUnread = $conversations->through(function ($conversation) use ($admin) {
+      $conversation->unread_count = \App\Models\AdminConversationRead::getConversationUnreadCount(
+        $admin->id,
+        $conversation->id
+      );
+      return $conversation;
+    });
+
     return view('admin.support.index', compact('admin', 'conversations'));
   }
 
@@ -920,6 +933,9 @@ class AdminDashboardController extends Controller
       ->with(['sender'])
       ->orderBy('sent_at', 'asc')
       ->get();
+
+    // 会話詳細を表示する際に自動的に既読にする
+    \App\Models\AdminConversationRead::updateLastRead($admin->id, $conversation->id);
 
     return view('admin.support.detail', compact('admin', 'conversation', 'messages'));
   }
@@ -945,9 +961,37 @@ class AdminDashboardController extends Controller
       'sent_at' => now(),
     ]);
 
+    // 管理者が返信したので、この会話を既読にする
+    \App\Models\AdminConversationRead::updateLastRead($admin->id, $conversation->id);
+
     // 会話の更新日時を更新
     $conversation->touch();
 
     return redirect()->back()->with('success', '返信を送信しました。');
+  }
+
+  /**
+   * 新着サポートメッセージ数を取得（AJAX用）
+   */
+  public function getUnreadSupportCount()
+  {
+    $admin = Auth::guard('admin')->user();
+
+    $unreadCount = \App\Models\AdminConversationRead::getUnreadCount($admin->id);
+
+    return response()->json(['unread_count' => $unreadCount]);
+  }
+
+  /**
+   * サポート会話を既読にする
+   */
+  public function markSupportAsRead($conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $conversation = Conversation::where('type', 'support')->findOrFail($conversationId);
+
+    \App\Models\AdminConversationRead::updateLastRead($admin->id, $conversation->id);
+
+    return response()->json(['success' => true]);
   }
 }
