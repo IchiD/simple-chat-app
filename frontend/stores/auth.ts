@@ -247,7 +247,9 @@ export const useAuthStore = defineStore("auth", () => {
 
         console.log("/users/meエンドポイントにリクエスト開始");
         const { api } = useApi();
-        const userData = await api<User>("/users/me");
+        
+        // skipAuthRedirectを使ってリダイレクトを制御
+        const userData = await api<User>("/users/me", { skipAuthRedirect: true });
         console.log("ユーザーデータ取得成功:", userData);
 
         user.value = userData;
@@ -261,9 +263,11 @@ export const useAuthStore = defineStore("auth", () => {
         user.value = null;
         isAuthenticated.value = false;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("/users/meエンドポイントでエラー:", error);
-      // トークンが無効な場合はクリア
+      
+      // useApiコンポーザブルで既にアカウント削除・バンエラーは処理されているため、
+      // ここでは通常のトークン無効エラーのみを処理
       token.value = null;
       user.value = null;
       isAuthenticated.value = false;

@@ -164,6 +164,43 @@ export function useApi() {
         const enhancedError = error as FetchError<unknown>;
         console.error(`API Error (${url}):`, error.message, error.data);
 
+        // アカウント削除・バンエラーの特別処理
+        if (error.status === 403 && enhancedError.data && typeof enhancedError.data === "object") {
+          const errorData = enhancedError.data as {
+            error_type?: string;
+            message?: string;
+          };
+          
+          if (errorData.error_type === 'account_deleted' || errorData.error_type === 'account_banned') {
+            console.log("アカウント削除・バンエラーを検知:", errorData.error_type);
+            
+            // セッションストレージからトークンを削除
+            if (import.meta.client) {
+              sessionStorage.removeItem("auth_token");
+            }
+            
+            // ユーザーに通知
+            const message = errorData.error_type === 'account_deleted' 
+              ? 'アカウントが削除されました。' 
+              : 'アカウントが利用停止されました。';
+            
+            toast.add({
+              title: "アカウント状態エラー",
+              description: message,
+              color: "error",
+            } as Omit<Toast, "id">);
+            
+            // ログインページにリダイレクト
+            if (import.meta.client && !options.skipAuthRedirect) {
+              setTimeout(() => {
+                router.push('/auth/login');
+              }, 1000);
+            }
+            
+            throw enhancedError;
+          }
+        }
+
         if (error.status === 401 && !options.skipAuthRedirect) {
           console.log("認証エラーを検出: ログインページへリダイレクトします");
           handleAuthError(router, toast); // 共通の認証エラーハンドリング
