@@ -89,9 +89,9 @@
             &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
           </div>
           <div>
-            <button 
-              @click="openSupportChat"
+            <button
               class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-150 ease-in-out"
+              @click="openSupportChat"
             >
               <svg
                 class="w-4 h-4 mr-1"
@@ -105,7 +105,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              Contact
+              Support
             </button>
           </div>
         </div>
@@ -140,7 +140,7 @@ const isChatRoomPage = computed(() => {
 const openSupportChat = async () => {
   try {
     const authStore = useAuthStore();
-    
+
     // 認証チェック
     if (!authStore.isAuthenticated) {
       // 認証されていない場合はログインページにリダイレクト
@@ -149,13 +149,16 @@ const openSupportChat = async () => {
     }
 
     // サポート会話を作成または取得
-    const conversation = await $fetch<any>(`${config.public.apiBase}/support/conversation`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${authStore.token}`,
-      },
-    });
+    const conversation = await $fetch<any>(
+      `${config.public.apiBase}/support/conversation`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      }
+    );
 
     if (conversation && conversation.room_token) {
       // チャットページに遷移

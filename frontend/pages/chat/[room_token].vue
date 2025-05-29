@@ -612,10 +612,10 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 // サポート会話かどうかを判定
 const isSupportConversation = computed(() => {
-  const result = currentConversation.value?.type === 'support';
-  console.log('isSupportConversation:', {
+  const result = currentConversation.value?.type === "support";
+  console.log("isSupportConversation:", {
     type: currentConversation.value?.type,
-    result
+    result,
   });
   return result;
 });
@@ -623,22 +623,22 @@ const isSupportConversation = computed(() => {
 // サポート会話の場合は「サポート」、そうでなければ参加者名を表示
 const conversationDisplayName = computed(() => {
   if (isSupportConversation.value) {
-    return 'サポート';
+    return "サポート（順次対応いたします）";
   }
   return currentConversation.value?.participants[0]?.name || "チャット";
 });
 
 // メッセージが管理者からかどうかを判定
-const isAdminMessage = (message: any): boolean => {
+const _isAdminMessage = (message: Message): boolean => {
   if (!isSupportConversation.value) return false;
-  
+
   // サポート会話で自分以外からのメッセージは管理者からと判定
   const isAdmin = message.sender_id !== currentUserId.value;
-  console.log('isAdminMessage:', {
+  console.log("isAdminMessage:", {
     messageId: message.id,
     senderId: message.sender_id,
     currentUserId: currentUserId.value,
-    isAdmin
+    isAdmin,
   });
   return isAdmin;
 };
