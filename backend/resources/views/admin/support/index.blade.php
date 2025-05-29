@@ -82,17 +82,21 @@
                           {{ $conversation->latestMessage->sent_at->format('m/d H:i') }}
                         </div>
                       </div>
+                      @if($conversation->unread_count > 0)
+                      <span class="badge bg-danger rounded-circle">{{ $conversation->unread_count }}</span>
+                      @endif
                     </div>
                     @else
-                    <div class="text-muted small">メッセージなし</div>
+                    <div class="text-muted small">
+                      メッセージがありません
+                    </div>
                     @endif
                   </td>
                   <td>{{ $conversation->created_at->format('Y/m/d H:i') }}</td>
                   <td>{{ $conversation->updated_at->format('Y/m/d H:i') }}</td>
                   <td>
-                    <a href="{{ route('admin.support.detail', $conversation->id) }}"
-                      class="btn btn-sm btn-primary">
-                      <i class="fas fa-eye me-1"></i>詳細
+                    <a href="{{ route('admin.support.detail', $conversation->id) }}" class="btn btn-sm btn-outline-primary">
+                      詳細を見る
                     </a>
                   </td>
                 </tr>
