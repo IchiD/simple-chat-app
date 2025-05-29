@@ -50,18 +50,28 @@
           <div class="messages-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; background-color: #f8f9fa;">
             @if($messages->count() > 0)
               @foreach($messages as $message)
-                <div class="message mb-3 {{ $message->sender ? 'user-message' : 'admin-message' }}">
-                  <div class="d-flex {{ $message->sender ? 'justify-content-start' : 'justify-content-end' }}">
-                    <div class="message-bubble p-3 rounded" style="max-width: 70%; {{ $message->sender ? 'background-color: #e9ecef;' : 'background-color: #007bff; color: white;' }}">
+                @php
+                  // サポート会話で、メッセージ送信者が会話の参加者でない場合は管理者メッセージ
+                  $isUserMessage = false;
+                  $conversationUser = $conversation->conversationParticipants->first();
+                  if ($conversationUser && $conversationUser->user && $message->sender_id == $conversationUser->user->id) {
+                    $isUserMessage = true;
+                  }
+                  $isAdminMessage = !$isUserMessage;
+                @endphp
+                
+                <div class="message mb-3 {{ $isUserMessage ? 'user-message' : 'admin-message' }}">
+                  <div class="d-flex {{ $isUserMessage ? 'justify-content-start' : 'justify-content-end' }}">
+                    <div class="message-bubble p-3 rounded" style="max-width: 70%; {{ $isUserMessage ? 'background-color: #e9ecef;' : 'background-color: #007bff; color: white;' }}">
                       <div class="message-header mb-2">
                         <strong>
-                          @if($message->sender)
-                            {{ $message->sender->name }}
+                          @if($isUserMessage)
+                            {{ $conversationUser->user->name ?? 'ユーザー' }}
                           @else
-                            管理者
+                            {{ $admin->name }}（管理者）
                           @endif
                         </strong>
-                        <small class="text-muted {{ $message->sender ? '' : 'text-light' }} ms-2">
+                        <small class="text-muted {{ $isUserMessage ? '' : 'text-light' }} ms-2">
                           {{ $message->sent_at->format('Y/m/d H:i') }}
                         </small>
                       </div>
