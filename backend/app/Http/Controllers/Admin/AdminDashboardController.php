@@ -936,12 +936,15 @@ class AdminDashboardController extends Controller
       'message' => 'required|string|max:1000',
     ]);
 
-    // 管理者として返信（最初のユーザーIDを使用、存在しない場合はエラー）
+    // 管理者メッセージ用のユーザーIDを取得（最初のユーザー）
     $systemAdminUserId = \App\Models\User::orderBy('id')->value('id');
     
     if (!$systemAdminUserId) {
       return redirect()->back()->with('error', 'システムエラー：管理者メッセージの送信に失敗しました。');
     }
+    
+    // デバッグ用ログ：実際に使用されているIDを確認
+    \Log::info("Admin message: using sender_id = {$systemAdminUserId} for admin {$admin->id}");
     
     $message = Message::create([
       'conversation_id' => $conversation->id,
