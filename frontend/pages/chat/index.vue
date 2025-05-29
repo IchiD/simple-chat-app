@@ -37,11 +37,18 @@ type MessageSender = {
   name: string;
 };
 
+type AdminSender = {
+  id: number;
+  name: string;
+};
+
 type LatestMessage = {
   id: number;
   text_content: string | null;
   sent_at: string | null;
   sender: MessageSender | null;
+  admin_sender_id?: number | null;
+  adminSender?: AdminSender | null;
 };
 
 type Conversation = {
@@ -138,13 +145,13 @@ if (error.value) {
 
 const conversations = computed(() => {
   const conversationList = apiResponse.value?.data || [];
-  
+
   // サポート会話を識別して表示名を調整
-  return conversationList.map(conversation => {
-    if (conversation.type === 'support') {
+  return conversationList.map((conversation) => {
+    if (conversation.type === "support") {
       return {
         ...conversation,
-        participants: [{ id: 0, name: 'サポート', friend_id: null }]
+        participants: [{ id: 0, name: "サポート", friend_id: null }],
       };
     }
     return conversation;

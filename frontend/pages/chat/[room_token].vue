@@ -334,11 +334,18 @@ type MessageSender = {
   name: string;
 };
 
+type AdminSender = {
+  id: number;
+  name: string;
+};
+
 type LatestMessage = {
   id: number;
   text_content: string | null;
   sent_at: string | null;
   sender: MessageSender | null;
+  admin_sender_id?: number | null;
+  adminSender?: AdminSender | null;
 };
 
 type Conversation = {
@@ -355,11 +362,13 @@ type Conversation = {
 type Message = {
   id: number;
   conversation_id: number;
-  sender_id: number;
+  sender_id: number | null;
+  admin_sender_id?: number | null;
   content_type: string;
   text_content: string | null;
   sent_at: string;
-  sender: MessageSender;
+  sender: MessageSender | null;
+  adminSender?: AdminSender | null;
 };
 
 type PaginatedMessagesResponse = {
@@ -629,23 +638,28 @@ const conversationDisplayName = computed(() => {
 });
 
 // メッセージが管理者からかどうかを判定
-const _isAdminMessage = (message: Message): boolean => {
-  if (!isSupportConversation.value) return false;
-
-  // サポート会話で自分以外からのメッセージは管理者からと判定
-  const isAdmin = message.sender_id !== currentUserId.value;
-  console.log("isAdminMessage:", {
-    messageId: message.id,
-    senderId: message.sender_id,
-    currentUserId: currentUserId.value,
-    isAdmin,
-  });
-  return isAdmin;
+const isAdminMessage = (message: Message): boolean => {
+  return (
+    message.admin_sender_id !== null && message.admin_sender_id !== undefined
+  );
 };
 
-const isMyMessage = (messageSenderId: number): boolean => {
+// メッセージの送信者名を取得
+const getMessageSenderName = (message: Message): string => {
+  if (isAdminMessage(message)) {
+    return "サポート";
+  }
+  if (message.sender) {
+    return message.sender.name;
+  }
+  return "不明";
+};
+
+const isMyMessage = (messageSenderId: number | null): boolean => {
   return (
-    currentUserId.value !== undefined && messageSenderId === currentUserId.value
+    currentUserId.value !== undefined &&
+    messageSenderId !== null &&
+    messageSenderId === currentUserId.value
   );
 };
 

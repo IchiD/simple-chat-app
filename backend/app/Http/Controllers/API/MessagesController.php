@@ -65,6 +65,8 @@ class MessagesController extends Controller
       ->whereNull('admin_deleted_at') // 管理者によって削除されていないメッセージのみ
       ->with(['sender' => function ($query) {
         $query->select('id', 'name', 'friend_id'); // 送信者の基本情報を選択
+      }, 'adminSender' => function ($query) {
+        $query->select('id', 'name'); // 管理者送信者の基本情報を選択
       }])
       ->orderBy('sent_at', 'desc') // 最新のメッセージから表示
       ->paginate(20); // ページネーション
@@ -147,6 +149,8 @@ class MessagesController extends Controller
 
     $message->load(['sender' => function ($query) {
       $query->select('id', 'name', 'friend_id');
+    }, 'adminSender' => function ($query) {
+      $query->select('id', 'name');
     }]);
 
     // プッシュ通知の送信

@@ -107,10 +107,18 @@
           </div>
           <div class="flex justify-between items-center">
             <p class="text-xs text-gray-600 truncate flex-1 text-left">
-              <span v-if="convo.latest_message?.sender?.name">
+              <span
+                v-if="
+                  convo.latest_message?.sender?.name ||
+                  convo.latest_message?.admin_sender_id
+                "
+              >
                 <span class="font-medium">
                   {{
-                    getSenderDisplayName(convo, convo.latest_message.sender.id)
+                    getSenderDisplayName(
+                      convo,
+                      convo.latest_message.sender?.id || null
+                    )
                   }}:
                 </span>
                 {{ convo.latest_message.text_content || "（メッセージなし）" }}
@@ -165,11 +173,18 @@ type MessageSender = {
   name: string;
 };
 
+type AdminSender = {
+  id: number;
+  name: string;
+};
+
 type LatestMessage = {
   id: number;
   text_content: string | null;
   sent_at: string | null;
   sender: MessageSender | null;
+  admin_sender_id?: number | null;
+  adminSender?: AdminSender | null;
 };
 
 type Conversation = {
@@ -209,24 +224,28 @@ const { user: authUser } = storeToRefs(useAuthStore());
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 // 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）
-const getSenderDisplayName = (conversation: Conversation, senderId: number): string => {
+const getSenderDisplayName = (
+  conversation: Conversation,
+  senderId: number | null
+): string => {
   // デバッグ用ログ
-  console.log('getSenderDisplayName:', { 
-    conversationType: conversation.type, 
-    senderId, 
+  console.log("getSenderDisplayName:", {
+    conversationType: conversation.type,
+    senderId,
     currentUserId: currentUserId.value,
-    senderName: conversation.latest_message?.sender?.name 
+    senderName: conversation.latest_message?.sender?.name,
+    adminSenderId: conversation.latest_message?.admin_sender_id,
   });
-  
+
+  // 管理者メッセージの場合
+  if (conversation.latest_message?.admin_sender_id) {
+    return "サポート";
+  }
+
   if (senderId === currentUserId.value) {
     return "あなた";
   }
-  
-  // サポート会話の場合は「サポート」を表示
-  if (conversation.type === 'support') {
-    return "サポート";
-  }
-  
+
   // 通常の会話の場合は送信者名を表示
   return conversation.latest_message?.sender?.name || "不明";
 };

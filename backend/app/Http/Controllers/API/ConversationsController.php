@@ -35,8 +35,12 @@ class ConversationsController extends Controller
         $query->where('users.id', '!=', $user->id)
           ->whereNull('users.deleted_at')
           ->select('users.id', 'users.name', 'users.friend_id');
-      }, 'latestMessage.sender' => function ($query) {
-        $query->select('id', 'name');
+      }, 'latestMessage' => function ($query) {
+        $query->with(['sender' => function ($senderQuery) {
+          $senderQuery->select('id', 'name');
+        }, 'adminSender' => function ($adminQuery) {
+          $adminQuery->select('id', 'name');
+        }]);
       }])
       ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
       ->whereNull('conversations.deleted_at') // 削除されていない会話のみ
@@ -126,8 +130,12 @@ class ConversationsController extends Controller
       'participants' => function ($query) use ($currentUser) {
         $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.friend_id');
       },
-      'latestMessage.sender' => function ($query) {
-        $query->select('id', 'name');
+      'latestMessage' => function ($query) {
+        $query->with(['sender' => function ($senderQuery) {
+          $senderQuery->select('id', 'name');
+        }, 'adminSender' => function ($adminQuery) {
+          $adminQuery->select('id', 'name');
+        }]);
       }
     ])->first();
 
@@ -158,8 +166,12 @@ class ConversationsController extends Controller
         'participants' => function ($query) use ($currentUser) {
           $query->where('users.id', '!=', $currentUser->id)->select('users.id', 'users.name', 'users.friend_id');
         },
-        'latestMessage.sender' => function ($query) {
-          $query->select('id', 'name');
+        'latestMessage' => function ($query) {
+          $query->with(['sender' => function ($senderQuery) {
+            $senderQuery->select('id', 'name');
+          }, 'adminSender' => function ($adminQuery) {
+            $adminQuery->select('id', 'name');
+          }]);
         }
       ]);
       // 明示的にroom_tokenをロードしなくても、fresh()がモデルインスタンスを再取得するため
@@ -185,8 +197,12 @@ class ConversationsController extends Controller
 
     $conversation->load(['participants' => function ($query) use ($user) {
       $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
-    }, 'latestMessage.sender' => function ($query) {
-      $query->select('id', 'name');
+    }, 'latestMessage' => function ($query) {
+      $query->with(['sender' => function ($senderQuery) {
+        $senderQuery->select('id', 'name');
+      }, 'adminSender' => function ($adminQuery) {
+        $adminQuery->select('id', 'name');
+      }]);
     }]);
 
     return response()->json($conversation);
@@ -301,8 +317,12 @@ class ConversationsController extends Controller
           ->whereNull('users.deleted_at')
           ->select('users.id', 'users.name', 'users.friend_id');
       },
-      'latestMessage.sender' => function ($query) {
-        $query->select('id', 'name');
+      'latestMessage' => function ($query) {
+        $query->with(['sender' => function ($senderQuery) {
+          $senderQuery->select('id', 'name');
+        }, 'adminSender' => function ($adminQuery) {
+          $adminQuery->select('id', 'name');
+        }]);
       },
       // 必要であれば、メッセージもここでページネーションしてロードすることも検討できます
       // 'messages' => function ($query) {
@@ -333,8 +353,12 @@ class ConversationsController extends Controller
         'participants' => function ($query) use ($user) {
           $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
         },
-        'latestMessage.sender' => function ($query) {
-          $query->select('id', 'name');
+        'latestMessage' => function ($query) {
+          $query->with(['sender' => function ($senderQuery) {
+            $senderQuery->select('id', 'name');
+          }, 'adminSender' => function ($adminQuery) {
+            $adminQuery->select('id', 'name');
+          }]);
         }
       ])
       ->first();
@@ -363,8 +387,12 @@ class ConversationsController extends Controller
         'participants' => function ($query) use ($user) {
           $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
         },
-        'latestMessage.sender' => function ($query) {
-          $query->select('id', 'name');
+        'latestMessage' => function ($query) {
+          $query->with(['sender' => function ($senderQuery) {
+            $senderQuery->select('id', 'name');
+          }, 'adminSender' => function ($adminQuery) {
+            $adminQuery->select('id', 'name');
+          }]);
         }
       ]);
 
@@ -393,8 +421,12 @@ class ConversationsController extends Controller
         'participants' => function ($query) use ($user) {
           $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
         },
-        'latestMessage.sender' => function ($query) {
-          $query->select('id', 'name');
+        'latestMessage' => function ($query) {
+          $query->with(['sender' => function ($senderQuery) {
+            $senderQuery->select('id', 'name');
+          }, 'adminSender' => function ($adminQuery) {
+            $adminQuery->select('id', 'name');
+          }]);
         }
       ])
       ->first();
