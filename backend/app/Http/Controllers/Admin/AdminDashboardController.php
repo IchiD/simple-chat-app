@@ -182,10 +182,10 @@ class AdminDashboardController extends Controller
     }
 
     $request->validate([
-      'reason' => 'required|string|max:500',
+      'reason' => 'nullable|string|max:500',
     ]);
 
-    $user->deleteByAdmin($admin->id, $request->reason);
+    $user->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
 
     // ユーザーが参加している会話も削除
     $conversations = $user->conversations;
@@ -263,7 +263,7 @@ class AdminDashboardController extends Controller
     }
 
     $request->validate([
-      'reason' => 'string|max:500',
+      'reason' => 'nullable|string|max:500',
     ]);
 
     $conversation->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
@@ -323,7 +323,7 @@ class AdminDashboardController extends Controller
     }
 
     $request->validate([
-      'reason' => 'string|max:500',
+      'reason' => 'nullable|string|max:500',
     ]);
 
     $message->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
