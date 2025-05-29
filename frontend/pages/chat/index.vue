@@ -5,14 +5,16 @@
       style="height: calc(100vh - 7.5rem)"
     >
       <div class="flex h-full w-full">
-        <ChatSidebar
-          :conversations="conversations"
-          :pending="pending"
-          :error="error"
-          :selected-conversation-room-token="null"
-          class="w-full"
-          @conversation-selected="handleConversationSelected"
-        />
+        <div class="max-w-4xl mx-auto w-full">
+          <ChatSidebar
+            :conversations="conversations"
+            :pending="pending"
+            :error="error"
+            :selected-conversation-room-token="null"
+            class="w-full"
+            @conversation-selected="handleConversationSelected"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -28,7 +30,6 @@ import { useToast } from "~/composables/useToast";
 type Participant = {
   id: number;
   name: string;
-  avatar?: string | null;
 };
 
 type MessageSender = {
