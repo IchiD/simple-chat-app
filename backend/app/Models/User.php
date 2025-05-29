@@ -345,12 +345,21 @@ class User extends Authenticatable
    */
   public function deleteByAdmin(int $adminId, string $reason = null): bool
   {
-    return $this->update([
+    $result = $this->update([
       'deleted_at' => now(),
       'deleted_reason' => $reason,
       'deleted_by' => $adminId,
       'is_banned' => true,
     ]);
+
+    // ユーザーが参加している会話も自動削除
+    if ($result) {
+      $this->conversations()->whereNull('deleted_at')->each(function ($conversation) use ($adminId, $reason) {
+        $conversation->deleteByAdmin($adminId, "参加者（{$this->name}）の削除に伴う自動削除: " . ($reason ?? '管理者による削除'));
+      });
+    }
+
+    return $result;
   }
 
   /**
@@ -358,11 +367,23 @@ class User extends Authenticatable
    */
   public function restoreByAdmin(): bool
   {
-    return $this->update([
+    $result = $this->update([
       'deleted_at' => null,
       'deleted_reason' => null,
       'deleted_by' => null,
       'is_banned' => false,
     ]);
+
+    // このユーザーの削除が原因で削除された会話を復元
+    if ($result) {
+      $this->conversations()
+           ->whereNotNull('deleted_at')
+           ->where('deleted_reason', 'LIKE', "%参加者（{$this->name}）の削除に伴う自動削除%")
+           ->each(function ($conversation) {
+             $conversation->restoreByAdmin();
+           });
+    }
+
+    return $result;
   }
 }

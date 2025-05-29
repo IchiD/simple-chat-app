@@ -262,13 +262,31 @@ class AdminDashboardController extends Controller
     }
 
     $request->validate([
-      'reason' => 'required|string|max:500',
+      'reason' => 'string|max:500',
     ]);
 
-    $conversation->deleteByAdmin($admin->id, $request->reason);
+    $conversation->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
 
     return redirect()->route('admin.users.conversations', $userId)
                      ->with('success', '会話を削除しました。');
+  }
+
+  /**
+   * 会話削除の取り消し
+   */
+  public function restoreConversation($userId, $conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $conversation = Conversation::findOrFail($conversationId);
+
+    if (!$conversation->isDeleted()) {
+      return redirect()->back()->with('error', 'この会話は削除されていません。');
+    }
+
+    $conversation->restoreByAdmin();
+
+    return redirect()->route('admin.users.conversations', $userId)
+                     ->with('success', '会話の削除を取り消しました。');
   }
 
   /**

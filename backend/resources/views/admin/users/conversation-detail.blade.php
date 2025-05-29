@@ -38,7 +38,16 @@
                     <h5 class="card-title mb-0">
                         <i class="fas fa-info-circle me-2"></i>会話情報
                     </h5>
-                    @if(!$conversation->isDeleted())
+                    @if($conversation->isDeleted())
+                        <form method="POST" action="{{ route('admin.users.conversations.restore', [$user->id, $conversation->id]) }}" class="d-inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="btn btn-sm btn-outline-light" 
+                                    onclick="return confirm('この会話の削除を取り消しますか？')">
+                                <i class="fas fa-undo me-1"></i>削除を取り消し
+                            </button>
+                        </form>
+                    @else
                         <button type="button" 
                                 class="btn btn-sm btn-outline-danger" 
                                 onclick="showDeleteConversationModal()">
