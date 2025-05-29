@@ -49,6 +49,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'updateMessage'])->name('users.messages.update');
     Route::delete('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'deleteMessage'])->name('users.messages.delete');
 
+    // Support Management Routes
+    Route::get('support', [AdminDashboardController::class, 'supportConversations'])->name('support');
+    Route::get('support/{conversationId}', [AdminDashboardController::class, 'supportConversationDetail'])->name('support.detail');
+    Route::post('support/{conversationId}/reply', [AdminDashboardController::class, 'replyToSupport'])->name('support.reply');
+
     // Friendship Management Routes
     Route::get('friendships', [AdminDashboardController::class, 'friendships'])->name('friendships');
     Route::get('friendships/{id}', [AdminDashboardController::class, 'showFriendship'])->name('friendships.show');

@@ -78,6 +78,12 @@ Route::middleware(['auth:sanctum', 'check.user.status'])->group(function () {
 
   // メールアドレス変更関連
   Route::put('/user/update-email', [AuthController::class, 'requestEmailChange']);
+
+  // お問い合わせ機能
+  Route::prefix('support')->group(function () {
+    Route::post('/conversation', [ConversationsController::class, 'createSupportConversation']); // サポート会話の作成
+    Route::get('/conversation', [ConversationsController::class, 'getSupportConversation']); // サポート会話の取得
+  });
 });
 
 // メールアドレス変更確認（認証不要）

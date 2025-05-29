@@ -41,8 +41,10 @@ class ConversationsController extends Controller
       ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
       ->whereNull('conversations.deleted_at') // 削除されていない会話のみ
       ->where(function ($query) use ($user, $friendIds) {
-        // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
-        $query->where('type', '!=', 'direct') // グループチャットは常に表示
+        // サポート会話は常に表示
+        $query->where('type', 'support')
+          // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
+          ->orWhere('type', '!=', 'direct') // グループチャットは常に表示
           ->orWhere(function ($query) use ($user, $friendIds) {
             // ダイレクトメッセージで、かつ相手が友達である場合
             $query->where('type', 'direct')
@@ -309,5 +311,98 @@ class ConversationsController extends Controller
     ]);
 
     return response()->json($conversation);
+  }
+
+  /**
+   * サポート会話を作成または取得する
+   */
+  public function createSupportConversation(Request $request)
+  {
+    $user = Auth::user();
+
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    // 既存のサポート会話を検索
+    $existingConversation = $user->conversations()
+      ->where('type', 'support')
+      ->whereNull('deleted_at')
+      ->with([
+        'participants' => function ($query) use ($user) {
+          $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
+        },
+        'latestMessage.sender' => function ($query) {
+          $query->select('id', 'name');
+        }
+      ])
+      ->first();
+
+    if ($existingConversation) {
+      return response()->json($existingConversation, 200);
+    }
+
+    // 新しいサポート会話を作成
+    $conversation = null;
+    DB::transaction(function () use ($user, &$conversation) {
+      $newConversation = Conversation::create([
+        'type' => 'support',
+      ]);
+
+      // ユーザーを参加者として追加
+      $newConversation->conversationParticipants()->create([
+        'user_id' => $user->id,
+      ]);
+
+      $conversation = $newConversation;
+    });
+
+    if ($conversation) {
+      $conversation = $conversation->fresh([
+        'participants' => function ($query) use ($user) {
+          $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
+        },
+        'latestMessage.sender' => function ($query) {
+          $query->select('id', 'name');
+        }
+      ]);
+
+      return response()->json($conversation, 201);
+    }
+
+    return response()->json(['message' => 'サポート会話の作成に失敗しました。'], 500);
+  }
+
+  /**
+   * ユーザーのサポート会話を取得する
+   */
+  public function getSupportConversation(Request $request)
+  {
+    $user = Auth::user();
+
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    $conversation = $user->conversations()
+      ->where('type', 'support')
+      ->whereNull('deleted_at')
+      ->with([
+        'participants' => function ($query) use ($user) {
+          $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
+        },
+        'latestMessage.sender' => function ($query) {
+          $query->select('id', 'name');
+        }
+      ])
+      ->first();
+
+    if (!$conversation) {
+      return response()->json(['message' => 'サポート会話が見つかりません。'], 404);
+    }
+
+    return response()->json($conversation, 200);
   }
 }

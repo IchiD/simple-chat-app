@@ -136,7 +136,20 @@ if (error.value) {
   );
 }
 
-const conversations = computed(() => apiResponse.value?.data || []);
+const conversations = computed(() => {
+  const conversationList = apiResponse.value?.data || [];
+  
+  // サポート会話を識別して表示名を調整
+  return conversationList.map(conversation => {
+    if (conversation.type === 'support') {
+      return {
+        ...conversation,
+        participants: [{ id: 0, name: 'サポート', friend_id: null }]
+      };
+    }
+    return conversation;
+  });
+});
 
 const handleConversationSelected = (roomToken: string) => {
   if (roomToken) {
