@@ -107,7 +107,7 @@ class Friendship extends Model
   /**
    * 友達関係を論理削除（管理者による）
    */
-  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  public function deleteByAdmin(?int $adminId, string $reason = null): bool
   {
     $this->deleted_at = now();
     $this->deleted_reason = $reason;

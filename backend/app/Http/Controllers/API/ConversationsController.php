@@ -33,8 +33,8 @@ class ConversationsController extends Controller
       ->with(['participants' => function ($query) use ($user) {
         // 自分以外の参加者情報を取得（削除されていないユーザーのみ）
         $query->where('users.id', '!=', $user->id)
-              ->whereNull('users.deleted_at')
-              ->select('users.id', 'users.name', 'users.friend_id');
+          ->whereNull('users.deleted_at')
+          ->select('users.id', 'users.name', 'users.friend_id');
       }, 'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
       }])
@@ -193,27 +193,39 @@ class ConversationsController extends Controller
   /**
    * 会話を既読にする
    */
-  public function markAsRead(Conversation $conversation, Request $request)
+  public function markAsRead(Conversation $conversation)
   {
     $user = Auth::user();
 
-    $participant = $conversation->conversationParticipants()->where('user_id', $user->id)->first();
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    // ユーザーがこの会話の参加者であることを確認
+    $participant = $conversation->conversationParticipants()
+      ->where('user_id', $user->id)
+      ->first();
 
     if (!$participant) {
       return response()->json(['message' => 'この会話の参加者ではありません。'], 403);
     }
 
-    // 最新のメッセージIDを取得（もしあれば）
-    $lastMessage = $conversation->messages()->latest('sent_at')->first();
+    // 最新メッセージを取得
+    $latestMessage = $conversation->messages()
+      ->whereNull('deleted_at')
+      ->whereNull('admin_deleted_at')
+      ->latest('sent_at')
+      ->first();
 
-    $participant->update([
-      'last_read_message_id' => $lastMessage ? $lastMessage->id : null,
-      'last_read_at' => now(),
-    ]);
+    if ($latestMessage) {
+      $participant->update([
+        'last_read_message_id' => $latestMessage->id,
+        'last_read_at' => now(),
+      ]);
+    }
 
-    // TODO: リアルタイムで相手に既読を通知するイベントを発行 (例: MessageReadEvent)
-
-    return response()->json(['message' => '会話を既読にしました。', 'participant' => $participant]);
+    return response()->json(['message' => '既読にしました。']);
   }
 
   /**
@@ -245,8 +257,8 @@ class ConversationsController extends Controller
     }
 
     $conversation = Conversation::where('room_token', $room_token)
-                                ->whereNull('deleted_at') // 削除されていない会話のみ
-                                ->firstOrFail();
+      ->whereNull('deleted_at') // 削除されていない会話のみ
+      ->firstOrFail();
 
     // ユーザーがこの会話の参加者であることを確認
     if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
@@ -284,8 +296,8 @@ class ConversationsController extends Controller
       'participants' => function ($query) use ($user) {
         // 自分以外の参加者情報を取得（削除されていないユーザーのみ）
         $query->where('users.id', '!=', $user->id)
-              ->whereNull('users.deleted_at')
-              ->select('users.id', 'users.name', 'users.friend_id');
+          ->whereNull('users.deleted_at')
+          ->select('users.id', 'users.name', 'users.friend_id');
       },
       'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
@@ -297,5 +309,42 @@ class ConversationsController extends Controller
     ]);
 
     return response()->json($conversation);
+  }
+
+  /**
+   * ユーザーによる会話削除（論理削除）
+   */
+  public function deleteByToken(Request $request, $room_token)
+  {
+    $user = Auth::user();
+
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    $conversation = Conversation::where('room_token', $room_token)
+      ->whereNull('deleted_at') // 管理者によって削除されていない会話のみ
+      ->firstOrFail();
+
+    // ユーザーがこの会話の参加者であることを確認
+    if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
+      return response()->json(['message' => 'この会話にアクセスする権限がありません。'], 403);
+    }
+
+    // 既にユーザーによって削除されているかチェック
+    if ($conversation->isUserDeleted()) {
+      return response()->json(['message' => 'この会話は既に削除されています。'], 409);
+    }
+
+    $request->validate([
+      'reason' => 'nullable|string|max:500',
+    ]);
+
+    $reason = $request->input('reason', 'ユーザーによる削除');
+
+    $conversation->deleteByUser($user->id, $reason);
+
+    return response()->json(['message' => '会話を削除しました。']);
   }
 }

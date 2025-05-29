@@ -59,10 +59,10 @@ class AdminDashboardController extends Controller
   public function users(Request $request)
   {
     $admin = Auth::guard('admin')->user();
-    
+
     // クエリビルダーを初期化
     $query = User::query();
-    
+
     // 検索機能
     if ($search = $request->get('search')) {
       $query->where(function ($q) use ($search) {
@@ -71,7 +71,7 @@ class AdminDashboardController extends Controller
           ->orWhere('friend_id', 'LIKE', '%' . $search . '%');
       });
     }
-    
+
     // 認証状態フィルター
     if ($status = $request->get('status')) {
       if ($status === 'verified') {
@@ -84,7 +84,7 @@ class AdminDashboardController extends Controller
         $query->where('is_banned', true);
       }
     }
-    
+
     // 並び順
     $sort = $request->get('sort', 'created_at_desc');
     switch ($sort) {
@@ -102,10 +102,10 @@ class AdminDashboardController extends Controller
         $query->orderBy('created_at', 'desc');
         break;
     }
-    
+
     // ページネーション実行（削除されたユーザーも含む）
     $users = $query->with('deletedByAdmin')->paginate(20);
-    
+
     // 検索パラメータをページネーションに追加
     $users->appends($request->query());
 
@@ -119,8 +119,8 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $user = User::with(['deletedByAdmin', 'conversations.participants', 'messages'])
-                ->findOrFail($id);
-    
+      ->findOrFail($id);
+
     // ユーザーの統計情報
     $stats = [
       'total_conversations' => $user->conversations()->count(),
@@ -166,7 +166,7 @@ class AdminDashboardController extends Controller
     ]);
 
     return redirect()->route('admin.users.show', $user->id)
-                     ->with('success', 'ユーザー情報を更新しました。');
+      ->with('success', 'ユーザー情報を更新しました。');
   }
 
   /**
@@ -196,7 +196,7 @@ class AdminDashboardController extends Controller
     }
 
     return redirect()->route('admin.users')
-                     ->with('success', 'ユーザーを削除しました。');
+      ->with('success', 'ユーザーを削除しました。');
   }
 
   /**
@@ -214,38 +214,38 @@ class AdminDashboardController extends Controller
     $user->restoreByAdmin();
 
     return redirect()->route('admin.users.show', $user->id)
-                     ->with('success', 'ユーザーの削除を取り消しました。');
+      ->with('success', 'ユーザーの削除を取り消しました。');
   }
 
   /**
-   * ユーザーの会話管理画面
+   * ユーザーの会話一覧を表示
    */
   public function userConversations($id)
   {
     $admin = Auth::guard('admin')->user();
-    $user = User::findOrFail($id);
-    
-    $conversations = $user->conversations()
-                          ->with(['participants', 'latestMessage', 'deletedByAdmin'])
-                          ->paginate(10);
+    $user = User::with(['conversations' => function ($query) {
+      $query->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'deletedByUser', 'messages']);
+    }])->findOrFail($id);
+
+    $conversations = $user->conversations()->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'deletedByUser', 'messages'])->paginate(10);
 
     return view('admin.users.conversations', compact('admin', 'user', 'conversations'));
   }
 
   /**
-   * 会話の詳細と管理
+   * 会話詳細を表示
    */
   public function conversationDetail($userId, $conversationId)
   {
     $admin = Auth::guard('admin')->user();
     $user = User::findOrFail($userId);
-    $conversation = Conversation::with(['participants', 'messages.sender', 'deletedByAdmin'])
-                                ->findOrFail($conversationId);
-    
+    $conversation = Conversation::with(['participants', 'messages.sender', 'deletedByAdmin', 'deletedByUser'])
+      ->findOrFail($conversationId);
+
     $messages = $conversation->messages()
-                             ->with(['sender', 'adminDeletedBy'])
-                             ->orderBy('sent_at', 'desc')
-                             ->paginate(20);
+      ->with(['sender', 'adminDeletedBy'])
+      ->orderBy('sent_at', 'desc')
+      ->paginate(20);
 
     return view('admin.users.conversation-detail', compact('admin', 'user', 'conversation', 'messages'));
   }
@@ -269,7 +269,7 @@ class AdminDashboardController extends Controller
     $conversation->deleteByAdmin($admin->id, $request->reason ?? '管理者による削除');
 
     return redirect()->route('admin.users.conversations', $userId)
-                     ->with('success', '会話を削除しました。');
+      ->with('success', '会話を削除しました。');
   }
 
   /**
@@ -287,7 +287,7 @@ class AdminDashboardController extends Controller
     $conversation->restoreByAdmin();
 
     return redirect()->route('admin.users.conversations', $userId)
-                     ->with('success', '会話の削除を取り消しました。');
+      ->with('success', '会話の削除を取り消しました。');
   }
 
   /**
@@ -783,10 +783,10 @@ class AdminDashboardController extends Controller
   public function friendships(Request $request)
   {
     $admin = Auth::guard('admin')->user();
-    
+
     $query = Friendship::with(['user', 'friend', 'deletedByAdmin'])
-                      ->withTrashed()
-                      ->orderBy('created_at', 'desc');
+      ->withTrashed()
+      ->orderBy('created_at', 'desc');
 
     // ステータスフィルタ
     if ($request->filled('status')) {
@@ -796,22 +796,22 @@ class AdminDashboardController extends Controller
         $query->whereNull('deleted_at');
       } else {
         $query->whereNull('deleted_at')
-              ->where('status', $request->status);
+          ->where('status', $request->status);
       }
     }
 
     // ユーザー名検索
     if ($request->filled('search')) {
       $search = $request->search;
-      $query->where(function($q) use ($search) {
-        $q->whereHas('user', function($userQuery) use ($search) {
+      $query->where(function ($q) use ($search) {
+        $q->whereHas('user', function ($userQuery) use ($search) {
           $userQuery->where('name', 'LIKE', "%{$search}%")
-                   ->orWhere('email', 'LIKE', "%{$search}%")
-                   ->orWhere('friend_id', 'LIKE', "%{$search}%");
-        })->orWhereHas('friend', function($friendQuery) use ($search) {
+            ->orWhere('email', 'LIKE', "%{$search}%")
+            ->orWhere('friend_id', 'LIKE', "%{$search}%");
+        })->orWhereHas('friend', function ($friendQuery) use ($search) {
           $friendQuery->where('name', 'LIKE', "%{$search}%")
-                     ->orWhere('email', 'LIKE', "%{$search}%")
-                     ->orWhere('friend_id', 'LIKE', "%{$search}%");
+            ->orWhere('email', 'LIKE', "%{$search}%")
+            ->orWhere('friend_id', 'LIKE', "%{$search}%");
         });
       });
     }
@@ -829,8 +829,8 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $friendship = Friendship::withTrashed()
-                          ->with(['user', 'friend', 'deletedByAdmin'])
-                          ->findOrFail($id);
+      ->with(['user', 'friend', 'deletedByAdmin'])
+      ->findOrFail($id);
 
     return view('admin.friendships.show', compact('admin', 'friendship'));
   }
@@ -842,11 +842,11 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $friendship = Friendship::findOrFail($id);
-    
+
     if ($friendship->isDeleted()) {
       return redirect()->back()->with('error', 'この友達関係は既に削除されています。');
     }
-    
+
     $validated = $request->validate([
       'reason' => 'nullable|string|max:500'
     ]);
@@ -866,7 +866,7 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $friendship = Friendship::withTrashed()->findOrFail($id);
-    
+
     if (!$friendship->isDeleted()) {
       return redirect()
         ->route('admin.friendships.show', $friendship->id)

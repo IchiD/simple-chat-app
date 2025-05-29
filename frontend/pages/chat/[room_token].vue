@@ -92,8 +92,8 @@
                     {{ getConversationErrorDescription() }}
                   </p>
                   <button
-                    @click="handleConversationError"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
+                    @click="handleConversationError"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -369,6 +369,16 @@ type PaginatedMessagesResponse = {
   prev_page_url: string | null;
   to: number | null;
   total: number;
+};
+
+type ApiErrorData = {
+  message?: string;
+  errors?: Record<string, string[]>;
+};
+
+type ApiError = Error & {
+  data?: ApiErrorData;
+  statusCode?: number;
 };
 
 const authStore = useAuthStore();
@@ -755,22 +765,27 @@ const sendMessage = async () => {
     await scrollToBottom("smooth");
   } catch (e: unknown) {
     console.error("Error sending message:", e);
-    
+
     // エラーハンドリングを詳細化
     let errorMessage = "メッセージの送信に失敗しました。";
     let shouldRedirect = false;
-    
+
     if (typeof e === "object" && e !== null) {
-      const errorData = (e as any)?.data;
-      const statusCode = (e as any)?.statusCode;
-      
+      const error = e as ApiError;
+      const errorData = error.data;
+      const statusCode = error.statusCode;
+
       if (errorData?.message) {
-        if (errorData.message.includes("削除されています") || 
-            errorData.message.includes("deleted")) {
+        if (
+          errorData.message.includes("削除されています") ||
+          errorData.message.includes("deleted")
+        ) {
           errorMessage = "この会話は削除されています。チャット一覧に戻ります。";
           shouldRedirect = true;
-        } else if (errorData.message.includes("アカウントが削除") || 
-                   errorData.message.includes("account_deleted")) {
+        } else if (
+          errorData.message.includes("アカウントが削除") ||
+          errorData.message.includes("account_deleted")
+        ) {
           errorMessage = "アカウントが削除されています。ログアウトします。";
           toast.add({
             title: "アカウント削除",
@@ -780,12 +795,14 @@ const sendMessage = async () => {
           authStore.logout();
           router.push("/auth/login");
           return;
-        } else if (errorData.message.includes("友達関係") || 
-                   errorData.message.includes("unfriended")) {
-          errorMessage = "友達関係が解除されたため、メッセージを送信できません。";
+        } else if (
+          errorData.message.includes("友達関係") ||
+          errorData.message.includes("unfriended")
+        ) {
+          errorMessage =
+            "友達関係が解除されたため、メッセージを送信できません。";
           shouldRedirect = true;
-        } else if (errorData.message.includes("権限") || 
-                   statusCode === 403) {
+        } else if (errorData.message.includes("権限") || statusCode === 403) {
           errorMessage = "メッセージを送信する権限がありません。";
           shouldRedirect = true;
         } else {
@@ -793,13 +810,13 @@ const sendMessage = async () => {
         }
       }
     }
-    
+
     toast.add({
       title: "送信エラー",
       description: errorMessage,
       color: "error",
     });
-    
+
     if (shouldRedirect) {
       setTimeout(() => {
         router.push("/chat");
@@ -851,69 +868,85 @@ const handleKeydown = (event: KeyboardEvent) => {
 
 const getConversationErrorMessage = () => {
   if (!conversationError.value) return "会話情報の読み込みに失敗しました。";
-  
+
   const errorMessage = conversationError.value.message || "";
-  const errorData = (conversationError.value as any)?.data;
-  
+  const error = conversationError.value as ApiError;
+  const errorData = error.data;
+
   // バックエンドからのエラーメッセージをチェック
   if (errorData?.message) {
-    if (errorData.message.includes("削除されています") || 
-        errorData.message.includes("deleted")) {
+    if (
+      errorData.message.includes("削除されています") ||
+      errorData.message.includes("deleted")
+    ) {
       return "この会話は削除されています";
     }
-    if (errorData.message.includes("アクセス権") || 
-        errorData.message.includes("権限")) {
+    if (
+      errorData.message.includes("アクセス権") ||
+      errorData.message.includes("権限")
+    ) {
       return "この会話にアクセスする権限がありません";
     }
-    if (errorData.message.includes("友達関係") || 
-        errorData.message.includes("unfriended")) {
+    if (
+      errorData.message.includes("友達関係") ||
+      errorData.message.includes("unfriended")
+    ) {
       return "友達関係が解除されています";
     }
-    if (errorData.message.includes("アカウントが削除") || 
-        errorData.message.includes("user_deleted")) {
+    if (
+      errorData.message.includes("アカウントが削除") ||
+      errorData.message.includes("user_deleted")
+    ) {
       return "相手のアカウントが削除されています";
     }
     return errorData.message;
   }
-  
+
   // HTTPステータスコードに基づく判定
-  if (errorMessage.includes("404") || 
-      (conversationError.value as any)?.statusCode === 404) {
+  if (errorMessage.includes("404") || error.statusCode === 404) {
     return "会話が見つかりません";
   }
-  if (errorMessage.includes("403") || 
-      (conversationError.value as any)?.statusCode === 403) {
+  if (errorMessage.includes("403") || error.statusCode === 403) {
     return "この会話にアクセスする権限がありません";
   }
-  
+
   return "会話情報の読み込みに失敗しました";
 };
 
 const getConversationErrorDescription = () => {
   if (!conversationError.value) return "ページを再読み込みしてください。";
-  
-  const errorData = (conversationError.value as any)?.data;
-  
+
+  const error = conversationError.value as ApiError;
+  const errorData = error.data;
+
   // バックエンドからのエラーメッセージをチェック
   if (errorData?.message) {
-    if (errorData.message.includes("削除されています") || 
-        errorData.message.includes("deleted")) {
+    if (
+      errorData.message.includes("削除されています") ||
+      errorData.message.includes("deleted")
+    ) {
       return "管理者によって削除された可能性があります。チャット一覧に戻ってください。";
     }
-    if (errorData.message.includes("友達関係") || 
-        errorData.message.includes("unfriended")) {
+    if (
+      errorData.message.includes("友達関係") ||
+      errorData.message.includes("unfriended")
+    ) {
       return "友達関係を再度確認してください。";
     }
-    if (errorData.message.includes("アカウントが削除") || 
-        errorData.message.includes("user_deleted")) {
+    if (
+      errorData.message.includes("アカウントが削除") ||
+      errorData.message.includes("user_deleted")
+    ) {
       return "チャット一覧に戻って他の会話を確認してください。";
     }
-    if (errorData.message.includes("アクセス権") || 
-        errorData.message.includes("権限")) {
+    if (
+      errorData.message.includes("アクセス権") ||
+      errorData.message.includes("権限")
+    ) {
       return "チャット一覧に戻ってアクセス可能な会話を確認してください。";
     }
   }
-  
+
   // HTTPステータスコードに基づく判定
   const errorMessage = conversationError.value.message || "";
   if (errorMessage.includes("404")) {
@@ -922,17 +955,20 @@ const getConversationErrorDescription = () => {
   if (errorMessage.includes("403")) {
     return "この会話にアクセスする権限がありません。";
   }
-  
+
   return "ネットワーク接続を確認するか、ページを再読み込みしてください。";
 };
 
 const handleConversationError = () => {
   // エラーの種類に応じて適切な処理を行う
-  const errorData = (conversationError.value as any)?.data;
-  
+  const error = conversationError.value as ApiError;
+  const errorData = error?.data;
+
   if (errorData?.message) {
-    if (errorData.message.includes("アカウントが削除されています") ||
-        errorData.message.includes("account_deleted")) {
+    if (
+      errorData.message.includes("アカウントが削除されています") ||
+      errorData.message.includes("account_deleted")
+    ) {
       // ユーザーアカウントが削除されている場合はログアウト
       toast.add({
         title: "アカウント削除",
@@ -944,7 +980,7 @@ const handleConversationError = () => {
       return;
     }
   }
-  
+
   // その他のエラーの場合はチャット一覧に戻る
   router.push("/chat");
 };
