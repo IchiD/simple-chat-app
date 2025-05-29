@@ -24,9 +24,9 @@
           <div class="row">
             <div class="col-md-6">
               <strong>ユーザー:</strong>
-              @if($conversation->participants->first() && $conversation->participants->first()->user)
-                {{ $conversation->participants->first()->user->name }}
-                ({{ $conversation->participants->first()->user->email }})
+              @if($conversation->participants->first())
+                {{ $conversation->participants->first()->name }}
+                ({{ $conversation->participants->first()->email }})
               @else
                 ユーザー不明
               @endif
