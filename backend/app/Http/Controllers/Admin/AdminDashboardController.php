@@ -889,12 +889,12 @@ class AdminDashboardController extends Controller
 
     // サポート会話を取得
     $query = Conversation::where('type', 'support')
-      ->with(['participants', 'latestMessage.sender'])
+      ->with(['conversationParticipants.user', 'latestMessage.sender'])
       ->orderBy('updated_at', 'desc');
 
     // 検索機能
     if ($search = $request->get('search')) {
-      $query->whereHas('participants', function ($q) use ($search) {
+      $query->whereHas('conversationParticipants.user', function ($q) use ($search) {
         $q->where('name', 'LIKE', '%' . $search . '%')
           ->orWhere('email', 'LIKE', '%' . $search . '%');
       });
@@ -912,7 +912,7 @@ class AdminDashboardController extends Controller
   public function supportConversationDetail($conversationId)
   {
     $admin = Auth::guard('admin')->user();
-    $conversation = Conversation::with(['participants', 'messages.sender'])
+    $conversation = Conversation::with(['conversationParticipants.user', 'messages.sender'])
       ->where('type', 'support')
       ->findOrFail($conversationId);
 

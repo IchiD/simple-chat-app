@@ -55,11 +55,11 @@
                   @foreach($conversations as $conversation)
                     <tr>
                       <td>
-                        @if($conversation->participants->first())
+                        @if($conversation->conversationParticipants->first() && $conversation->conversationParticipants->first()->user)
                           <div>
-                            <strong>{{ $conversation->participants->first()->name }}</strong>
+                            <strong>{{ $conversation->conversationParticipants->first()->user->name }}</strong>
                             <br>
-                            <small class="text-muted">{{ $conversation->participants->first()->email }}</small>
+                            <small class="text-muted">{{ $conversation->conversationParticipants->first()->user->email }}</small>
                           </div>
                         @else
                           <span class="text-muted">ユーザー不明</span>
