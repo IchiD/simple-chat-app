@@ -20,6 +20,16 @@ class MessagesController extends Controller
   {
     $user = Auth::user();
 
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    // 削除された会話にはアクセス不可
+    if ($conversation->isDeleted()) {
+      return response()->json(['message' => 'この会話は削除されています。'], 403);
+    }
+
     // ユーザーがこの会話の参加者であることを確認
     if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
       return response()->json(['message' => 'アクセス権がありません。'], 403);
@@ -27,9 +37,10 @@ class MessagesController extends Controller
 
     // ダイレクトメッセージの場合、友達関係を確認
     if ($conversation->type === 'direct') {
-      // 会話の相手を取得
+      // 会話の相手を取得（削除されていないユーザーのみ）
       $otherParticipant = $conversation->participants()
         ->where('users.id', '!=', $user->id)
+        ->whereNull('users.deleted_at')
         ->first();
 
       if ($otherParticipant) {
@@ -41,10 +52,17 @@ class MessagesController extends Controller
             'friendship_status' => 'unfriended'
           ], 403);
         }
+      } else {
+        // 相手が削除されている場合
+        return response()->json([
+          'message' => '相手のアカウントが削除されたため、このチャットにアクセスできません。',
+          'friendship_status' => 'user_deleted'
+        ], 403);
       }
     }
 
     $messages = $conversation->messages()
+      ->whereNull('admin_deleted_at') // 管理者によって削除されていないメッセージのみ
       ->with(['sender' => function ($query) {
         $query->select('id', 'name', 'friend_id'); // 送信者の基本情報を選択
       }])
@@ -74,9 +92,45 @@ class MessagesController extends Controller
   {
     $user = Auth::user();
 
+    // 削除されたユーザーはメッセージ送信不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    // 削除された会話にはメッセージ送信不可
+    if ($conversation->isDeleted()) {
+      return response()->json(['message' => 'この会話は削除されています。'], 403);
+    }
+
     // ユーザーがこの会話の参加者であることを確認
     if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
       return response()->json(['message' => 'この会話にメッセージを送信する権限がありません。'], 403);
+    }
+
+    // ダイレクトメッセージの場合、友達関係を確認
+    if ($conversation->type === 'direct') {
+      // 会話の相手を取得（削除されていないユーザーのみ）
+      $otherParticipant = $conversation->participants()
+        ->where('users.id', '!=', $user->id)
+        ->whereNull('users.deleted_at')
+        ->first();
+
+      if ($otherParticipant) {
+        // 友達関係を確認
+        $currentFriends = $user->friends()->pluck('id')->toArray();
+        if (!in_array($otherParticipant->id, $currentFriends)) {
+          return response()->json([
+            'message' => '友達関係が解除されたため、このチャットにメッセージを送信できません。',
+            'friendship_status' => 'unfriended'
+          ], 403);
+        }
+      } else {
+        // 相手が削除されている場合
+        return response()->json([
+          'message' => '相手のアカウントが削除されたため、このチャットにメッセージを送信できません。',
+          'friendship_status' => 'user_deleted'
+        ], 403);
+      }
     }
 
     $request->validate([
@@ -99,6 +153,9 @@ class MessagesController extends Controller
     // 同じ会話の参加者全員（自分以外）に通知を送信する
     $participants = $conversation->conversationParticipants()
       ->where('user_id', '!=', $user->id)
+      ->whereHas('user', function ($query) {
+        $query->whereNull('deleted_at'); // 削除されていないユーザーのみ
+      })
       ->with('user')
       ->get();
 

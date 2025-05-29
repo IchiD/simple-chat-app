@@ -85,12 +85,30 @@
                       />
                     </svg>
                   </div>
-                  <p class="text-red-600 font-medium">
-                    会話情報の読み込みに失敗しました
+                  <p class="text-red-600 font-medium mb-2">
+                    {{ getConversationErrorMessage() }}
                   </p>
-                  <p class="text-gray-500 text-sm mt-1">
-                    ページを再読み込みしてください
+                  <p class="text-gray-500 text-sm mt-1 mb-4">
+                    {{ getConversationErrorDescription() }}
                   </p>
+                  <button
+                    @click="handleConversationError"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    チャット一覧に戻る
+                  </button>
                 </div>
               </div>
               <div
@@ -737,7 +755,56 @@ const sendMessage = async () => {
     await scrollToBottom("smooth");
   } catch (e: unknown) {
     console.error("Error sending message:", e);
-    // alert("メッセージの送信に失敗しました。"); // この行をコメントアウトまたは削除
+    
+    // エラーハンドリングを詳細化
+    let errorMessage = "メッセージの送信に失敗しました。";
+    let shouldRedirect = false;
+    
+    if (typeof e === "object" && e !== null) {
+      const errorData = (e as any)?.data;
+      const statusCode = (e as any)?.statusCode;
+      
+      if (errorData?.message) {
+        if (errorData.message.includes("削除されています") || 
+            errorData.message.includes("deleted")) {
+          errorMessage = "この会話は削除されています。チャット一覧に戻ります。";
+          shouldRedirect = true;
+        } else if (errorData.message.includes("アカウントが削除") || 
+                   errorData.message.includes("account_deleted")) {
+          errorMessage = "アカウントが削除されています。ログアウトします。";
+          toast.add({
+            title: "アカウント削除",
+            description: errorMessage,
+            color: "error",
+          });
+          authStore.logout();
+          router.push("/auth/login");
+          return;
+        } else if (errorData.message.includes("友達関係") || 
+                   errorData.message.includes("unfriended")) {
+          errorMessage = "友達関係が解除されたため、メッセージを送信できません。";
+          shouldRedirect = true;
+        } else if (errorData.message.includes("権限") || 
+                   statusCode === 403) {
+          errorMessage = "メッセージを送信する権限がありません。";
+          shouldRedirect = true;
+        } else {
+          errorMessage = errorData.message;
+        }
+      }
+    }
+    
+    toast.add({
+      title: "送信エラー",
+      description: errorMessage,
+      color: "error",
+    });
+    
+    if (shouldRedirect) {
+      setTimeout(() => {
+        router.push("/chat");
+      }, 2000);
+    }
   } finally {
     sendingMessage.value = false;
   }
@@ -780,6 +847,106 @@ const handleKeydown = (event: KeyboardEvent) => {
     event.preventDefault();
     sendMessage();
   }
+};
+
+const getConversationErrorMessage = () => {
+  if (!conversationError.value) return "会話情報の読み込みに失敗しました。";
+  
+  const errorMessage = conversationError.value.message || "";
+  const errorData = (conversationError.value as any)?.data;
+  
+  // バックエンドからのエラーメッセージをチェック
+  if (errorData?.message) {
+    if (errorData.message.includes("削除されています") || 
+        errorData.message.includes("deleted")) {
+      return "この会話は削除されています";
+    }
+    if (errorData.message.includes("アクセス権") || 
+        errorData.message.includes("権限")) {
+      return "この会話にアクセスする権限がありません";
+    }
+    if (errorData.message.includes("友達関係") || 
+        errorData.message.includes("unfriended")) {
+      return "友達関係が解除されています";
+    }
+    if (errorData.message.includes("アカウントが削除") || 
+        errorData.message.includes("user_deleted")) {
+      return "相手のアカウントが削除されています";
+    }
+    return errorData.message;
+  }
+  
+  // HTTPステータスコードに基づく判定
+  if (errorMessage.includes("404") || 
+      (conversationError.value as any)?.statusCode === 404) {
+    return "会話が見つかりません";
+  }
+  if (errorMessage.includes("403") || 
+      (conversationError.value as any)?.statusCode === 403) {
+    return "この会話にアクセスする権限がありません";
+  }
+  
+  return "会話情報の読み込みに失敗しました";
+};
+
+const getConversationErrorDescription = () => {
+  if (!conversationError.value) return "ページを再読み込みしてください。";
+  
+  const errorData = (conversationError.value as any)?.data;
+  
+  // バックエンドからのエラーメッセージをチェック
+  if (errorData?.message) {
+    if (errorData.message.includes("削除されています") || 
+        errorData.message.includes("deleted")) {
+      return "管理者によって削除された可能性があります。チャット一覧に戻ってください。";
+    }
+    if (errorData.message.includes("友達関係") || 
+        errorData.message.includes("unfriended")) {
+      return "友達関係を再度確認してください。";
+    }
+    if (errorData.message.includes("アカウントが削除") || 
+        errorData.message.includes("user_deleted")) {
+      return "チャット一覧に戻って他の会話を確認してください。";
+    }
+    if (errorData.message.includes("アクセス権") || 
+        errorData.message.includes("権限")) {
+      return "チャット一覧に戻ってアクセス可能な会話を確認してください。";
+    }
+  }
+  
+  // HTTPステータスコードに基づく判定
+  const errorMessage = conversationError.value.message || "";
+  if (errorMessage.includes("404")) {
+    return "会話が存在しないか、削除された可能性があります。";
+  }
+  if (errorMessage.includes("403")) {
+    return "この会話にアクセスする権限がありません。";
+  }
+  
+  return "ネットワーク接続を確認するか、ページを再読み込みしてください。";
+};
+
+const handleConversationError = () => {
+  // エラーの種類に応じて適切な処理を行う
+  const errorData = (conversationError.value as any)?.data;
+  
+  if (errorData?.message) {
+    if (errorData.message.includes("アカウントが削除されています") ||
+        errorData.message.includes("account_deleted")) {
+      // ユーザーアカウントが削除されている場合はログアウト
+      toast.add({
+        title: "アカウント削除",
+        description: "アカウントが削除されています。ログアウトします。",
+        color: "error",
+      });
+      authStore.logout();
+      router.push("/auth/login");
+      return;
+    }
+  }
+  
+  // その他のエラーの場合はチャット一覧に戻る
+  router.push("/chat");
 };
 </script>
 

@@ -88,8 +88,24 @@ export const useAuthStore = defineStore("auth", () => {
     } catch (err: unknown) {
       const errorResp = err as ErrorResponse;
       console.error("Registration error:", errorResp);
-      error.value = errorResp.message || "ユーザー登録中にエラーが発生しました";
-      return { success: false, message: error.value };
+      
+      // エラータイプに基づいて適切なメッセージを設定
+      let errorMessage = "ユーザー登録中にエラーが発生しました";
+      
+      if (errorResp.message) {
+        if (errorResp.message.includes("利用停止されており、新規登録できません") || 
+            errorResp.message.includes("email_banned")) {
+          errorMessage = "このメールアドレスは利用停止されており、新規登録できません。別のメールアドレスをお試しください。";
+        } else if (errorResp.message.includes("既に登録されています") || 
+                   errorResp.message.includes("already_registered")) {
+          errorMessage = "このメールアドレスは既に登録されています。ログインページからログインしてください。";
+        } else {
+          errorMessage = errorResp.message;
+        }
+      }
+      
+      error.value = errorMessage;
+      return { success: false, message: errorMessage };
     } finally {
       loading.value = false;
     }
@@ -175,8 +191,30 @@ export const useAuthStore = defineStore("auth", () => {
     } catch (err: unknown) {
       const errorResp = err as ErrorResponse;
       console.error("Login error:", errorResp);
-      error.value = errorResp.message || "ログイン中にエラーが発生しました";
-      return { success: false, message: error.value };
+      
+      // エラータイプに基づいて適切なメッセージを設定
+      let errorMessage = "ログイン中にエラーが発生しました";
+      
+      if (errorResp.message) {
+        if (errorResp.message.includes("アカウントは削除されています") || 
+            errorResp.message.includes("account_deleted")) {
+          errorMessage = "このアカウントは削除されています。新しいアカウントで登録してください。";
+        } else if (errorResp.message.includes("利用停止されています") || 
+                   errorResp.message.includes("account_banned")) {
+          errorMessage = "このアカウントは利用停止されています。サポートにお問い合わせください。";
+        } else if (errorResp.message.includes("メール認証がお済みでない") || 
+                   errorResp.message.includes("not_verified")) {
+          errorMessage = "メール認証が完了していません。登録時に送信されたメールを確認してください。";
+        } else if (errorResp.message.includes("メールアドレスまたはパスワードが正しくありません") || 
+                   errorResp.message.includes("invalid_credentials")) {
+          errorMessage = "メールアドレスまたはパスワードが正しくありません。";
+        } else {
+          errorMessage = errorResp.message;
+        }
+      }
+      
+      error.value = errorMessage;
+      return { success: false, message: errorMessage };
     } finally {
       loading.value = false;
     }
