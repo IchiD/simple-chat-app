@@ -76,8 +76,8 @@ class ConversationsController extends Controller
         }
       ])
       ->orderByDesc(
-        // 最新メッセージのsent_atでソート、なければ会話のupdated_atでソート
-        DB::raw('(SELECT MAX(sent_at) FROM messages WHERE messages.conversation_id = conversations.id AND admin_deleted_at IS NULL)')
+        // 最新メッセージのsent_atでソート、削除されたメッセージは除外
+        DB::raw('(SELECT MAX(sent_at) FROM messages WHERE messages.conversation_id = conversations.id AND deleted_at IS NULL AND admin_deleted_at IS NULL)')
       )
       ->paginate(15);
 

@@ -65,11 +65,14 @@ class Conversation extends Model
   }
 
   /**
-   * この会話の最新メッセージを取得
+   * この会話の最新メッセージを取得（削除されたメッセージは除外）
    */
   public function latestMessage()
   {
-    return $this->hasOne(Message::class)->latest('sent_at');
+    return $this->hasOne(Message::class)
+                ->whereNull('deleted_at') // ユーザーによる削除を除外
+                ->whereNull('admin_deleted_at') // 管理者による削除を除外
+                ->latest('sent_at');
   }
 
   /**
