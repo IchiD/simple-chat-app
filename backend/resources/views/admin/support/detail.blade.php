@@ -47,7 +47,7 @@
           <h5 class="card-title mb-0">メッセージ履歴</h5>
         </div>
         <div class="card-body">
-          <div class="messages-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; background-color: #f8f9fa;">
+          <div class="messages-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; background-color: #f8f9fa; display: flex; flex-direction: column-reverse;">
             @if($messages->count() > 0)
             @foreach($messages as $message)
             @php
@@ -79,9 +79,11 @@
             </div>
             @endforeach
             @else
-            <div class="text-center text-muted">
-              <i class="fas fa-comments fa-3x mb-3"></i>
-              <p>まだメッセージがありません</p>
+            <div class="d-flex justify-content-center align-items-center h-100">
+              <div class="text-center text-muted">
+                <i class="fas fa-comments fa-3x mb-3"></i>
+                <p>まだメッセージがありません</p>
+              </div>
             </div>
             @endif
           </div>
