@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Friendship extends Model
 {
-  use HasFactory;
+  use HasFactory, SoftDeletes;
 
   /**
    * 複数代入可能な属性
@@ -18,6 +19,16 @@ class Friendship extends Model
     'friend_id',
     'status',
     'message',
+    'deleted_at',
+    'deleted_reason',
+    'deleted_by',
+  ];
+
+  /**
+   * 日付フィールドのキャスト
+   */
+  protected $dates = [
+    'deleted_at',
   ];
 
   /**
@@ -44,7 +55,29 @@ class Friendship extends Model
   }
 
   /**
-   * 特定のユーザー間の友達関係を取得
+   * 削除を実行した管理者とのリレーション
+   */
+  public function deletedByAdmin(): BelongsTo
+  {
+    return $this->belongsTo(Admin::class, 'deleted_by');
+  }
+
+  /**
+   * 特定のユーザー間の友達関係を取得（論理削除を含む）
+   */
+  public static function getFriendshipWithTrashed(int $userId, int $friendId)
+  {
+    return self::withTrashed()->where(function ($query) use ($userId, $friendId) {
+      $query->where('user_id', $userId)
+        ->where('friend_id', $friendId);
+    })->orWhere(function ($query) use ($userId, $friendId) {
+      $query->where('user_id', $friendId)
+        ->where('friend_id', $userId);
+    })->first();
+  }
+
+  /**
+   * 特定のユーザー間の友達関係を取得（アクティブなもののみ）
    */
   public static function getFriendship(int $userId, int $friendId)
   {
@@ -69,5 +102,35 @@ class Friendship extends Model
     }
 
     return $friendship->status;
+  }
+
+  /**
+   * 友達関係を論理削除（管理者による）
+   */
+  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  {
+    $this->deleted_at = now();
+    $this->deleted_reason = $reason;
+    $this->deleted_by = $adminId;
+    return $this->save();
+  }
+
+  /**
+   * 友達関係を復活
+   */
+  public function restoreByAdmin(): bool
+  {
+    $this->deleted_at = null;
+    $this->deleted_reason = null;
+    $this->deleted_by = null;
+    return $this->save();
+  }
+
+  /**
+   * 友達関係が論理削除されているかチェック
+   */
+  public function isDeleted(): bool
+  {
+    return !is_null($this->deleted_at);
   }
 }

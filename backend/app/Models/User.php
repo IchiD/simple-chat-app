@@ -150,7 +150,7 @@ class User extends Authenticatable
   }
 
   /**
-   * 承認済みの友達関係を全て取得
+   * 承認済みの友達関係を全て取得（削除・バンされたユーザーは除外）
    * 
    * @return \Illuminate\Database\Eloquent\Collection
    */
@@ -168,11 +168,15 @@ class User extends Authenticatable
 
     $friendIds = array_merge($sentFriendIds, $receivedFriendIds);
 
-    return User::whereIn('id', $friendIds)->get();
+    // 削除・バンされていないユーザーのみを取得
+    return User::whereIn('id', $friendIds)
+                ->whereNull('deleted_at')
+                ->where('is_banned', false)
+                ->get();
   }
 
   /**
-   * 友達申請中の友達関係を取得
+   * 友達申請中の友達関係を取得（削除・バンされたユーザーは除外）
    * 
    * @return \Illuminate\Database\Eloquent\Collection
    */
@@ -180,12 +184,17 @@ class User extends Authenticatable
   {
     return $this->sentFriendships()
       ->where('status', Friendship::STATUS_PENDING)
-      ->with('friend')
+      ->with(['friend' => function($query) {
+        $query->whereNull('deleted_at')->where('is_banned', false);
+      }])
+      ->whereHas('friend', function($query) {
+        $query->whereNull('deleted_at')->where('is_banned', false);
+      })
       ->get();
   }
 
   /**
-   * 受け取った友達申請を取得
+   * 受け取った友達申請を取得（削除・バンされたユーザーからの申請は除外）
    * 
    * @return \Illuminate\Database\Eloquent\Collection
    */
@@ -193,7 +202,12 @@ class User extends Authenticatable
   {
     return $this->receivedFriendships()
       ->where('status', Friendship::STATUS_PENDING)
-      ->with('user')
+      ->with(['user' => function($query) {
+        $query->whereNull('deleted_at')->where('is_banned', false);
+      }])
+      ->whereHas('user', function($query) {
+        $query->whereNull('deleted_at')->where('is_banned', false);
+      })
       ->get();
   }
 
@@ -276,7 +290,7 @@ class User extends Authenticatable
   }
 
   /**
-   * 友達関係を解除
+   * 友達関係を解除（論理削除に変更）
    * 
    * @param int $friendId
    * @return bool
@@ -289,7 +303,8 @@ class User extends Authenticatable
       return false;
     }
 
-    return (bool) $friendship->delete();
+    // 論理削除を実行（一般ユーザーによる削除の場合はadmin_idをnullにする）
+    return $friendship->deleteByAdmin(null, 'ユーザーによる友達解除');
   }
 
   /**
@@ -352,11 +367,14 @@ class User extends Authenticatable
       'is_banned' => true,
     ]);
 
-    // ユーザーが参加している会話も自動削除
     if ($result) {
+      // ユーザーが参加している会話も自動削除
       $this->conversations()->whereNull('deleted_at')->each(function ($conversation) use ($adminId, $reason) {
         $conversation->deleteByAdmin($adminId, "参加者（{$this->name}）の削除に伴う自動削除: " . ($reason ?? '管理者による削除'));
       });
+
+      // ユーザーの友達関係も論理削除
+      $this->deleteFriendshipsByAdmin($adminId, "ユーザー（{$this->name}）の削除に伴う友達関係の削除: " . ($reason ?? '管理者による削除'));
     }
 
     return $result;
@@ -374,16 +392,63 @@ class User extends Authenticatable
       'is_banned' => false,
     ]);
 
-    // このユーザーの削除が原因で削除された会話を復元
     if ($result) {
+      // このユーザーの削除が原因で削除された会話を復元
       $this->conversations()
            ->whereNotNull('deleted_at')
            ->where('deleted_reason', 'LIKE', "%参加者（{$this->name}）の削除に伴う自動削除%")
            ->each(function ($conversation) {
              $conversation->restoreByAdmin();
            });
+
+      // ユーザーの削除が原因で削除された友達関係を復元
+      $this->restoreFriendshipsByAdmin();
     }
 
     return $result;
+  }
+
+  /**
+   * ユーザーの友達関係を論理削除
+   */
+  private function deleteFriendshipsByAdmin(int $adminId, string $reason): void
+  {
+    // 送信した友達関係
+    $this->sentFriendships()->each(function ($friendship) use ($adminId, $reason) {
+      if (!$friendship->isDeleted()) {
+        $friendship->deleteByAdmin($adminId, $reason);
+      }
+    });
+
+    // 受信した友達関係
+    $this->receivedFriendships()->each(function ($friendship) use ($adminId, $reason) {
+      if (!$friendship->isDeleted()) {
+        $friendship->deleteByAdmin($adminId, $reason);
+      }
+    });
+  }
+
+  /**
+   * ユーザーの削除が原因で削除された友達関係を復元
+   */
+  private function restoreFriendshipsByAdmin(): void
+  {
+    // 送信した友達関係の復元
+    Friendship::withTrashed()
+      ->where('user_id', $this->id)
+      ->whereNotNull('deleted_at')
+      ->where('deleted_reason', 'LIKE', "%ユーザー（{$this->name}）の削除に伴う友達関係の削除%")
+      ->each(function ($friendship) {
+        $friendship->restoreByAdmin();
+      });
+
+    // 受信した友達関係の復元
+    Friendship::withTrashed()
+      ->where('friend_id', $this->id)
+      ->whereNotNull('deleted_at')
+      ->where('deleted_reason', 'LIKE', "%ユーザー（{$this->name}）の削除に伴う友達関係の削除%")
+      ->each(function ($friendship) {
+        $friendship->restoreByAdmin();
+      });
   }
 }
