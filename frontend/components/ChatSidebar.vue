@@ -106,7 +106,7 @@
             </p>
           </div>
           <div class="flex justify-between items-center">
-            <p class="text-xs text-gray-600 truncate flex-1">
+            <p class="text-xs text-gray-600 truncate flex-1 text-left">
               <span v-if="convo.latest_message?.sender?.name">
                 <span class="font-medium">
                   {{
