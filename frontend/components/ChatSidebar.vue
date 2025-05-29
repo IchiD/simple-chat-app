@@ -210,6 +210,14 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 // 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）
 const getSenderDisplayName = (conversation: Conversation, senderId: number): string => {
+  // デバッグ用ログ
+  console.log('getSenderDisplayName:', { 
+    conversationType: conversation.type, 
+    senderId, 
+    currentUserId: currentUserId.value,
+    senderName: conversation.latest_message?.sender?.name 
+  });
+  
   if (senderId === currentUserId.value) {
     return "あなた";
   }

@@ -612,7 +612,12 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 // サポート会話かどうかを判定
 const isSupportConversation = computed(() => {
-  return currentConversation.value?.type === 'support';
+  const result = currentConversation.value?.type === 'support';
+  console.log('isSupportConversation:', {
+    type: currentConversation.value?.type,
+    result
+  });
+  return result;
 });
 
 // サポート会話の場合は「サポート」、そうでなければ参加者名を表示
@@ -622,6 +627,21 @@ const conversationDisplayName = computed(() => {
   }
   return currentConversation.value?.participants[0]?.name || "チャット";
 });
+
+// メッセージが管理者からかどうかを判定
+const isAdminMessage = (message: any): boolean => {
+  if (!isSupportConversation.value) return false;
+  
+  // サポート会話で自分以外からのメッセージは管理者からと判定
+  const isAdmin = message.sender_id !== currentUserId.value;
+  console.log('isAdminMessage:', {
+    messageId: message.id,
+    senderId: message.sender_id,
+    currentUserId: currentUserId.value,
+    isAdmin
+  });
+  return isAdmin;
+};
 
 const isMyMessage = (messageSenderId: number): boolean => {
   return (
