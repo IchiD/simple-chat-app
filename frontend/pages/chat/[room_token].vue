@@ -319,7 +319,6 @@ import { useApi } from "~/composables/useApi";
 type Participant = {
   id: number;
   name: string;
-  avatar?: string | null;
 };
 
 type MessageSender = {

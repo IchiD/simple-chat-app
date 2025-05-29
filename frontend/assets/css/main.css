@@ -20,23 +20,13 @@
 }
 
 /* 例外: 丸いままにする要素 */
-/* ローディングサークル・アバター（完全に丸い） */
+/* ローディングサークル（完全に丸い） */
 .animate-spin,
 .rounded-full,
 [class*="rounded-full"],
-img[alt*="Avatar"],
-img[alt*="avatar"],
-.avatar,
-[class*="avatar"],
 .spinner-border,
 [class*="spinner"],
-.btn-circle,
-/* アバター用の具体的なセレクター */
-.flex.items-center.justify-center.rounded-full,
-.bg-gray-100.rounded-full,
-.bg-emerald-100.rounded-full,
-.bg-blue-100.rounded-full,
-.bg-orange-100.rounded-full {
+.btn-circle {
   border-radius: 50% !important;
 }
 

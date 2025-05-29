@@ -89,85 +89,48 @@
         }"
         @click="onConversationClick(convo)"
       >
-        <!-- アバター -->
-        <div class="relative">
-          <div
-            class="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-white transition-transform group-hover:scale-105"
-            style="
-              background: linear-gradient(
-                135deg,
-                var(--primary),
-                var(--primary-dark)
-              );
-            "
-          >
-            <img
-              v-if="convo.participants[0]?.avatar"
-              :src="convo.participants[0]?.avatar"
-              alt="Avatar"
-              class="h-full w-full rounded-full object-cover"
-            />
-            <span v-else class="text-sm font-bold">{{
-              getAvatarInitials(convo.participants[0]?.name)
-            }}</span>
-          </div>
-          <!-- オンライン状態インジケーター -->
-          <div
-            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full shadow-sm"
-          />
-        </div>
-
         <!-- メッセージ内容 -->
-        <div class="ml-3 text-sm flex-grow text-left min-w-0">
-          <div class="flex items-center justify-between mb-1">
-            <h4 class="font-semibold text-gray-900 truncate">
-              {{ convo.participants[0]?.name || "不明なユーザー" }}
-            </h4>
-            <div class="flex items-center space-x-2">
-              <!-- 未読数バッジ -->
-              <span
-                v-if="convo.unread_messages_count > 0"
-                class="inline-flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full h-6 w-6 shadow-md animate-pulse"
-              >
-                {{
-                  convo.unread_messages_count > 9
-                    ? "9+"
-                    : convo.unread_messages_count
-                }}
-              </span>
-            </div>
-          </div>
-
-          <!-- 最新メッセージ -->
-          <div class="flex items-center justify-between">
-            <p class="text-xs text-gray-600 truncate max-w-40">
-              <span
-                v-if="
-                  convo.latest_message &&
-                  currentUserId !== undefined &&
-                  convo.latest_message.sender?.id === currentUserId
-                "
-                class="text-emerald-600 font-medium"
-                >あなた:
-              </span>
-              <span class="inline">{{
-                convo.latest_message?.text_content || "メッセージはありません"
-              }}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-sm font-semibold text-gray-900 truncate">
+              {{
+                convo.participants.find((p) => p.id !== currentUserId)?.name ||
+                "会話"
+              }}
             </p>
-
-            <!-- 時間表示 -->
-            <span
-              class="text-xs text-gray-400 whitespace-nowrap ml-2 font-medium"
+            <p
+              v-if="convo.latest_message?.sent_at"
+              class="text-xs text-gray-500 ml-2 flex-shrink-0"
             >
-              {{ formatSentAt(convo.latest_message?.sent_at) }}
+              {{ formatSentAt(convo.latest_message.sent_at) }}
+            </p>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-xs text-gray-600 truncate flex-1">
+              <span v-if="convo.latest_message?.sender?.name">
+                <span class="font-medium">
+                  {{
+                    convo.latest_message.sender.id === currentUserId
+                      ? "あなた"
+                      : convo.latest_message.sender.name
+                  }}:
+                </span>
+                {{ convo.latest_message.text_content || "（メッセージなし）" }}
+              </span>
+              <span v-else class="text-gray-400">メッセージはありません</span>
+            </p>
+            <span
+              v-if="convo.unread_messages_count > 0"
+              class="inline-block px-2 py-1 text-xs font-bold text-white rounded-full ml-2 flex-shrink-0"
+              style="background-color: var(--primary)"
+            >
+              {{ convo.unread_messages_count }}
             </span>
           </div>
         </div>
 
-        <!-- ホバー時のアロー -->
-        <div
-          class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2"
-        >
+        <!-- 右矢印アイコン -->
+        <div class="ml-3 flex-shrink-0">
           <svg
             class="w-4 h-4 text-emerald-600"
             fill="none"
@@ -197,7 +160,6 @@ import { storeToRefs } from "pinia";
 type Participant = {
   id: number;
   name: string;
-  avatar?: string | null;
 };
 
 type MessageSender = {
@@ -247,18 +209,6 @@ const emit = defineEmits(["conversationSelected", "closeSidebar"]);
 const { user: authUser } = storeToRefs(useAuthStore());
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
-
-const getAvatarInitials = (name?: string): string => {
-  if (!name) return "?";
-  const nameParts = name.split(" ");
-  if (nameParts.length > 1 && nameParts[0] && nameParts[nameParts.length - 1]) {
-    return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-  }
-  if (name && name.length > 0) {
-    return name[0].toUpperCase();
-  }
-  return "?";
-};
 
 const formatSentAt = (sentAt?: string | null): string => {
   if (!sentAt) return "";

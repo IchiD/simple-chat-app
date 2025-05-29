@@ -135,12 +135,6 @@
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <div class="d-flex align-items-center mb-2">
-                  <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
-                    style="width: 30px; height: 30px;">
-                    <span class="text-white fw-bold small">
-                      {{ strtoupper(substr($message->sender->name, 0, 1)) }}
-                    </span>
-                  </div>
                   <div>
                     <div class="fw-bold">
                       {{ $message->sender->name }}

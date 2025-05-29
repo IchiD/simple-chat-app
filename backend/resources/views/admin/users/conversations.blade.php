@@ -34,15 +34,7 @@
     <div class="card {{ $user->isDeleted() ? 'border-warning' : '' }}">
       <div class="card-body">
         <div class="d-flex align-items-center">
-          <div class="flex-shrink-0">
-            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-              style="width: 50px; height: 50px;">
-              <span class="text-white fw-bold fs-5">
-                {{ strtoupper(substr($user->name, 0, 1)) }}
-              </span>
-            </div>
-          </div>
-          <div class="flex-grow-1 ms-3">
+          <div class="flex-grow-1">
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h5 class="mb-1">{{ $user->name }}</h5>

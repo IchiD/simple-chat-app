@@ -174,15 +174,6 @@
                     >
                       <div class="flex flex-row items-center justify-between">
                         <div class="flex items-center space-x-3 sm:space-x-4">
-                          <div
-                            class="h-10 w-10 sm:h-12 sm:w-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"
-                          >
-                            <span
-                              class="text-emerald-600 font-semibold text-base sm:text-lg"
-                            >
-                              {{ friend.name.charAt(0).toUpperCase() }}
-                            </span>
-                          </div>
                           <div class="min-w-0 flex-1">
                             <h3
                               class="font-semibold text-gray-900 text-base sm:text-lg truncate"
@@ -190,7 +181,7 @@
                               {{ friend.name }}
                             </h3>
                             <p class="text-xs sm:text-sm text-gray-500">
-                              オンライン
+                              フレンドID: {{ friend.friend_id }}
                             </p>
                           </div>
                         </div>
@@ -281,15 +272,6 @@
                         <div
                           class="flex items-center space-x-3 sm:space-x-4 flex-1"
                         >
-                          <div
-                            class="h-10 w-10 sm:h-12 sm:w-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
-                          >
-                            <span
-                              class="text-blue-600 font-semibold text-base sm:text-lg"
-                            >
-                              {{ request.user.name.charAt(0).toUpperCase() }}
-                            </span>
-                          </div>
                           <div class="flex-1 min-w-0">
                             <h3
                               class="font-semibold text-gray-900 text-base sm:text-lg truncate"
@@ -297,7 +279,7 @@
                               {{ request.user.name }}
                             </h3>
                             <p class="text-xs sm:text-sm text-gray-500 mb-2">
-                              友達申請を送信しました
+                              友達申請を受けています
                             </p>
                             <p
                               v-if="request.message"
@@ -324,8 +306,7 @@
                                 clip-rule="evenodd"
                               />
                             </svg>
-                            <span class="hidden sm:inline">承認</span>
-                            <span class="sm:hidden">承認</span>
+                            <span>承認</span>
                           </button>
                           <button
                             class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200"
@@ -343,8 +324,7 @@
                                 clip-rule="evenodd"
                               />
                             </svg>
-                            <span class="hidden sm:inline">拒否</span>
-                            <span class="sm:hidden">拒否</span>
+                            <span>拒否</span>
                           </button>
                         </div>
                       </div>
@@ -395,15 +375,6 @@
                         class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
                       >
                         <div class="flex items-center space-x-3 sm:space-x-4">
-                          <div
-                            class="h-10 w-10 sm:h-12 sm:w-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0"
-                          >
-                            <span
-                              class="text-orange-600 font-semibold text-base sm:text-lg"
-                            >
-                              {{ request.friend.name.charAt(0).toUpperCase() }}
-                            </span>
-                          </div>
                           <div class="min-w-0 flex-1">
                             <h3
                               class="font-semibold text-gray-900 text-base sm:text-lg truncate"
