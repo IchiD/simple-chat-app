@@ -133,7 +133,11 @@ class FriendshipController extends Controller
       ], 422);
     }
 
-    $user = User::findByFriendId($friendId);
+    // 削除・バンされていないユーザーのみを検索
+    $user = User::where('friend_id', $friendId)
+                ->whereNull('deleted_at')
+                ->where('is_banned', false)
+                ->first();
 
     if (!$user) {
       return response()->json([
@@ -194,6 +198,15 @@ class FriendshipController extends Controller
       ], 422);
     }
 
+    // 送信先のユーザーが削除・バンされていないかチェック
+    $friendUser = User::find($friendId);
+    if (!$friendUser || $friendUser->isDeleted() || $friendUser->isBanned()) {
+      return response()->json([
+        'status' => 'error',
+        'message' => '指定されたユーザーは現在利用できません'
+      ], 422);
+    }
+
     // 既存の友達関係をチェック
     $existingFriendship = Friendship::getFriendship($currentUser->id, $friendId);
 
@@ -228,7 +241,6 @@ class FriendshipController extends Controller
         $existingFriendship->save();
 
         // 再申請の通知を送信
-        $friendUser = User::find($friendId);
         if ($friendUser) {
           $notificationController = new NotificationController();
           $notificationController->sendFriendRequestNotification($friendUser, $currentUser->name);
@@ -246,7 +258,6 @@ class FriendshipController extends Controller
     $friendship = $currentUser->sendFriendRequest($friendId, $message);
 
     // 友達申請の通知を送信
-    $friendUser = User::find($friendId);
     if ($friendUser) {
       $notificationController = new NotificationController();
       $notificationController->sendFriendRequestNotification($friendUser, $currentUser->name);

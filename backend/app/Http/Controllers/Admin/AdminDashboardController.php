@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Friendship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -774,5 +775,108 @@ class AdminDashboardController extends Controller
     } catch (\Exception $e) {
       return 0;
     }
+  }
+
+  /**
+   * 友達関係一覧の表示
+   */
+  public function friendships(Request $request)
+  {
+    $admin = Auth::guard('admin')->user();
+    
+    $query = Friendship::with(['user', 'friend', 'deletedByAdmin'])
+                      ->withTrashed()
+                      ->orderBy('created_at', 'desc');
+
+    // ステータスフィルタ
+    if ($request->filled('status')) {
+      if ($request->status === 'deleted') {
+        $query->whereNotNull('deleted_at');
+      } elseif ($request->status === 'active') {
+        $query->whereNull('deleted_at');
+      } else {
+        $query->whereNull('deleted_at')
+              ->where('status', $request->status);
+      }
+    }
+
+    // ユーザー名検索
+    if ($request->filled('search')) {
+      $search = $request->search;
+      $query->where(function($q) use ($search) {
+        $q->whereHas('user', function($userQuery) use ($search) {
+          $userQuery->where('name', 'LIKE', "%{$search}%")
+                   ->orWhere('email', 'LIKE', "%{$search}%")
+                   ->orWhere('friend_id', 'LIKE', "%{$search}%");
+        })->orWhereHas('friend', function($friendQuery) use ($search) {
+          $friendQuery->where('name', 'LIKE', "%{$search}%")
+                     ->orWhere('email', 'LIKE', "%{$search}%")
+                     ->orWhere('friend_id', 'LIKE', "%{$search}%");
+        });
+      });
+    }
+
+    $friendships = $query->paginate(20);
+    $friendships->appends($request->query());
+
+    return view('admin.friendships.index', compact('admin', 'friendships'));
+  }
+
+  /**
+   * 友達関係の詳細表示
+   */
+  public function showFriendship($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $friendship = Friendship::withTrashed()
+                          ->with(['user', 'friend', 'deletedByAdmin'])
+                          ->findOrFail($id);
+
+    return view('admin.friendships.show', compact('admin', 'friendship'));
+  }
+
+  /**
+   * 友達関係の削除
+   */
+  public function deleteFriendship(Request $request, $id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $friendship = Friendship::findOrFail($id);
+    
+    if ($friendship->isDeleted()) {
+      return redirect()->back()->with('error', 'この友達関係は既に削除されています。');
+    }
+    
+    $validated = $request->validate([
+      'reason' => 'nullable|string|max:500'
+    ]);
+
+    $reason = $validated['reason'] ?? '管理者による削除';
+    $friendship->deleteByAdmin($admin->id, $reason);
+
+    return redirect()
+      ->route('admin.friendships.show', $friendship->id)
+      ->with('success', '友達関係を削除しました。');
+  }
+
+  /**
+   * 友達関係の復活
+   */
+  public function restoreFriendship($id)
+  {
+    $admin = Auth::guard('admin')->user();
+    $friendship = Friendship::withTrashed()->findOrFail($id);
+    
+    if (!$friendship->isDeleted()) {
+      return redirect()
+        ->route('admin.friendships.show', $friendship->id)
+        ->with('error', 'この友達関係は削除されていません。');
+    }
+
+    $friendship->restoreByAdmin();
+
+    return redirect()
+      ->route('admin.friendships.show', $friendship->id)
+      ->with('success', '友達関係を復活しました。');
   }
 }

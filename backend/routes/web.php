@@ -49,6 +49,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'updateMessage'])->name('users.messages.update');
     Route::delete('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'deleteMessage'])->name('users.messages.delete');
 
+    // Friendship Management Routes
+    Route::get('friendships', [AdminDashboardController::class, 'friendships'])->name('friendships');
+    Route::get('friendships/{id}', [AdminDashboardController::class, 'showFriendship'])->name('friendships.show');
+    Route::delete('friendships/{id}', [AdminDashboardController::class, 'deleteFriendship'])->name('friendships.delete');
+    Route::post('friendships/{id}/restore', [AdminDashboardController::class, 'restoreFriendship'])->name('friendships.restore');
+
     // Super Admin Only Routes
     Route::get('admins', [AdminDashboardController::class, 'admins'])->name('admins');
     Route::post('admins', [AdminDashboardController::class, 'createAdmin'])->name('admins.create')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
