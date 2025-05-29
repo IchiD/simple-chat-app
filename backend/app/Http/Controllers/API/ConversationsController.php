@@ -40,20 +40,24 @@ class ConversationsController extends Controller
       }])
       ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
       ->whereNull('conversations.deleted_at') // 削除されていない会話のみ
+      ->withCount('conversationParticipants')
       ->where(function ($query) use ($user, $friendIds) {
-        // サポート会話は常に表示
-        $query->where('type', 'support')
-          // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
-          ->orWhere('type', '!=', 'direct') // グループチャットは常に表示
-          ->orWhere(function ($query) use ($user, $friendIds) {
-            // ダイレクトメッセージで、かつ相手が友達である場合
-            $query->where('type', 'direct')
-              ->whereHas('participants', function ($query) use ($user, $friendIds) {
-                $query->where('users.id', '!=', $user->id)
-                  ->whereIn('users.id', $friendIds)
-                  ->whereNull('users.deleted_at'); // 削除されていないユーザーのみ
-              });
-          });
+        // サポート会話（参加者が1人だけのgroup会話）は常に表示
+        $query->where(function($subQuery) {
+          $subQuery->where('type', 'group')
+                   ->havingRaw('conversation_participants_count = 1');
+        })
+        // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
+        ->orWhere('type', '!=', 'direct') // 通常のグループチャットも表示
+        ->orWhere(function ($query) use ($user, $friendIds) {
+          // ダイレクトメッセージで、かつ相手が友達である場合
+          $query->where('type', 'direct')
+            ->whereHas('participants', function ($query) use ($user, $friendIds) {
+              $query->where('users.id', '!=', $user->id)
+                ->whereIn('users.id', $friendIds)
+                ->whereNull('users.deleted_at'); // 削除されていないユーザーのみ
+            });
+        });
       })
       ->withCount([
         'messages as unread_messages_count' => function ($query) use ($user) {
@@ -325,9 +329,11 @@ class ConversationsController extends Controller
       return response()->json(['message' => 'アカウントが削除されています。'], 403);
     }
 
-    // 既存のサポート会話を検索
+    // 既存のサポート会話を検索（参加者が1人だけのgroup会話をサポート会話として扱う）
     $existingConversation = $user->conversations()
-      ->where('type', 'support')
+      ->where('type', 'group')
+      ->withCount('conversationParticipants')
+      ->having('conversation_participants_count', '=', 1)
       ->whereNull('deleted_at')
       ->with([
         'participants' => function ($query) use ($user) {
@@ -347,10 +353,10 @@ class ConversationsController extends Controller
     $conversation = null;
     DB::transaction(function () use ($user, &$conversation) {
       $newConversation = Conversation::create([
-        'type' => 'support',
+        'type' => 'group', // サポート会話はgroupタイプとして作成
       ]);
 
-      // ユーザーを参加者として追加
+      // ユーザーを参加者として追加（参加者が1人だけのgroup会話 = サポート会話）
       $newConversation->conversationParticipants()->create([
         'user_id' => $user->id,
       ]);
@@ -387,7 +393,9 @@ class ConversationsController extends Controller
     }
 
     $conversation = $user->conversations()
-      ->where('type', 'support')
+      ->where('type', 'group')
+      ->withCount('conversationParticipants')
+      ->having('conversation_participants_count', '=', 1)
       ->whereNull('deleted_at')
       ->with([
         'participants' => function ($query) use ($user) {

@@ -141,7 +141,8 @@ const conversations = computed(() => {
   
   // サポート会話を識別して表示名を調整
   return conversationList.map(conversation => {
-    if (conversation.type === 'support') {
+    // 参加者が0人（自分以外に参加者がいない）場合はサポート会話として扱う
+    if (conversation.type === 'group' && (!conversation.participants || conversation.participants.length === 0)) {
       return {
         ...conversation,
         participants: [{ id: 0, name: 'サポート', friend_id: null }]
