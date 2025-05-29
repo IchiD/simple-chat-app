@@ -645,7 +645,7 @@ const isAdminMessage = (message: Message): boolean => {
 };
 
 // メッセージの送信者名を取得
-const getMessageSenderName = (message: Message): string => {
+const _getMessageSenderName = (message: Message): string => {
   if (isAdminMessage(message)) {
     return "サポート";
   }
