@@ -81,11 +81,12 @@ class Friendship extends Model
    */
   public static function getFriendship(int $userId, int $friendId)
   {
-    return self::where(function ($query) use ($userId, $friendId) {
+    return self::whereNull('deleted_at')->where(function ($query) use ($userId, $friendId) {
       $query->where('user_id', $userId)
         ->where('friend_id', $friendId);
     })->orWhere(function ($query) use ($userId, $friendId) {
-      $query->where('user_id', $friendId)
+      $query->whereNull('deleted_at')
+        ->where('user_id', $friendId)
         ->where('friend_id', $userId);
     })->first();
   }

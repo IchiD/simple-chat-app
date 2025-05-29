@@ -170,9 +170,9 @@ class User extends Authenticatable
 
     // 削除・バンされていないユーザーのみを取得
     return User::whereIn('id', $friendIds)
-                ->whereNull('deleted_at')
-                ->where('is_banned', false)
-                ->get();
+      ->whereNull('deleted_at')
+      ->where('is_banned', false)
+      ->get();
   }
 
   /**
@@ -184,10 +184,10 @@ class User extends Authenticatable
   {
     return $this->sentFriendships()
       ->where('status', Friendship::STATUS_PENDING)
-      ->with(['friend' => function($query) {
+      ->with(['friend' => function ($query) {
         $query->whereNull('deleted_at')->where('is_banned', false);
       }])
-      ->whereHas('friend', function($query) {
+      ->whereHas('friend', function ($query) {
         $query->whereNull('deleted_at')->where('is_banned', false);
       })
       ->get();
@@ -202,10 +202,10 @@ class User extends Authenticatable
   {
     return $this->receivedFriendships()
       ->where('status', Friendship::STATUS_PENDING)
-      ->with(['user' => function($query) {
+      ->with(['user' => function ($query) {
         $query->whereNull('deleted_at')->where('is_banned', false);
       }])
-      ->whereHas('user', function($query) {
+      ->whereHas('user', function ($query) {
         $query->whereNull('deleted_at')->where('is_banned', false);
       })
       ->get();
@@ -231,11 +231,23 @@ class User extends Authenticatable
    */
   public function sendFriendRequest(int $friendId, string $message = null)
   {
-    // 既存の友達関係をチェック
+    // 既存のアクティブな友達関係をチェック
     $existingFriendship = Friendship::getFriendship($this->id, $friendId);
 
     if ($existingFriendship) {
       return $existingFriendship;
+    }
+
+    // 論理削除された友達関係があるかチェック
+    $deletedFriendship = Friendship::getFriendshipWithTrashed($this->id, $friendId);
+
+    if ($deletedFriendship && $deletedFriendship->isDeleted()) {
+      // 論理削除された関係を復活させる
+      $deletedFriendship->restoreByAdmin();
+      $deletedFriendship->status = Friendship::STATUS_PENDING;
+      $deletedFriendship->message = $message;
+      $deletedFriendship->save();
+      return $deletedFriendship;
     }
 
     // 新しい友達申請を作成
@@ -395,11 +407,11 @@ class User extends Authenticatable
     if ($result) {
       // このユーザーの削除が原因で削除された会話を復元
       $this->conversations()
-           ->whereNotNull('deleted_at')
-           ->where('deleted_reason', 'LIKE', "%参加者（{$this->name}）の削除に伴う自動削除%")
-           ->each(function ($conversation) {
-             $conversation->restoreByAdmin();
-           });
+        ->whereNotNull('deleted_at')
+        ->where('deleted_reason', 'LIKE', "%参加者（{$this->name}）の削除に伴う自動削除%")
+        ->each(function ($conversation) {
+          $conversation->restoreByAdmin();
+        });
 
       // ユーザーの削除が原因で削除された友達関係を復元
       $this->restoreFriendshipsByAdmin();
