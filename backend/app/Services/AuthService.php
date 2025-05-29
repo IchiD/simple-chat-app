@@ -35,6 +35,13 @@ class AuthService extends BaseService
           DB::rollBack();
           return $this->errorResponse('already_registered', 'このメールアドレスは既に登録されています。');
         }
+
+        // バンされたメールアドレスでの再登録を制限
+        if ($user->isBanned()) {
+          DB::rollBack();
+          return $this->errorResponse('email_banned', 'このメールアドレスは利用停止されており、新規登録できません。');
+        }
+
         // 仮登録状態の場合は入力内容で上書き更新する
         $user->updateProvisionalRegistration([
           'password' => Hash::make($data['password']),
@@ -147,6 +154,24 @@ class AuthService extends BaseService
         'status'     => 'error',
         'error_type' => 'invalid_credentials',
         'message'    => 'メールアドレスまたはパスワードが正しくありません。',
+      ];
+    }
+
+    // 削除されたユーザーのログイン制限
+    if ($user->isDeleted()) {
+      return [
+        'status'     => 'error',
+        'error_type' => 'account_deleted',
+        'message'    => 'このアカウントは削除されています。ログインできません。',
+      ];
+    }
+
+    // バンされたユーザーのログイン制限
+    if ($user->isBanned()) {
+      return [
+        'status'     => 'error',
+        'error_type' => 'account_banned',
+        'message'    => 'このアカウントは利用停止されています。ログインできません。',
       ];
     }
 

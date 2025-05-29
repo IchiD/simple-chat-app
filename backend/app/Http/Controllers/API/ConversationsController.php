@@ -21,17 +21,25 @@ class ConversationsController extends Controller
   {
     $user = Auth::user();
 
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
     // 現在の友達IDリストを取得
     $friendIds = $user->friends()->pluck('id')->toArray();
 
     $conversations = $user->conversations()
       ->with(['participants' => function ($query) use ($user) {
-        // 自分以外の参加者情報を取得
-        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
+        // 自分以外の参加者情報を取得（削除されていないユーザーのみ）
+        $query->where('users.id', '!=', $user->id)
+              ->whereNull('users.deleted_at')
+              ->select('users.id', 'users.name', 'users.friend_id');
       }, 'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
       }])
       ->select('conversations.*') // Ensure all conversation fields, including room_token, are selected
+      ->whereNull('conversations.deleted_at') // 削除されていない会話のみ
       ->where(function ($query) use ($user, $friendIds) {
         // ダイレクトメッセージの場合は、友達関係が続いている場合のみ表示
         $query->where('type', '!=', 'direct') // グループチャットは常に表示
@@ -40,7 +48,8 @@ class ConversationsController extends Controller
             $query->where('type', 'direct')
               ->whereHas('participants', function ($query) use ($user, $friendIds) {
                 $query->where('users.id', '!=', $user->id)
-                  ->whereIn('users.id', $friendIds);
+                  ->whereIn('users.id', $friendIds)
+                  ->whereNull('users.deleted_at'); // 削除されていないユーザーのみ
               });
           });
       })
@@ -48,6 +57,7 @@ class ConversationsController extends Controller
         'messages as unread_messages_count' => function ($query) use ($user) {
           // $query は Message モデルに対するクエリビルダ
           $query->where('sender_id', '!=', $user->id) // まず、自分が送信したメッセージは除外
+            ->whereNull('admin_deleted_at') // 管理者によって削除されていないメッセージのみ
             ->where(function ($subQuery) use ($user) {
               // ログインユーザーの Participant 情報を取得し、条件に合うメッセージをカウント
               $subQuery->whereHas('conversation.conversationParticipants', function ($participantQuery) use ($user) {
@@ -67,7 +77,7 @@ class ConversationsController extends Controller
       ])
       ->orderByDesc(
         // 最新メッセージのsent_atでソート、なければ会話のupdated_atでソート
-        DB::raw('(SELECT MAX(sent_at) FROM messages WHERE messages.conversation_id = conversations.id)')
+        DB::raw('(SELECT MAX(sent_at) FROM messages WHERE messages.conversation_id = conversations.id AND admin_deleted_at IS NULL)')
       )
       ->paginate(15);
 
@@ -228,7 +238,15 @@ class ConversationsController extends Controller
   public function showByToken(Request $request, string $room_token)
   {
     $user = Auth::user();
-    $conversation = Conversation::where('room_token', $room_token)->firstOrFail();
+
+    // 削除されたユーザーはアクセス不可
+    if ($user->isDeleted()) {
+      return response()->json(['message' => 'アカウントが削除されています。'], 403);
+    }
+
+    $conversation = Conversation::where('room_token', $room_token)
+                                ->whereNull('deleted_at') // 削除されていない会話のみ
+                                ->firstOrFail();
 
     // ユーザーがこの会話の参加者であることを確認
     if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
@@ -237,9 +255,10 @@ class ConversationsController extends Controller
 
     // ダイレクトメッセージの場合、友達関係を確認
     if ($conversation->type === 'direct') {
-      // 会話の相手を取得
+      // 会話の相手を取得（削除されていないユーザーのみ）
       $otherParticipant = $conversation->participants()
         ->where('users.id', '!=', $user->id)
+        ->whereNull('users.deleted_at')
         ->first();
 
       if ($otherParticipant) {
@@ -251,14 +270,22 @@ class ConversationsController extends Controller
             'friendship_status' => 'unfriended'
           ], 403);
         }
+      } else {
+        // 相手が削除されている場合
+        return response()->json([
+          'message' => '相手のアカウントが削除されたため、このチャットにアクセスできません。',
+          'friendship_status' => 'user_deleted'
+        ], 403);
       }
     }
 
     // 既存の show メソッドと同様の情報をロード
     $conversation->load([
       'participants' => function ($query) use ($user) {
-        // 自分以外の参加者情報を取得
-        $query->where('users.id', '!=', $user->id)->select('users.id', 'users.name', 'users.friend_id');
+        // 自分以外の参加者情報を取得（削除されていないユーザーのみ）
+        $query->where('users.id', '!=', $user->id)
+              ->whereNull('users.deleted_at')
+              ->select('users.id', 'users.name', 'users.friend_id');
       },
       'latestMessage.sender' => function ($query) {
         $query->select('id', 'name');
