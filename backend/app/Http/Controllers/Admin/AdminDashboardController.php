@@ -879,4 +879,75 @@ class AdminDashboardController extends Controller
       ->route('admin.friendships.show', $friendship->id)
       ->with('success', '友達関係を復活しました。');
   }
+
+  /**
+   * サポート会話一覧を表示
+   */
+  public function supportConversations(Request $request)
+  {
+    $admin = Auth::guard('admin')->user();
+
+    // サポート会話を取得
+    $query = Conversation::where('type', 'support')
+      ->with(['participants.user', 'latestMessage.sender'])
+      ->orderBy('updated_at', 'desc');
+
+    // 検索機能
+    if ($search = $request->get('search')) {
+      $query->whereHas('participants.user', function ($q) use ($search) {
+        $q->where('name', 'LIKE', '%' . $search . '%')
+          ->orWhere('email', 'LIKE', '%' . $search . '%');
+      });
+    }
+
+    $conversations = $query->paginate(20);
+    $conversations->appends($request->query());
+
+    return view('admin.support.index', compact('admin', 'conversations'));
+  }
+
+  /**
+   * サポート会話詳細を表示
+   */
+  public function supportConversationDetail($conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $conversation = Conversation::with(['participants.user', 'messages.sender'])
+      ->where('type', 'support')
+      ->findOrFail($conversationId);
+
+    $messages = $conversation->messages()
+      ->with(['sender'])
+      ->orderBy('sent_at', 'asc')
+      ->get();
+
+    return view('admin.support.detail', compact('admin', 'conversation', 'messages'));
+  }
+
+  /**
+   * サポート会話に返信
+   */
+  public function replyToSupport(Request $request, $conversationId)
+  {
+    $admin = Auth::guard('admin')->user();
+    $conversation = Conversation::where('type', 'support')->findOrFail($conversationId);
+
+    $request->validate([
+      'message' => 'required|string|max:1000',
+    ]);
+
+    // 管理者として返信（管理者のuser_idを使用）
+    $message = Message::create([
+      'conversation_id' => $conversation->id,
+      'sender_id' => null, // 管理者からのメッセージとして扱う
+      'text_content' => $request->message,
+      'sent_at' => now(),
+      'admin_sender_id' => $admin->id, // 管理者IDを記録
+    ]);
+
+    // 会話の更新日時を更新
+    $conversation->touch();
+
+    return redirect()->back()->with('success', '返信を送信しました。');
+  }
 }

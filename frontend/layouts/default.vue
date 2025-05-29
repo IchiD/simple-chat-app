@@ -84,8 +84,30 @@
       class="bg-white py-4 border-t border-gray-200"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center text-sm text-gray-500">
-          &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-500">
+            &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
+          </div>
+          <div>
+            <button 
+              @click="openSupportChat"
+              class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-150 ease-in-out"
+            >
+              <svg
+                class="w-4 h-4 mr-1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Contact
+            </button>
+          </div>
         </div>
       </div>
     </footer>
@@ -93,8 +115,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from "~/stores/auth";
+
 // ルートを取得して現在のページを判断
 const route = useRoute();
+const router = useRouter();
+const config = useRuntimeConfig();
 
 // 現在のページを判断する関数
 const currentPage = computed(() => {
@@ -109,4 +135,35 @@ const currentPage = computed(() => {
 const isChatRoomPage = computed(() => {
   return route.path.match(/^\/chat\/[^/]+\/?$/);
 });
+
+// サポートチャットを開く関数
+const openSupportChat = async () => {
+  try {
+    const authStore = useAuthStore();
+    
+    // 認証チェック
+    if (!authStore.isAuthenticated) {
+      // 認証されていない場合はログインページにリダイレクト
+      router.push("/auth/login");
+      return;
+    }
+
+    // サポート会話を作成または取得
+    const conversation = await $fetch<any>(`${config.public.apiBase}/support/conversation`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${authStore.token}`,
+      },
+    });
+
+    if (conversation && conversation.room_token) {
+      // チャットページに遷移
+      router.push(`/chat/${conversation.room_token}/`);
+    }
+  } catch (error) {
+    console.error("サポートチャットの開始に失敗しました:", error);
+    // エラーハンドリング（必要に応じてトーストメッセージを表示）
+  }
+};
 </script>
