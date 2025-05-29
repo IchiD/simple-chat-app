@@ -157,7 +157,17 @@
                                                class="btn btn-sm btn-outline-primary" title="詳細を見る">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            @if(!$conversation->isDeleted())
+                                            @if($conversation->isDeleted())
+                                                <form method="POST" action="{{ route('admin.users.conversations.restore', [$user->id, $conversation->id]) }}" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                            class="btn btn-sm btn-outline-success" 
+                                                            title="削除を取り消し"
+                                                            onclick="return confirm('この会話の削除を取り消しますか？')">
+                                                        <i class="fas fa-undo"></i>
+                                                    </button>
+                                                </form>
+                                            @else
                                                 <button type="button" 
                                                         class="btn btn-sm btn-outline-danger" 
                                                         title="会話を削除"

@@ -43,6 +43,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('users/{id}/conversations', [AdminDashboardController::class, 'userConversations'])->name('users.conversations');
     Route::get('users/{userId}/conversations/{conversationId}', [AdminDashboardController::class, 'conversationDetail'])->name('users.conversations.detail');
     Route::delete('users/{userId}/conversations/{conversationId}', [AdminDashboardController::class, 'deleteConversation'])->name('users.conversations.delete');
+    Route::post('users/{userId}/conversations/{conversationId}/restore', [AdminDashboardController::class, 'restoreConversation'])->name('users.conversations.restore');
     
     // Message Management
     Route::put('users/{userId}/conversations/{conversationId}/messages/{messageId}', [AdminDashboardController::class, 'updateMessage'])->name('users.messages.update');
