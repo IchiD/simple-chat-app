@@ -918,7 +918,7 @@ class AdminDashboardController extends Controller
 
     $messages = $conversation->messages()
       ->with(['sender'])
-      ->orderBy('sent_at', 'desc')
+      ->orderBy('sent_at', 'asc')
       ->get();
 
     return view('admin.support.detail', compact('admin', 'conversation', 'messages'));
