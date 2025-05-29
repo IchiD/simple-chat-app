@@ -13,6 +13,7 @@ class Message extends Model
   protected $fillable = [
     'conversation_id',
     'sender_id',
+    'admin_sender_id',
     'content_type',
     'text_content',
     'sent_at',
@@ -39,11 +40,19 @@ class Message extends Model
   }
 
   /**
-   * このメッセージの送信者を取得
+   * このメッセージの送信者を取得（ユーザー）
    */
   public function sender(): BelongsTo
   {
     return $this->belongsTo(User::class, 'sender_id');
+  }
+
+  /**
+   * このメッセージの送信者を取得（管理者）
+   */
+  public function adminSender(): BelongsTo
+  {
+    return $this->belongsTo(Admin::class, 'admin_sender_id');
   }
 
   /**
@@ -60,6 +69,25 @@ class Message extends Model
   public function isAdminDeleted(): bool
   {
     return !is_null($this->admin_deleted_at);
+  }
+
+  /**
+   * メッセージが管理者からのものかチェック
+   */
+  public function isFromAdmin(): bool
+  {
+    return !is_null($this->admin_sender_id);
+  }
+
+  /**
+   * メッセージの実際の送信者を取得（ユーザーまたは管理者）
+   */
+  public function getActualSender()
+  {
+    if ($this->isFromAdmin()) {
+      return $this->adminSender;
+    }
+    return $this->sender;
   }
 
   /**

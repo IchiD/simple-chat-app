@@ -25,10 +25,10 @@
             <div class="col-md-6">
               <strong>ユーザー:</strong>
               @if($conversation->conversationParticipants->first() && $conversation->conversationParticipants->first()->user)
-                {{ $conversation->conversationParticipants->first()->user->name }}
-                ({{ $conversation->conversationParticipants->first()->user->email }})
+              {{ $conversation->conversationParticipants->first()->user->name }}
+              ({{ $conversation->conversationParticipants->first()->user->email }})
               @else
-                ユーザー不明
+              ユーザー不明
               @endif
             </div>
             <div class="col-md-3">
@@ -49,44 +49,40 @@
         <div class="card-body">
           <div class="messages-container" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; background-color: #f8f9fa;">
             @if($messages->count() > 0)
-              @foreach($messages as $message)
-                @php
-                  // サポート会話で、メッセージ送信者が会話の参加者でない場合は管理者メッセージ
-                  $isUserMessage = false;
-                  $conversationUser = $conversation->conversationParticipants->first();
-                  if ($conversationUser && $conversationUser->user && $message->sender_id == $conversationUser->user->id) {
-                    $isUserMessage = true;
-                  }
-                  $isAdminMessage = !$isUserMessage;
-                @endphp
-                
-                <div class="message mb-3 {{ $isUserMessage ? 'user-message' : 'admin-message' }}">
-                  <div class="d-flex {{ $isUserMessage ? 'justify-content-start' : 'justify-content-end' }}">
-                    <div class="message-bubble p-3 rounded" style="max-width: 70%; {{ $isUserMessage ? 'background-color: #e9ecef;' : 'background-color: #007bff; color: white;' }}">
-                      <div class="message-header mb-2">
-                        <strong>
-                          @if($isUserMessage)
-                            {{ $conversationUser->user->name ?? 'ユーザー' }}
-                          @else
-                            {{ $admin->name }}（管理者）
-                          @endif
-                        </strong>
-                        <small class="text-muted {{ $isUserMessage ? '' : 'text-light' }} ms-2">
-                          {{ $message->sent_at->format('Y/m/d H:i') }}
-                        </small>
-                      </div>
-                      <div class="message-content">
-                        {{ $message->text_content }}
-                      </div>
-                    </div>
+            @foreach($messages as $message)
+            @php
+            // 管理者からのメッセージかどうかを判定
+            $isAdminMessage = !is_null($message->admin_sender_id);
+            $isUserMessage = !$isAdminMessage && !is_null($message->sender_id);
+            @endphp
+
+            <div class="message mb-3 {{ $isUserMessage ? 'user-message' : 'admin-message' }}">
+              <div class="d-flex {{ $isUserMessage ? 'justify-content-start' : 'justify-content-end' }}">
+                <div class="message-bubble p-3 rounded" style="max-width: 70%; {{ $isUserMessage ? 'background-color: #e9ecef;' : 'background-color: #007bff; color: white;' }}">
+                  <div class="message-header mb-2">
+                    <strong>
+                      @if($isUserMessage)
+                      {{ $conversation->conversationParticipants->first()->user->name ?? 'ユーザー' }}
+                      @else
+                      {{ $admin->name }}（管理者）
+                      @endif
+                    </strong>
+                    <small class="text-muted {{ $isUserMessage ? '' : 'text-light' }} ms-2">
+                      {{ $message->sent_at->format('Y/m/d H:i') }}
+                    </small>
+                  </div>
+                  <div class="message-content">
+                    {{ $message->text_content }}
                   </div>
                 </div>
-              @endforeach
-            @else
-              <div class="text-center text-muted">
-                <i class="fas fa-comments fa-3x mb-3"></i>
-                <p>まだメッセージがありません</p>
               </div>
+            </div>
+            @endforeach
+            @else
+            <div class="text-center text-muted">
+              <i class="fas fa-comments fa-3x mb-3"></i>
+              <p>まだメッセージがありません</p>
+            </div>
             @endif
           </div>
         </div>
@@ -102,11 +98,11 @@
             @csrf
             <div class="mb-3">
               <label for="message" class="form-label">メッセージ</label>
-              <textarea class="form-control @error('message') is-invalid @enderror" 
-                        id="message" name="message" rows="4" 
-                        placeholder="ユーザーへの返信メッセージを入力してください..." required>{{ old('message') }}</textarea>
+              <textarea class="form-control @error('message') is-invalid @enderror"
+                id="message" name="message" rows="4"
+                placeholder="ユーザーへの返信メッセージを入力してください..." required>{{ old('message') }}</textarea>
               @error('message')
-                <div class="invalid-feedback">{{ $message }}</div>
+              <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
             <div class="d-flex justify-content-end">
@@ -122,26 +118,26 @@
 </div>
 
 <script>
-// メッセージコンテナを最下部にスクロール
-document.addEventListener('DOMContentLoaded', function() {
-  const messagesContainer = document.querySelector('.messages-container');
-  if (messagesContainer) {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
-});
+  // メッセージコンテナを最下部にスクロール
+  document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  });
 </script>
 
 <style>
-.message-bubble {
-  word-wrap: break-word;
-}
+  .message-bubble {
+    word-wrap: break-word;
+  }
 
-.user-message .message-bubble {
-  border-left: 4px solid #6c757d;
-}
+  .user-message .message-bubble {
+    border-left: 4px solid #6c757d;
+  }
 
-.admin-message .message-bubble {
-  border-left: 4px solid #007bff;
-}
+  .admin-message .message-bubble {
+    border-left: 4px solid #007bff;
+  }
 </style>
 @endsection
