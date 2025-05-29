@@ -887,8 +887,10 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
 
-    // サポート会話を取得
-    $query = Conversation::where('type', 'support')
+    // サポート会話を取得（参加者が1人だけのgroup会話）
+    $query = Conversation::where('type', 'group')
+      ->withCount('conversationParticipants')
+      ->having('conversation_participants_count', '=', 1)
       ->with(['participants.user', 'latestMessage.sender'])
       ->orderBy('updated_at', 'desc');
 
@@ -913,7 +915,9 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $conversation = Conversation::with(['participants.user', 'messages.sender'])
-      ->where('type', 'support')
+      ->where('type', 'group')
+      ->withCount('conversationParticipants')
+      ->having('conversation_participants_count', '=', 1)
       ->findOrFail($conversationId);
 
     $messages = $conversation->messages()
@@ -930,19 +934,21 @@ class AdminDashboardController extends Controller
   public function replyToSupport(Request $request, $conversationId)
   {
     $admin = Auth::guard('admin')->user();
-    $conversation = Conversation::where('type', 'support')->findOrFail($conversationId);
+    $conversation = Conversation::where('type', 'group')
+      ->withCount('conversationParticipants')
+      ->having('conversation_participants_count', '=', 1)
+      ->findOrFail($conversationId);
 
     $request->validate([
       'message' => 'required|string|max:1000',
     ]);
 
-    // 管理者として返信（管理者のuser_idを使用）
+    // 管理者として返信（sender_idをnullにして管理者からのメッセージとして扱う）
     $message = Message::create([
       'conversation_id' => $conversation->id,
       'sender_id' => null, // 管理者からのメッセージとして扱う
       'text_content' => $request->message,
       'sent_at' => now(),
-      'admin_sender_id' => $admin->id, // 管理者IDを記録
     ]);
 
     // 会話の更新日時を更新
