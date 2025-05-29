@@ -13,7 +13,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail']);
 Route::get('/verify', [AuthController::class, 'verifyEmail']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum', 'check.user.status']);
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
 
@@ -21,7 +21,7 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('
 Route::get('/config', [AppConfigController::class, 'getPublicConfig']);
 
 // 認証済みユーザーのみアクセス可能なエンドポイント
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'check.user.status'])->group(function () {
   // 現在のユーザー情報を取得
   Route::get('/users/me', [AuthController::class, 'getCurrentUser']);
   // ユーザー名を更新
@@ -84,6 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/verify-email-change', [AuthController::class, 'confirmEmailChange']);
 
 // 既存のユーザー情報取得エンドポイント
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum', 'check.user.status'])->get('/user', function (Request $request) {
   return $request->user();
 });
