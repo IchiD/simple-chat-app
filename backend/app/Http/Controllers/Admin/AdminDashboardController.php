@@ -918,7 +918,7 @@ class AdminDashboardController extends Controller
 
     $messages = $conversation->messages()
       ->with(['sender'])
-      ->orderBy('sent_at', 'asc')
+      ->orderBy('sent_at', 'desc')
       ->get();
 
     return view('admin.support.detail', compact('admin', 'conversation', 'messages'));
@@ -938,14 +938,14 @@ class AdminDashboardController extends Controller
 
     // 管理者メッセージ用のユーザーIDを取得（最初のユーザー）
     $systemAdminUserId = \App\Models\User::orderBy('id')->value('id');
-    
+
     if (!$systemAdminUserId) {
       return redirect()->back()->with('error', 'システムエラー：管理者メッセージの送信に失敗しました。');
     }
-    
+
     // デバッグ用ログ：実際に使用されているIDを確認
     \Log::info("Admin message: using sender_id = {$systemAdminUserId} for admin {$admin->id}");
-    
+
     $message = Message::create([
       'conversation_id' => $conversation->id,
       'sender_id' => $systemAdminUserId,
