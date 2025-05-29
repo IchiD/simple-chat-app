@@ -35,9 +35,7 @@
                 </NuxtLink>
                 <div>
                   <h2 class="text-base font-semibold text-gray-900">
-                    {{
-                      currentConversation?.participants[0]?.name || "チャット"
-                    }}
+                    {{ conversationDisplayName }}
                   </h2>
                 </div>
               </div>
@@ -611,6 +609,19 @@ const isLoadingInitialData = computed(
 );
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
+
+// サポート会話かどうかを判定
+const isSupportConversation = computed(() => {
+  return currentConversation.value?.type === 'support';
+});
+
+// サポート会話の場合は「サポート」、そうでなければ参加者名を表示
+const conversationDisplayName = computed(() => {
+  if (isSupportConversation.value) {
+    return 'サポート';
+  }
+  return currentConversation.value?.participants[0]?.name || "チャット";
+});
 
 const isMyMessage = (messageSenderId: number): boolean => {
   return (

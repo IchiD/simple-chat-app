@@ -110,9 +110,7 @@
               <span v-if="convo.latest_message?.sender?.name">
                 <span class="font-medium">
                   {{
-                    convo.latest_message.sender.id === currentUserId
-                      ? "あなた"
-                      : convo.latest_message.sender.name
+                    getSenderDisplayName(convo, convo.latest_message.sender.id)
                   }}:
                 </span>
                 {{ convo.latest_message.text_content || "（メッセージなし）" }}
@@ -209,6 +207,21 @@ const emit = defineEmits(["conversationSelected", "closeSidebar"]);
 const { user: authUser } = storeToRefs(useAuthStore());
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
+
+// 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）
+const getSenderDisplayName = (conversation: Conversation, senderId: number): string => {
+  if (senderId === currentUserId.value) {
+    return "あなた";
+  }
+  
+  // サポート会話の場合は「サポート」を表示
+  if (conversation.type === 'support') {
+    return "サポート";
+  }
+  
+  // 通常の会話の場合は送信者名を表示
+  return conversation.latest_message?.sender?.name || "不明";
+};
 
 const formatSentAt = (sentAt?: string | null): string => {
   if (!sentAt) return "";
