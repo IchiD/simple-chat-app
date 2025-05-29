@@ -224,10 +224,10 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $user = User::with(['conversations' => function ($query) {
-      $query->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'deletedByUser', 'messages']);
+      $query->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages']);
     }])->findOrFail($id);
 
-    $conversations = $user->conversations()->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'deletedByUser', 'messages'])->paginate(10);
+    $conversations = $user->conversations()->with(['participants', 'latestMessage.sender', 'deletedByAdmin', 'messages'])->paginate(10);
 
     return view('admin.users.conversations', compact('admin', 'user', 'conversations'));
   }
@@ -239,7 +239,7 @@ class AdminDashboardController extends Controller
   {
     $admin = Auth::guard('admin')->user();
     $user = User::findOrFail($userId);
-    $conversation = Conversation::with(['participants', 'messages.sender', 'deletedByAdmin', 'deletedByUser'])
+    $conversation = Conversation::with(['participants', 'messages.sender', 'deletedByAdmin'])
       ->findOrFail($conversationId);
 
     $messages = $conversation->messages()

@@ -86,7 +86,6 @@
                 <th>最終更新</th>
                 <th>メッセージ数</th>
                 <th>状態</th>
-                <th>削除情報</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -145,41 +144,6 @@
                   <span class="badge bg-success">
                     <i class="fas fa-check me-1"></i>アクティブ
                   </span>
-                  @endif
-                </td>
-                <td>
-                  @if($conversation->isAdminDeleted())
-                  <div class="mb-1">
-                    <span class="badge bg-warning text-dark">
-                      <i class="fas fa-user-shield me-1"></i>管理者削除
-                    </span>
-                  </div>
-                  <small class="text-muted">
-                    削除者: {{ $conversation->deletedByAdmin->name ?? 'N/A' }}<br>
-                    日時: {{ $conversation->deleted_at?->format('Y/m/d H:i') }}<br>
-                    @if($conversation->deleted_reason)
-                    理由: {{ $conversation->deleted_reason }}
-                    @endif
-                  </small>
-                  @endif
-
-                  @if($conversation->isUserDeleted())
-                  <div class="mb-1">
-                    <span class="badge bg-info">
-                      <i class="fas fa-user me-1"></i>ユーザー削除
-                    </span>
-                  </div>
-                  <small class="text-muted">
-                    削除者: {{ $conversation->deletedByUser->name ?? 'N/A' }}<br>
-                    日時: {{ $conversation->user_deleted_at?->format('Y/m/d H:i') }}<br>
-                    @if($conversation->user_deleted_reason)
-                    理由: {{ $conversation->user_deleted_reason }}
-                    @endif
-                  </small>
-                  @endif
-
-                  @if(!$conversation->isDeleted())
-                  <span class="text-muted">削除されていません</span>
                   @endif
                 </td>
                 <td>

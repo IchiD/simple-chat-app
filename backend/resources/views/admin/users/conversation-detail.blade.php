@@ -61,10 +61,7 @@
         <div class="alert alert-danger mb-3">
           <i class="fas fa-exclamation-triangle me-2"></i>
           <strong>この会話は削除されています</strong>
-
-          @if($conversation->isAdminDeleted())
           <div class="mt-2">
-            <h6 class="mb-1"><i class="fas fa-user-shield me-1"></i>管理者による削除</h6>
             <strong>削除日時:</strong> {{ $conversation->deleted_at->format('Y年m月d日 H:i') }}<br>
             @if($conversation->deletedByAdmin)
             <strong>削除者:</strong> {{ $conversation->deletedByAdmin->name }}<br>
@@ -73,20 +70,6 @@
             <strong>削除理由:</strong> {{ $conversation->deleted_reason }}
             @endif
           </div>
-          @endif
-
-          @if($conversation->isUserDeleted())
-          <div class="mt-2">
-            <h6 class="mb-1"><i class="fas fa-user me-1"></i>ユーザーによる削除</h6>
-            <strong>削除日時:</strong> {{ $conversation->user_deleted_at->format('Y年m月d日 H:i') }}<br>
-            @if($conversation->deletedByUser)
-            <strong>削除者:</strong> {{ $conversation->deletedByUser->name }}<br>
-            @endif
-            @if($conversation->user_deleted_reason)
-            <strong>削除理由:</strong> {{ $conversation->user_deleted_reason }}
-            @endif
-          </div>
-          @endif
         </div>
         @endif
 

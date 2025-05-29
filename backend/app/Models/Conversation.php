@@ -17,14 +17,10 @@ class Conversation extends Model
     'deleted_at',
     'deleted_reason',
     'deleted_by',
-    'user_deleted_at',
-    'user_deleted_reason',
-    'user_deleted_by',
   ];
 
   protected $casts = [
     'deleted_at' => 'datetime',
-    'user_deleted_at' => 'datetime',
   ];
 
   /**
@@ -88,41 +84,17 @@ class Conversation extends Model
   }
 
   /**
-   * 削除を実行したユーザーを取得
-   */
-  public function deletedByUser()
-  {
-    return $this->belongsTo(User::class, 'user_deleted_by');
-  }
-
-  /**
-   * 会話が論理削除されているかチェック（管理者またはユーザーによる）
+   * 会話が論理削除されているかチェック
    */
   public function isDeleted(): bool
-  {
-    return !is_null($this->deleted_at) || !is_null($this->user_deleted_at);
-  }
-
-  /**
-   * 会話が管理者によって削除されているかチェック
-   */
-  public function isAdminDeleted(): bool
   {
     return !is_null($this->deleted_at);
   }
 
   /**
-   * 会話がユーザーによって削除されているかチェック
-   */
-  public function isUserDeleted(): bool
-  {
-    return !is_null($this->user_deleted_at);
-  }
-
-  /**
    * 管理者による会話削除
    */
-  public function deleteByAdmin(int $adminId, string $reason = null): bool
+  public function deleteByAdmin(?int $adminId, string $reason = null): bool
   {
     return $this->update([
       'deleted_at' => now(),
@@ -132,19 +104,7 @@ class Conversation extends Model
   }
 
   /**
-   * ユーザーによる会話削除
-   */
-  public function deleteByUser(int $userId, string $reason = null): bool
-  {
-    return $this->update([
-      'user_deleted_at' => now(),
-      'user_deleted_reason' => $reason,
-      'user_deleted_by' => $userId,
-    ]);
-  }
-
-  /**
-   * 会話の削除を取り消し（管理者による）
+   * 会話の削除を取り消し
    */
   public function restoreByAdmin(): bool
   {
@@ -152,18 +112,6 @@ class Conversation extends Model
       'deleted_at' => null,
       'deleted_reason' => null,
       'deleted_by' => null,
-    ]);
-  }
-
-  /**
-   * 会話の削除を取り消し（ユーザーによる）
-   */
-  public function restoreByUser(): bool
-  {
-    return $this->update([
-      'user_deleted_at' => null,
-      'user_deleted_reason' => null,
-      'user_deleted_by' => null,
     ]);
   }
 }

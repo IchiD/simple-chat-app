@@ -310,41 +310,4 @@ class ConversationsController extends Controller
 
     return response()->json($conversation);
   }
-
-  /**
-   * ユーザーによる会話削除（論理削除）
-   */
-  public function deleteByToken(Request $request, $room_token)
-  {
-    $user = Auth::user();
-
-    // 削除されたユーザーはアクセス不可
-    if ($user->isDeleted()) {
-      return response()->json(['message' => 'アカウントが削除されています。'], 403);
-    }
-
-    $conversation = Conversation::where('room_token', $room_token)
-      ->whereNull('deleted_at') // 管理者によって削除されていない会話のみ
-      ->firstOrFail();
-
-    // ユーザーがこの会話の参加者であることを確認
-    if (!$conversation->participants()->where('user_id', $user->id)->exists()) {
-      return response()->json(['message' => 'この会話にアクセスする権限がありません。'], 403);
-    }
-
-    // 既にユーザーによって削除されているかチェック
-    if ($conversation->isUserDeleted()) {
-      return response()->json(['message' => 'この会話は既に削除されています。'], 409);
-    }
-
-    $request->validate([
-      'reason' => 'nullable|string|max:500',
-    ]);
-
-    $reason = $request->input('reason', 'ユーザーによる削除');
-
-    $conversation->deleteByUser($user->id, $reason);
-
-    return response()->json(['message' => '会話を削除しました。']);
-  }
 }

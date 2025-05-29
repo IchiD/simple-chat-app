@@ -61,7 +61,6 @@ Route::middleware(['auth:sanctum', 'check.user.status'])->group(function () {
     Route::post('/', 'store'); // 新規会話開始
     Route::get('/token/{room_token}', 'showByToken'); // トークンで特定の会話情報を取得
     Route::post('/{conversation}/read', 'markAsRead'); // idでの既読処理も残すか検討
-    Route::delete('/token/{room_token}', 'deleteByToken'); // ユーザーによる会話削除
 
     // 特定の会話のメッセージ関連 (room_token を使用)
     Route::prefix('room/{conversation:room_token}/messages')->controller(MessagesController::class)->group(function () {
