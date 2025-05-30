@@ -8,6 +8,7 @@ use App\Http\Controllers\API\ConversationsController;
 use App\Http\Controllers\API\MessagesController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\AppConfigController;
+use App\Http\Controllers\GoogleAuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail']);
@@ -16,6 +17,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum', 'check.user.status']);
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
+
+// Google認証ルート
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 // アプリケーション設定情報取得
 Route::get('/config', [AppConfigController::class, 'getPublicConfig']);

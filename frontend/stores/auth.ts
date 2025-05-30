@@ -5,7 +5,13 @@ interface User {
   id: number;
   name: string;
   email: string;
-  friend_id?: string; // フレンドID追加（オプション）
+  email_verified_at: string | null;
+  google_id?: string | null;
+  avatar?: string | null;
+  social_type?: string | null;
+  is_admin: boolean;
+  friend_id: number;
+  status: string;
 }
 
 // 認証状態の型定義
@@ -173,71 +179,52 @@ export const useAuthStore = defineStore("auth", () => {
 
   // ログイン処理
   async function login(email: string, password: string) {
-    loading.value = true;
-    error.value = null;
-
     try {
-      const { api } = useApi();
+      console.log("Login attempt for:", email);
+
       const response = await api<AuthResponse>("/login", {
         method: "POST",
         body: { email, password },
       });
 
-      // ログイン成功した場合、ユーザー情報とトークンを保存
-      // バックエンドから返されるのはaccess_tokenまたはtokenフィールド
-      token.value = response.access_token || response.token || null;
-      user.value = response.user || null;
-      isAuthenticated.value = true;
+      if (response.token && response.user) {
+        const cookieToken = useCookie("token", {
+          default: () => null,
+          httpOnly: false,
+          secure: true,
+          sameSite: "lax",
+        });
+        cookieToken.value = response.token;
 
-      // トークンをsessionStorageに暗号化して保存
-      if (token.value) {
-        storeToken(token.value);
-        console.log("ログイン成功: トークンを保存しました");
+        setUser(response.user);
+        return { success: true };
+      } else {
+        console.error("Login error:", response);
+        return { success: false, message: "認証に失敗しました" };
       }
-
-      return { success: true };
-    } catch (err: unknown) {
-      const errorResp = err as ErrorResponse;
+    } catch (error) {
+      const errorResp = error as FetchError;
       console.error("Login error:", errorResp);
 
-      // エラータイプに基づいて適切なメッセージを設定
-      let errorMessage = "ログイン中にエラーが発生しました";
-
-      if (errorResp.message) {
-        if (
-          errorResp.message.includes("アカウントは削除されています") ||
-          errorResp.message.includes("account_deleted")
-        ) {
-          errorMessage =
-            "このアカウントは削除されています。新しいアカウントで登録してください。";
-        } else if (
-          errorResp.message.includes("利用停止されています") ||
-          errorResp.message.includes("account_banned")
-        ) {
-          errorMessage =
-            "このアカウントは利用停止されています。サポートにお問い合わせください。";
-        } else if (
-          errorResp.message.includes("メール認証がお済みでない") ||
-          errorResp.message.includes("not_verified")
-        ) {
-          errorMessage =
-            "メール認証が完了していません。登録時に送信されたメールを確認してください。";
-        } else if (
-          errorResp.message.includes(
-            "メールアドレスまたはパスワードが正しくありません"
-          ) ||
-          errorResp.message.includes("invalid_credentials")
-        ) {
-          errorMessage = "メールアドレスまたはパスワードが正しくありません。";
-        } else {
-          errorMessage = errorResp.message;
-        }
+      let message = "ログインに失敗しました";
+      if (errorResp?.data?.message) {
+        message = errorResp.data.message;
       }
+      return { success: false, message };
+    }
+  }
 
-      error.value = errorMessage;
-      return { success: false, message: errorMessage };
-    } finally {
-      loading.value = false;
+  // Googleログイン機能
+  async function loginWithGoogle() {
+    try {
+      // バックエンドのGoogleリダイレクトURLにリダイレクト
+      window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+      
+      // リダイレクト処理なので即座にsuccess: trueを返す
+      return { success: true };
+    } catch (error) {
+      console.error("Google login error:", error);
+      return { success: false, message: "Googleログインに失敗しました" };
     }
   }
 
@@ -328,6 +315,7 @@ export const useAuthStore = defineStore("auth", () => {
     register,
     verifyEmail,
     login,
+    loginWithGoogle,
     checkAuth,
     logout,
     getStoredToken,
