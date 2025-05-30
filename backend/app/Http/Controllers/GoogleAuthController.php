@@ -58,15 +58,76 @@ class GoogleAuthController extends Controller
         'name' => $googleUser->name
       ]);
 
-      // 既存ユーザーをメールアドレスとGoogle IDで検索
-      $user = User::where('email', $googleUser->email)
-        ->orWhere('google_id', $googleUser->id)
-        ->first();
+      // まずGoogle IDで既存ユーザーを検索
+      $userByGoogleId = User::where('google_id', $googleUser->id)->first();
 
+      // 次にメールアドレスで既存ユーザーを検索
+      $userByEmail = User::where('email', $googleUser->email)->first();
+
+      $user = null;
+
+      if ($userByGoogleId) {
+        // Google IDで既存ユーザーが見つかった場合
+        $user = $userByGoogleId;
+
+        Log::info('Google IDで既存ユーザーが見つかりました', [
+          'user_id' => $user->id,
+          'current_email' => $user->email,
+          'google_email' => $googleUser->email
+        ]);
+
+        // メールアドレスの不整合チェック
+        if ($user->email !== $googleUser->email) {
+          Log::warning('Google認証でメールアドレス不整合を検出', [
+            'user_id' => $user->id,
+            'app_email' => $user->email,
+            'google_email' => $googleUser->email
+          ]);
+
+          // メールアドレスが変更されている場合、Googleのメールアドレスで同期
+          $user->update([
+            'email' => $googleUser->email,
+            'avatar' => $googleUser->avatar,
+          ]);
+
+          Log::info('Google認証によりメールアドレスを同期しました', [
+            'user_id' => $user->id,
+            'new_email' => $googleUser->email
+          ]);
+        }
+      } elseif ($userByEmail) {
+        // メールアドレスで既存ユーザーが見つかった場合（Google ID未設定）
+        $user = $userByEmail;
+
+        Log::info('メールアドレスで既存ユーザーが見つかりました', ['user_id' => $user->id]);
+
+        // Google IDを設定
+        $user->update([
+          'google_id' => $googleUser->id,
+          'avatar' => $googleUser->avatar,
+          'social_type' => 'google'
+        ]);
+        Log::info('既存ユーザーにGoogle ID を設定しました', ['user_id' => $user->id]);
+      } else {
+        // 新規ユーザーの場合
+        Log::info('新規ユーザーを作成します', ['email' => $googleUser->email]);
+
+        $user = User::create([
+          'name' => $googleUser->name,
+          'email' => $googleUser->email,
+          'google_id' => $googleUser->id,
+          'avatar' => $googleUser->avatar,
+          'social_type' => 'google',
+          'is_verified' => true,
+          'email_verified_at' => Carbon::now(),
+          'password' => Hash::make(Str::random(32)), // ランダムパスワード
+        ]);
+
+        Log::info('新規ユーザーが作成されました', ['user_id' => $user->id]);
+      }
+
+      // 共通の処理
       if ($user) {
-        // 既存ユーザーの場合
-        Log::info('既存ユーザーが見つかりました', ['user_id' => $user->id]);
-
         // 削除されたアカウントの場合
         if ($user->isDeleted()) {
           Log::warning('削除されたアカウントでのGoogle認証試行', [
@@ -85,16 +146,6 @@ class GoogleAuthController extends Controller
           return $this->redirectWithError('このアカウントは利用停止されています。');
         }
 
-        // Google IDが設定されていない場合は設定
-        if (!$user->google_id) {
-          $user->update([
-            'google_id' => $googleUser->id,
-            'avatar' => $googleUser->avatar,
-            'social_type' => 'google'
-          ]);
-          Log::info('既存ユーザーにGoogle ID を設定しました', ['user_id' => $user->id]);
-        }
-
         // メール認証が完了していない場合は自動認証
         if (!$user->is_verified) {
           $user->update([
@@ -103,22 +154,6 @@ class GoogleAuthController extends Controller
           ]);
           Log::info('Google認証によりメール認証を完了しました', ['user_id' => $user->id]);
         }
-      } else {
-        // 新規ユーザーの場合
-        Log::info('新規ユーザーを作成します', ['email' => $googleUser->email]);
-
-        $user = User::create([
-          'name' => $googleUser->name,
-          'email' => $googleUser->email,
-          'google_id' => $googleUser->id,
-          'avatar' => $googleUser->avatar,
-          'social_type' => 'google',
-          'is_verified' => true,
-          'email_verified_at' => Carbon::now(),
-          'password' => Hash::make(Str::random(32)), // ランダムパスワード
-        ]);
-
-        Log::info('新規ユーザーが作成されました', ['user_id' => $user->id]);
       }
 
       // Sanctumトークンを発行
