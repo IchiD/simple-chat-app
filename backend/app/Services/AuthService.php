@@ -199,18 +199,43 @@ class AuthService extends BaseService
   }
 
   /**
-   * パスワード再設定リンクの送信処理
+   * パスワード再設定リンクのメール送信処理
    *
-   * @param string $email  リクエストされたメールアドレス
-   * @param string $ip     リクエスト元のIPアドレス（ログ出力用）
-   * @return array         処理結果とメッセージ（エラーの場合は error_type も含む）
+   * @param string $email
+   * @param string $ip
+   * @return array
    */
   public function sendResetLinkEmail(string $email, string $ip): array
   {
-    Log::info('パスワード再設定リンクの要求を受け付けました', [
+    Log::info('パスワード再設定リンクの送信試行を開始しました', [
       'email' => $email,
       'ip'    => $ip,
     ]);
+
+    // まずユーザーが存在するかチェック
+    $user = User::where('email', $email)->first();
+
+    if (!$user) {
+      Log::warning('パスワード再設定: ユーザーが見つかりません', ['email' => $email]);
+      return [
+        'status'     => 'error',
+        'error_type' => 'invalid_user',
+        'message'    => __('このメールアドレスは登録されていません。'),
+      ];
+    }
+
+    // Google認証ユーザーの場合は専用メッセージを返す
+    if ($user->social_type === 'google') {
+      Log::info('Google認証ユーザーのパスワードリセット試行', [
+        'email' => $email,
+        'user_id' => $user->id
+      ]);
+      return [
+        'status' => 'error',
+        'error_type' => 'google_user',
+        'message' => 'このアカウントはGoogle認証でログインされています。パスワードリセットは不要です。Googleアカウントでログインしてください。'
+      ];
+    }
 
     $status = Password::sendResetLink(['email' => $email]);
     Log::debug('パスワード再設定リンク送信ステータス: ' . $status);
@@ -267,6 +292,20 @@ class AuthService extends BaseService
     Log::info('パスワードリセットの試行を開始しました', [
       'email' => $data['email'],
     ]);
+
+    // Google認証ユーザーかチェック
+    $user = User::where('email', $data['email'])->first();
+    if ($user && $user->social_type === 'google') {
+      Log::warning('Google認証ユーザーのパスワードリセット試行', [
+        'email' => $data['email'],
+        'user_id' => $user->id
+      ]);
+      return [
+        'status' => 'error',
+        'error_type' => 'google_user',
+        'message' => 'このアカウントはGoogle認証でログインされています。パスワードリセットは不要です。'
+      ];
+    }
 
     DB::beginTransaction();
     try {

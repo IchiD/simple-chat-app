@@ -168,16 +168,26 @@ const handleSubmit = async () => {
     if (error instanceof FetchError && error.data) {
       const errorData = error.data as {
         message?: string;
-        errors?: { email?: string[] };
+        error_type?: string;
+        errors?: Record<string, string[]>;
       };
-      if (errorData.message) {
+      if (errorData.error_type === "google_user") {
+        toast.add({
+          title: "Google認証アカウントです",
+          description:
+            errorData.message ||
+            "このアカウントはGoogle認証でログインしてください。",
+          color: "info",
+          timeout: 8000,
+        });
+        return;
+      }
+      if (errorData.errors) {
+        emailError.value = errorData.errors.email
+          ? errorData.errors.email[0]
+          : errorData.message;
+      } else if (errorData.message) {
         message = errorData.message;
-      } else if (
-        errorData.errors &&
-        errorData.errors.email &&
-        errorData.errors.email[0]
-      ) {
-        message = errorData.errors.email[0];
       }
     }
     toast.add({
