@@ -38,6 +38,9 @@ class User extends Authenticatable
     'deleted_reason',
     'deleted_by',
     'is_banned',
+    'google_id',
+    'avatar',
+    'social_type',
   ];
 
   /**
