@@ -6,6 +6,9 @@ interface User {
   name: string;
   email: string;
   friend_id?: string; // フレンドID追加（オプション）
+  google_id?: string; // Google ID追加（オプション）
+  avatar?: string; // プロフィール画像URL追加（オプション）
+  social_type?: string; // ソーシャルログインの種類追加（オプション）
 }
 
 // 認証状態の型定義
@@ -299,6 +302,43 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  // Googleログイン開始
+  function startGoogleLogin() {
+    if (!import.meta.client) return;
+    
+    // Google認証ページにリダイレクト
+    window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+  }
+
+  // Googleコールバック処理
+  async function handleGoogleCallback(tokenParam: string, userData: string) {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      console.log('Google認証コールバック処理を開始');
+      
+      // トークンとユーザーデータを設定
+      token.value = tokenParam;
+      user.value = JSON.parse(decodeURIComponent(userData));
+      isAuthenticated.value = true;
+
+      // トークンをsessionStorageに暗号化して保存
+      if (tokenParam) {
+        storeToken(tokenParam);
+        console.log('Google認証成功: トークンを保存しました');
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      console.error('Google認証コールバック処理エラー:', err);
+      error.value = 'Google認証処理中にエラーが発生しました';
+      return { success: false, message: error.value };
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // ログアウト処理
   async function logout() {
     if (token.value) {
@@ -331,5 +371,7 @@ export const useAuthStore = defineStore("auth", () => {
     checkAuth,
     logout,
     getStoredToken,
+    startGoogleLogin,
+    handleGoogleCallback,
   };
 });
