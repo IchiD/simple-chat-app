@@ -205,6 +205,9 @@ class AuthController extends Controller
       'name' => $user->name,
       'email' => $user->email,
       'friend_id' => $user->friend_id,
+      'google_id' => $user->google_id,
+      'avatar' => $user->avatar,
+      'social_type' => $user->social_type,
     ]);
   }
 
@@ -261,6 +264,20 @@ class AuthController extends Controller
    */
   public function requestEmailChange(Request $request)
   {
+    $user = $request->user();
+
+    // Google認証ユーザーはメールアドレス変更不可
+    if ($user->social_type === 'google') {
+      Log::warning('Google認証ユーザーによるメールアドレス変更の試行', [
+        'user_id' => $user->id,
+        'email' => $user->email
+      ]);
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Google認証ユーザーはメールアドレスを変更できません。Googleアカウント設定から変更してください。'
+      ], 403);
+    }
+
     $validator = Validator::make($request->all(), [
       'email' => 'required|email|unique:users,email',
     ]);
@@ -346,6 +363,18 @@ class AuthController extends Controller
   public function updatePassword(Request $request)
   {
     $user = $request->user();
+
+    // Google認証ユーザーはパスワード変更不可
+    if ($user->social_type === 'google') {
+      Log::warning('Google認証ユーザーによるパスワード変更の試行', [
+        'user_id' => $user->id,
+        'email' => $user->email
+      ]);
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Google認証ユーザーはパスワードを変更できません。Googleアカウントで安全に認証されています。'
+      ], 403);
+    }
 
     $validator = Validator::make($request->all(), [
       'current_password' => 'required|string',

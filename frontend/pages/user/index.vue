@@ -28,6 +28,31 @@
                       }}</span
                       >さん
                     </p>
+                    <!-- デバッグ用: Google認証情報表示 -->
+                    <div
+                      v-if="authStore.user"
+                      class="mt-2 text-sm text-gray-500"
+                    >
+                      <p>
+                        Debug: social_type = "{{
+                          authStore.user.social_type || "null"
+                        }}"
+                      </p>
+                      <p>
+                        Debug: google_id = "{{
+                          authStore.user.google_id || "null"
+                        }}"
+                      </p>
+                      <p
+                        v-if="authStore.user.social_type === 'google'"
+                        class="text-green-600 font-semibold"
+                      >
+                        ✓ Google認証ユーザーとして検出されました
+                      </p>
+                      <p v-else class="text-blue-600 font-semibold">
+                        ✓ 通常ユーザーとして検出されました
+                      </p>
+                    </div>
                   </div>
                   <button
                     class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105 cursor-pointer"
@@ -234,20 +259,81 @@
                       <div class="bg-gray-50 p-4 rounded-lg">
                         <div class="flex items-center justify-between">
                           <p class="text-sm text-gray-500">メールアドレス</p>
+                          <!-- Google認証ユーザーの場合は変更ボタンを非表示 -->
                           <button
-                            v-if="!isChangingEmail && !pendingEmailChange"
+                            v-if="
+                              !isChangingEmail &&
+                              !pendingEmailChange &&
+                              authStore.user.social_type !== 'google'
+                            "
                             class="text-sm hover:text-opacity-80 transition-colors cursor-pointer"
                             style="color: var(--primary)"
                             @click="isChangingEmail = true"
                           >
                             変更
                           </button>
+                          <!-- Google認証ユーザーには説明バッジを表示 -->
+                          <span
+                            v-if="authStore.user.social_type === 'google'"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-3 w-3 mr-1"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                            Google認証
+                          </span>
                         </div>
                         <p class="font-medium">{{ authStore.user.email }}</p>
 
-                        <!-- メールアドレス変更中の状態表示 -->
+                        <!-- Google認証ユーザー向けの説明 -->
                         <div
-                          v-if="pendingEmailChange"
+                          v-if="authStore.user.social_type === 'google'"
+                          class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
+                        >
+                          <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="text-blue-400 h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                            <div class="ml-3">
+                              <h3 class="text-sm font-medium text-blue-800">
+                                Google認証でログイン中
+                              </h3>
+                              <div class="mt-1 text-sm text-blue-700">
+                                <p>
+                                  メールアドレスはGoogleアカウントと同期されています。<br />
+                                  変更はGoogleアカウント設定から行ってください。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- メールアドレス変更中の状態表示 (通常ユーザーのみ) -->
+                        <div
+                          v-if="
+                            pendingEmailChange &&
+                            authStore.user.social_type !== 'google'
+                          "
                           class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
                         >
                           <div class="flex items-start">
@@ -281,9 +367,12 @@
                         </div>
                       </div>
 
-                      <!-- メールアドレス変更フォーム -->
+                      <!-- メールアドレス変更フォーム (通常ユーザーのみ) -->
                       <div
-                        v-if="isChangingEmail"
+                        v-if="
+                          isChangingEmail &&
+                          authStore.user.social_type !== 'google'
+                        "
                         class="mt-4 p-4 bg-white rounded-lg border border-gray-200"
                       >
                         <h3 class="text-lg font-medium text-gray-900 mb-3">
@@ -403,17 +492,81 @@
                       <div class="bg-gray-50 p-4 rounded-lg">
                         <div class="flex justify-between items-center">
                           <p class="text-sm text-gray-500">パスワード</p>
+                          <!-- Google認証ユーザーの場合は変更ボタンを非表示 -->
                           <button
-                            v-if="!isChangingPassword"
+                            v-if="
+                              !isChangingPassword &&
+                              authStore.user.social_type !== 'google'
+                            "
                             class="text-sm hover:text-opacity-80 transition-colors cursor-pointer font-medium"
                             style="color: var(--primary)"
                             @click="isChangingPassword = true"
                           >
                             変更
                           </button>
+                          <!-- Google認証ユーザーには説明バッジを表示 -->
+                          <span
+                            v-if="authStore.user.social_type === 'google'"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-3 w-3 mr-1"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                            Google認証
+                          </span>
                         </div>
 
-                        <div v-if="isChangingPassword" class="mt-2 space-y-4">
+                        <!-- Google認証ユーザー向けの説明 -->
+                        <div
+                          v-if="authStore.user.social_type === 'google'"
+                          class="mt-2 p-3 bg-blue-50 rounded-md border border-blue-200"
+                        >
+                          <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="text-blue-400 h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                            <div class="ml-3">
+                              <h3 class="text-sm font-medium text-blue-800">
+                                Google認証でログイン中
+                              </h3>
+                              <div class="mt-1 text-sm text-blue-700">
+                                <p>
+                                  パスワードは不要です。Googleアカウントで安全に認証されています。<br />
+                                  セキュリティ設定はGoogleアカウント設定から管理してください。
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- パスワード変更フォーム (通常ユーザーのみ) -->
+                        <div
+                          v-if="
+                            isChangingPassword &&
+                            authStore.user.social_type !== 'google'
+                          "
+                          class="mt-2 space-y-4"
+                        >
                           <form @submit.prevent="changePassword">
                             <div>
                               <label
