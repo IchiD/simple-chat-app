@@ -100,7 +100,7 @@ export function useApi() {
     endpoint: string,
     options: ApiOptions = {}
   ) => {
-    const baseUrl = config.public.apiBase || "http://localhost:8000/api";
+    const baseUrl = config.public.apiBase || "http://localhost/api";
     console.log("Effective baseUrl:", baseUrl);
 
     // URLの組み立て
@@ -165,38 +165,49 @@ export function useApi() {
         console.error(`API Error (${url}):`, error.message, error.data);
 
         // アカウント削除・バンエラーの特別処理
-        if (error.status === 403 && enhancedError.data && typeof enhancedError.data === "object") {
+        if (
+          error.status === 403 &&
+          enhancedError.data &&
+          typeof enhancedError.data === "object"
+        ) {
           const errorData = enhancedError.data as {
             error_type?: string;
             message?: string;
           };
-          
-          if (errorData.error_type === 'account_deleted' || errorData.error_type === 'account_banned') {
-            console.log("アカウント削除・バンエラーを検知:", errorData.error_type);
-            
+
+          if (
+            errorData.error_type === "account_deleted" ||
+            errorData.error_type === "account_banned"
+          ) {
+            console.log(
+              "アカウント削除・バンエラーを検知:",
+              errorData.error_type
+            );
+
             // セッションストレージからトークンを削除
             if (import.meta.client) {
               sessionStorage.removeItem("auth_token");
             }
-            
+
             // ユーザーに通知
-            const message = errorData.error_type === 'account_deleted' 
-              ? 'アカウントが削除されました。' 
-              : 'アカウントが利用停止されました。';
-            
+            const message =
+              errorData.error_type === "account_deleted"
+                ? "アカウントが削除されました。"
+                : "アカウントが利用停止されました。";
+
             toast.add({
               title: "アカウント状態エラー",
               description: message,
               color: "error",
             } as Omit<Toast, "id">);
-            
+
             // ログインページにリダイレクト
             if (import.meta.client && !options.skipAuthRedirect) {
               setTimeout(() => {
-                router.push('/auth/login');
+                router.push("/auth/login");
               }, 1000);
             }
-            
+
             throw enhancedError;
           }
         }

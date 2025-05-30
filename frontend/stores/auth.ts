@@ -305,9 +305,9 @@ export const useAuthStore = defineStore("auth", () => {
   // Googleログイン開始
   function startGoogleLogin() {
     if (!import.meta.client) return;
-    
+
     // Google認証ページにリダイレクト
-    window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+    window.location.href = "http://localhost/api/auth/google/redirect";
   }
 
   // Googleコールバック処理
@@ -316,8 +316,8 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
 
     try {
-      console.log('Google認証コールバック処理を開始');
-      
+      console.log("Google認証コールバック処理を開始");
+
       // トークンとユーザーデータを設定
       token.value = tokenParam;
       user.value = JSON.parse(decodeURIComponent(userData));
@@ -326,13 +326,13 @@ export const useAuthStore = defineStore("auth", () => {
       // トークンをsessionStorageに暗号化して保存
       if (tokenParam) {
         storeToken(tokenParam);
-        console.log('Google認証成功: トークンを保存しました');
+        console.log("Google認証成功: トークンを保存しました");
       }
 
       return { success: true };
     } catch (err: unknown) {
-      console.error('Google認証コールバック処理エラー:', err);
-      error.value = 'Google認証処理中にエラーが発生しました';
+      console.error("Google認証コールバック処理エラー:", err);
+      error.value = "Google認証処理中にエラーが発生しました";
       return { success: false, message: error.value };
     } finally {
       loading.value = false;

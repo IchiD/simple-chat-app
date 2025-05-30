@@ -11,7 +11,7 @@ interface ApiOptions {
 
 export const useApi = () => {
   const config = useRuntimeConfig();
-  const baseURL = config.public.apiBase || "http://localhost:8000/api";
+  const baseURL = config.public.apiBase || "http://localhost/api";
   const authStore = useAuthStore();
   const { handleApiError } = useErrorHandler();
   console.log("Current API baseURL:", baseURL);

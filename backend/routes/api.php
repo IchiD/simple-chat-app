@@ -18,9 +18,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:san
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
 
-// Google認証ルート
-Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+// Google認証ルート（セッションミドルウェアを追加）
+Route::middleware(['web'])->group(function () {
+  Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+  Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+});
 
 // アプリケーション設定情報取得
 Route::get('/config', [AppConfigController::class, 'getPublicConfig']);

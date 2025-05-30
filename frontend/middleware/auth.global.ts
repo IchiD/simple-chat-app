@@ -24,6 +24,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     "/auth/forgot-password", // パスワードリセットページ
     "/auth/reset-password", // パスワードリセットページ
     "/auth/verify-email-change", // メール変更認証ページ
+    "/auth/google/callback", // Google認証コールバックページ
   ];
 
   // 任意のパスが免除パスのプレフィックスで始まるかチェック
