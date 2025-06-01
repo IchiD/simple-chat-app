@@ -14,6 +14,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.API_BASE_URL || "http://localhost/api",
+      // Laravel Reverb設定
+      reverbAppKey: process.env.REVERB_APP_KEY || "app-key",
+      reverbHost: process.env.REVERB_HOST || "localhost",
+      reverbPort: process.env.REVERB_PORT || "8080",
+      reverbScheme: process.env.REVERB_SCHEME || "http",
     },
   },
 
@@ -27,11 +32,11 @@ export default defineNuxtConfig({
           name: "description",
           content: "LumoChat - 光のようにつながるシンプルなチャットアプリ",
         },
-        // CSPを追加してXSS攻撃からサイトを保護
+        // CSPを更新してWebSocket接続を許可
         {
           "http-equiv": "Content-Security-Policy",
           content:
-            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost ws://localhost:*; font-src 'self'; object-src 'none'",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost ws://localhost:* wss://localhost:* http://127.0.0.1 ws://127.0.0.1:* wss://127.0.0.1:*; font-src 'self'; object-src 'none'",
         },
       ],
     },

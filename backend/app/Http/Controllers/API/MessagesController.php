@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Api\NotificationController;
+use App\Events\NewMessageEvent;
 
 class MessagesController extends Controller
 {
@@ -188,6 +189,9 @@ class MessagesController extends Controller
 
     // TODO: リアルタイムで相手にメッセージを通知するイベントを発行 (例: NewMessageEvent)
     // broadcast(new NewMessageEvent($message))->toOthers();
+    
+    // リアルタイムブロードキャスト実装
+    broadcast(new NewMessageEvent($message))->toOthers();
 
     return response()->json($message, 201);
   }

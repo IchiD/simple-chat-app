@@ -39,6 +39,37 @@
                   </h2>
                 </div>
               </div>
+              
+              <!-- 接続状態インジケーター -->
+              <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-1 text-xs">
+                  <div 
+                    class="w-2 h-2 rounded-full"
+                    :class="{
+                      'bg-green-500': connectionStatus === 'connected',
+                      'bg-yellow-500': connectionStatus === 'connecting',
+                      'bg-red-500': connectionStatus === 'error',
+                      'bg-gray-400': connectionStatus === 'disconnected'
+                    }"
+                  />
+                  <span 
+                    class="text-gray-600 text-xs"
+                    :class="{
+                      'text-green-600': connectionStatus === 'connected',
+                      'text-yellow-600': connectionStatus === 'connecting',
+                      'text-red-600': connectionStatus === 'error',
+                      'text-gray-500': connectionStatus === 'disconnected'
+                    }"
+                  >
+                    {{
+                      connectionStatus === 'connected' ? 'リアルタイム' :
+                      connectionStatus === 'connecting' ? '接続中' :
+                      connectionStatus === 'error' ? '接続エラー' :
+                      'オフライン'
+                    }}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div
@@ -316,7 +347,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, watchEffect, onMounted } from "vue";
+import { ref, computed, watch, nextTick, watchEffect, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
@@ -405,33 +436,9 @@ const config = useRuntimeConfig();
 const toast = useToast();
 const { api } = useApi();
 
-// 明示的な認証チェックを追加
-onMounted(async () => {
-  try {
-    // 認証状態をチェック
-    await authStore.checkAuth();
-
-    if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
-      toast.add({
-        title: "認証エラー",
-        description: "ログインが必要です。ログインページに移動します。",
-        color: "error",
-      });
-      router.push("/auth/login");
-      return;
-    }
-  } catch (error) {
-    console.error("Auth check error:", error);
-    toast.add({
-      title: "エラー",
-      description: "認証情報の取得に失敗しました",
-      color: "error",
-    });
-    // エラー時も認証ページへリダイレクト
-    router.push("/auth/login");
-  }
-});
+// WebSocket関連の変数
+const echoChannel = ref<any>(null);
+const connectionStatus = ref<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
 
 const currentRoomToken = computed(() => route.params.room_token as string);
 
@@ -560,6 +567,13 @@ watchEffect(async () => {
     }`
   );
 
+  // 前回のWebSocket接続をクリーンアップ
+  if (echoChannel.value) {
+    console.log('[ChatRoom] Cleaning up previous Echo channel');
+    echoChannel.value.unsubscribe();
+    echoChannel.value = null;
+  }
+
   if (roomTokenVal && authTokenVal) {
     conversationPending.value = true;
     conversationError.value = null;
@@ -587,6 +601,9 @@ watchEffect(async () => {
 
     if (currentConversation.value && !conversationError.value) {
       await fetchMessagesForCurrentConversation();
+      
+      // WebSocket接続を設定
+      await setupWebSocketConnection();
     } else if (conversationError.value) {
       console.error(
         `[ChatRoom] watchEffect: Error occurred fetching conversation ${roomTokenVal}:`,
@@ -608,7 +625,101 @@ watchEffect(async () => {
     messages.value = [];
     conversationPending.value = !roomTokenVal; // If no room token, not pending. If room token but no auth, still pending auth.
     messagesPending.value = false;
+    connectionStatus.value = 'disconnected';
   }
+});
+
+// WebSocket接続セットアップ
+const setupWebSocketConnection = async () => {
+  if (!currentConversation.value || !window.Echo) {
+    console.warn('[ChatRoom] Cannot setup WebSocket: missing conversation or Echo instance');
+    return;
+  }
+
+  try {
+    connectionStatus.value = 'connecting';
+    console.log(`[ChatRoom] Setting up WebSocket for conversation: ${currentConversation.value.id}`);
+    
+    // プライベートチャンネルに接続
+    const channelName = `conversation.${currentConversation.value.id}`;
+    echoChannel.value = window.Echo.private(channelName);
+
+    // メッセージリスナーを設定
+    echoChannel.value.listen('.new-message', (data: { message: Message }) => {
+      console.log('[ChatRoom] Received new message via WebSocket:', data);
+      
+      // 自分のメッセージは既にUIに追加済みなのでスキップ
+      if (data.message.sender_id === currentUserId.value) {
+        console.log('[ChatRoom] Skipping own message from WebSocket');
+        return;
+      }
+
+      // 重複チェック
+      const isDuplicate = messages.value.some(msg => msg.id === data.message.id);
+      if (isDuplicate) {
+        console.log('[ChatRoom] Skipping duplicate message from WebSocket');
+        return;
+      }
+
+      // 新しいメッセージを追加
+      messages.value.push(data.message);
+      
+      // 自動スクロール
+      nextTick(() => {
+        scrollToBottom('smooth');
+      });
+
+      // トースト通知（任意）
+      if (data.message.sender?.name) {
+        toast.add({
+          title: '新しいメッセージ',
+          description: `${data.message.sender.name}: ${data.message.text_content?.substring(0, 50)}...`,
+          color: 'primary',
+        });
+      }
+    });
+
+    // 接続成功時のイベント
+    echoChannel.value.subscribed(() => {
+      connectionStatus.value = 'connected';
+      console.log(`[ChatRoom] Successfully subscribed to channel: ${channelName}`);
+    });
+
+    // エラーハンドリング
+    echoChannel.value.error((error: any) => {
+      connectionStatus.value = 'error';
+      console.error('[ChatRoom] WebSocket channel error:', error);
+      
+      // 再接続試行
+      setTimeout(() => {
+        if (currentConversation.value && connectionStatus.value === 'error') {
+          console.log('[ChatRoom] Attempting to reconnect...');
+          setupWebSocketConnection();
+        }
+      }, 5000);
+    });
+
+  } catch (error) {
+    connectionStatus.value = 'error';
+    console.error('[ChatRoom] Error setting up WebSocket connection:', error);
+    
+    // フォールバック: ポーリングで新しいメッセージをチェック（任意）
+    toast.add({
+      title: 'リアルタイム接続エラー',
+      description: 'リアルタイム通信に問題が発生しました。',
+      color: 'warning',
+    });
+  }
+};
+
+// コンポーネント破棄時のクリーンアップ
+onUnmounted(() => {
+  console.log('[ChatRoom] Component unmounting, cleaning up WebSocket connection');
+  if (echoChannel.value) {
+    echoChannel.value.unsubscribe();
+    echoChannel.value = null;
+  }
+  connectionStatus.value = 'disconnected';
 });
 
 // The old fetchConversationAndMessages is no longer needed.
@@ -1038,6 +1149,34 @@ const handleConversationError = () => {
   // その他のエラーの場合はチャット一覧に戻る
   router.push("/chat");
 };
+
+// 明示的な認証チェックを追加
+onMounted(async () => {
+  try {
+    // 認証状態をチェック
+    await authStore.checkAuth();
+
+    if (!authStore.isAuthenticated) {
+      // 認証されていない場合はログインページにリダイレクト
+      toast.add({
+        title: "認証エラー",
+        description: "ログインが必要です。ログインページに移動します。",
+        color: "error",
+      });
+      router.push("/auth/login");
+      return;
+    }
+  } catch (error) {
+    console.error("Auth check error:", error);
+    toast.add({
+      title: "エラー",
+      description: "認証情報の取得に失敗しました",
+      color: "error",
+    });
+    // エラー時も認証ページへリダイレクト
+    router.push("/auth/login");
+  }
+});
 </script>
 
 <style scoped>
