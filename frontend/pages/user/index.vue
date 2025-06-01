@@ -28,31 +28,6 @@
                       }}</span
                       >さん
                     </p>
-                    <!-- デバッグ用: Google認証情報表示 -->
-                    <div
-                      v-if="authStore.user"
-                      class="mt-2 text-sm text-gray-500"
-                    >
-                      <p>
-                        Debug: social_type = "{{
-                          authStore.user.social_type || "null"
-                        }}"
-                      </p>
-                      <p>
-                        Debug: google_id = "{{
-                          authStore.user.google_id || "null"
-                        }}"
-                      </p>
-                      <p
-                        v-if="authStore.user.social_type === 'google'"
-                        class="text-green-600 font-semibold"
-                      >
-                        ✓ Google認証ユーザーとして検出されました
-                      </p>
-                      <p v-else class="text-blue-600 font-semibold">
-                        ✓ 通常ユーザーとして検出されました
-                      </p>
-                    </div>
                   </div>
                   <button
                     class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105 cursor-pointer"
@@ -275,7 +250,7 @@
                           <!-- Google認証ユーザーには説明バッジを表示 -->
                           <span
                             v-if="authStore.user.social_type === 'google'"
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-blue-800"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -507,7 +482,7 @@
                           <!-- Google認証ユーザーには説明バッジを表示 -->
                           <span
                             v-if="authStore.user.social_type === 'google'"
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-blue-800"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
