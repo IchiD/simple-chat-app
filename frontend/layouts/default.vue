@@ -1,7 +1,12 @@
 <template>
   <div>
+    <!-- デバッグ用ダークモードインジケーター -->
+    <div class="dark-mode-indicator">
+      ダークモード有効
+    </div>
+    
     <!-- 共通ヘッダー -->
-    <nav class="bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-dark-700">
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -14,7 +19,7 @@
             <NuxtLink
               v-if="currentPage !== 'user'"
               to="/user"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
                 class="w-4 h-4"
@@ -33,7 +38,7 @@
             <NuxtLink
               v-if="currentPage !== 'friends'"
               to="/friends"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
                 class="w-4 h-4"
@@ -73,7 +78,7 @@
             <!-- ダークモード切り替えボタン -->
             <button
               @click="toggleDarkMode"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition duration-150 ease-in-out"
               :title="isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'"
             >
               <!-- ライトモード時（太陽アイコン） -->
@@ -116,7 +121,7 @@
     <!-- 共通フッター (chat/[room_token] ページでは非表示) -->
     <footer
       v-if="!isChatRoomPage"
-      class="bg-white dark:bg-dark-800 py-4 border-t border-gray-200 dark:border-dark-700"
+      class="bg-white dark:bg-gray-800 py-4 border-t border-gray-200 dark:border-gray-700"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
@@ -150,11 +155,61 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from "~/stores/auth";
-import { useDarkMode } from "~/composables/useDarkMode";
 
-// ダークモード機能
-const { isDarkMode, toggleDarkMode } = useDarkMode();
+// ダークモード状態
+const isDarkMode = ref(false)
+
+// ダークモード切り替え関数
+const toggleDarkMode = () => {
+  alert('ダークモード切り替えボタンがクリックされました！')
+  console.log('ダークモード切り替え前:', isDarkMode.value)
+  isDarkMode.value = !isDarkMode.value
+  console.log('ダークモード切り替え後:', isDarkMode.value)
+  
+  // HTMLクラスを更新
+  if (typeof document !== 'undefined') {
+    if (isDarkMode.value) {
+      document.documentElement.classList.add('dark')
+      console.log('ダーククラス追加')
+    } else {
+      document.documentElement.classList.remove('dark')
+      console.log('ダーククラス削除')
+    }
+    
+    // ローカルストレージに保存
+    localStorage.setItem('darkMode', isDarkMode.value.toString())
+  }
+}
+
+// 初期化
+onMounted(() => {
+  console.log('ダークモード初期化開始')
+  
+  // ローカルストレージから読み込み
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('darkMode')
+    if (stored !== null) {
+      isDarkMode.value = stored === 'true'
+    } else {
+      // システム設定を参照
+      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    
+    // HTMLクラスを設定
+    if (isDarkMode.value) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    
+    console.log('ダークモード初期化完了:', isDarkMode.value)
+  }
+})
+
+// 認証ストア
+const authStore = useAuthStore();
 
 // ルートを取得して現在のページを判断
 const route = useRoute();
@@ -178,8 +233,6 @@ const isChatRoomPage = computed(() => {
 // サポートチャットを開く関数
 const openSupportChat = async () => {
   try {
-    const authStore = useAuthStore();
-
     // 認証チェック
     if (!authStore.isAuthenticated) {
       // 認証されていない場合はログインページにリダイレクト

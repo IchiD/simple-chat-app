@@ -3,16 +3,6 @@ import { ref, onMounted, watch } from 'vue'
 const isDarkMode = ref(false)
 
 export const useDarkMode = () => {
-  // ダークモードの切り替え
-  const toggleDarkMode = () => {
-    isDarkMode.value = !isDarkMode.value
-  }
-
-  // ダークモードの設定
-  const setDarkMode = (value: boolean) => {
-    isDarkMode.value = value
-  }
-
   // HTMLのクラスを更新
   const updateHtmlClass = () => {
     if (typeof window !== 'undefined') {
@@ -44,20 +34,31 @@ export const useDarkMode = () => {
     }
   }
 
-  // 初期化
-  onMounted(() => {
-    loadFromStorage()
-    updateHtmlClass()
-  })
-
-  // ダークモード状態の監視
-  watch(isDarkMode, () => {
+  // ダークモードの切り替え
+  const toggleDarkMode = () => {
+    isDarkMode.value = !isDarkMode.value
     updateHtmlClass()
     saveToStorage()
+    console.log('ダークモード切り替え:', isDarkMode.value)
+  }
+
+  // ダークモードの設定
+  const setDarkMode = (value: boolean) => {
+    isDarkMode.value = value
+    updateHtmlClass()
+    saveToStorage()
+  }
+
+  // 初期化（クライアントサイドのみ）
+  onMounted(() => {
+    console.log('ダークモード初期化開始')
+    loadFromStorage()
+    updateHtmlClass()
+    console.log('ダークモード初期化完了:', isDarkMode.value)
   })
 
   return {
-    isDarkMode: readonly(isDarkMode),
+    isDarkMode,
     toggleDarkMode,
     setDarkMode
   }

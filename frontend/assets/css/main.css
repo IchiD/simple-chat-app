@@ -14,6 +14,18 @@
   --border: #e2e8f0; /* 薄いグレー - 境界線の色 */
 }
 
+/* ダークモード用のCSS変数 */
+.dark {
+  --primary: #4ade80; /* ダークモード用のプライマリカラー */
+  --primary-light: #86efac; /* ダークモード用のライトカラー */
+  --primary-dark: #22c55e; /* ダークモード用のダークカラー */
+  --text-primary: #f1f5f9; /* ダークモード用の主要テキスト色 */
+  --text-secondary: #cbd5e1; /* ダークモード用の二次テキスト色 */
+  --background-light: #1e293b; /* ダークモード用の明るい背景色 */
+  --background: #0f172a; /* ダークモード用の背景色 */
+  --border: #374151; /* ダークモード用の境界線色 */
+}
+
 /* グローバルに全ての角を角ばらせる（例外を除く） */
 * {
   border-radius: 0 !important;
@@ -40,6 +52,7 @@
 body {
   color: var(--text-primary);
   background-color: var(--background);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ヘッダースタイルのカスタマイズ */
@@ -48,10 +61,50 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
+.dark header {
+  background-color: #1f2937;
+  border-bottom: 1px solid var(--border);
+}
+
 /* フッタースタイルのカスタマイズ */
 footer {
   background-color: white;
   border-top: 1px solid var(--border);
+}
+
+.dark footer {
+  background-color: #1f2937;
+  border-top: 1px solid var(--border);
+}
+
+/* ダークモード用の追加スタイル */
+.dark nav {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151 !important;
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db !important;
+}
+
+/* デバッグ用のスタイル - ダークモードが動作しているかを視覚的に確認 */
+.dark-mode-indicator {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 12px;
+  z-index: 9999;
+  display: none;
+}
+
+.dark .dark-mode-indicator {
+  display: block;
 }
 
  
