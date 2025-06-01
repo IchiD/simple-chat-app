@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 共通ヘッダー -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white dark:bg-dark-800 shadow-sm border-b border-gray-200 dark:border-dark-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -14,7 +14,7 @@
             <NuxtLink
               v-if="currentPage !== 'user'"
               to="/user"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
                 class="w-4 h-4"
@@ -33,7 +33,7 @@
             <NuxtLink
               v-if="currentPage !== 'friends'"
               to="/friends"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
                 class="w-4 h-4"
@@ -52,7 +52,7 @@
             <NuxtLink
               v-if="currentPage !== 'chat'"
               to="/chat"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 rounded-lg transition duration-150 ease-in-out"
             >
               <svg
                 class="w-4 h-4"
@@ -69,6 +69,41 @@
               </svg>
               <span class="hidden sm:inline">チャット</span>
             </NuxtLink>
+
+            <!-- ダークモード切り替えボタン -->
+            <button
+              @click="toggleDarkMode"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded-lg transition duration-150 ease-in-out"
+              :title="isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'"
+            >
+              <!-- ライトモード時（太陽アイコン） -->
+              <svg
+                v-if="!isDarkMode"
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <!-- ダークモード時（月アイコン） -->
+              <svg
+                v-else
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+                />
+              </svg>
+              <span class="hidden sm:inline ml-1">{{ isDarkMode ? 'ライト' : 'ダーク' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -81,16 +116,16 @@
     <!-- 共通フッター (chat/[room_token] ページでは非表示) -->
     <footer
       v-if="!isChatRoomPage"
-      class="bg-white py-4 border-t border-gray-200"
+      class="bg-white dark:bg-dark-800 py-4 border-t border-gray-200 dark:border-dark-700"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
-          <div class="text-sm text-gray-500">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
             &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
           </div>
           <div>
             <button
-              class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition duration-150 ease-in-out"
               @click="openSupportChat"
             >
               <svg
@@ -116,6 +151,10 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
+import { useDarkMode } from "~/composables/useDarkMode";
+
+// ダークモード機能
+const { isDarkMode, toggleDarkMode } = useDarkMode();
 
 // ルートを取得して現在のページを判断
 const route = useRoute();
