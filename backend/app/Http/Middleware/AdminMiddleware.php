@@ -23,13 +23,6 @@ class AdminMiddleware
     //     abort(403, 'Access denied from this IP address.');
     // }
 
-    // デバッグ: 実際のIPアドレスを確認
-    \Log::info('Admin access attempt', [
-      'ip' => $request->ip(),
-      'user_agent' => $request->userAgent(),
-      'url' => $request->url()
-    ]);
-
     if (!Auth::guard('admin')->check()) {
       return redirect()->route('admin.login');
     }

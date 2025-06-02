@@ -24,11 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
       'check.user.status' => \App\Http\Middleware\CheckUserStatus::class,
     ]);
 
-    // アクセスログミドルウェアをWebミドルウェアに追加
-    $middleware->web(append: [
-      \App\Http\Middleware\AccessLogMiddleware::class,
-    ]);
-
     // 既存のCSRFミドルウェアをカスタムCSRFミドルウェアに置き換え
     $middleware->web(replace: [
       \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class => \App\Http\Middleware\VerifyCsrfToken::class,
