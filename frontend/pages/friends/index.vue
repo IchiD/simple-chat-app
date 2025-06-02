@@ -594,10 +594,9 @@ const refreshData = async () => {
 
     // API レスポンスの構造に合わせて処理
     // data プロパティがある場合はそれを使用し、ない場合は従来のプロパティを使用
-    friends.value = friendsData.data || friendsData.friends || [];
-    friendRequests.value =
-      requestsData.data || requestsData.received_requests || [];
-    sentRequests.value = sentData.data || sentData.sent_requests || [];
+    friends.value = friendsData.data || [];
+    friendRequests.value = requestsData.data || [];
+    sentRequests.value = sentData.data || [];
 
     console.log("Friends array after processing:", friends.value);
   } catch (error: unknown) {

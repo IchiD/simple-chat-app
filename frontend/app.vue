@@ -14,12 +14,9 @@ import ToastContainer from "~/components/ToastContainer.vue";
 
 // アプリ初期化時に認証状態を確認
 onMounted(async () => {
-  console.log("アプリ初期化時の認証状態チェック開始 (app.vue)");
+  // 認証状態をチェック（app.vue のマウント時）
   const authStore = useAuthStore();
   await authStore.checkAuth();
-  console.log("認証状態チェック完了 (app.vue):", {
-    isAuthenticated: authStore.isAuthenticated,
-  });
 });
 
 // Nuxt UIのロケールコンテキストを提供

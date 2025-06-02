@@ -238,7 +238,6 @@ class AuthService extends BaseService
     }
 
     $status = Password::sendResetLink(['email' => $email]);
-    Log::debug('パスワード再設定リンク送信ステータス: ' . $status);
 
     if ($status === Password::RESET_LINK_SENT) {
       Log::info('パスワード再設定リンクの送信に成功しました', [

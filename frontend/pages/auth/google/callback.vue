@@ -74,51 +74,48 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 onMounted(async () => {
+  const route = useRoute();
+  const router = useRouter();
+  const authStore = useAuthStore();
+
+  // URLパラメータからトークンとユーザーデータを取得
+  const token = route.query.token as string;
+  const user = route.query.user as string;
+
+  if (!token || !user) {
+    // パラメータが不足している場合はエラーページへ
+    toast.add({
+      title: "認証エラー",
+      description: "認証情報が不足しています",
+      color: "error",
+    });
+    router.push("/auth/login");
+    return;
+  }
+
   try {
-    console.log('Google認証コールバックページを開始');
-    
-    // URLパラメータからトークンとユーザーデータを取得
-    const token = route.query.token as string;
-    const userData = route.query.user as string;
-    const errorParam = route.query.error as string;
-
-    if (errorParam) {
-      // エラーパラメータがある場合
-      error.value = decodeURIComponent(errorParam);
-      console.error('Google認証エラー:', error.value);
-      return;
-    }
-
-    if (!token || !userData) {
-      error.value = '認証情報が不正です。再度ログインをお試しください。';
-      console.error('認証パラメータが不足しています:', { token: !!token, userData: !!userData });
-      return;
-    }
-
-    // auth storeでGoogle認証を完了
-    const result = await authStore.handleGoogleCallback(token, userData);
+    // 認証ストアにGoogle認証情報を保存
+    const result = await authStore.handleGoogleCallback(token, user);
 
     if (result.success) {
-      console.log('Google認証が正常に完了しました');
-      
       toast.add({
-        title: 'ログイン成功',
-        description: 'Googleアカウントでログインしました',
-        color: 'success',
+        title: "ログイン成功",
+        description: "Google認証でログインしました",
+        color: "success",
       });
-
-      // ユーザーホームにリダイレクト
-      setTimeout(() => {
-        router.push('/user');
-      }, 1000);
+      // 認証成功後はユーザーページへリダイレクト
+      router.push("/user");
     } else {
-      error.value = result.message || 'Google認証処理中にエラーが発生しました';
-      console.error('Google認証処理でエラー:', result.message);
+      throw new Error(result.message || "Google認証に失敗しました");
     }
-
-  } catch (err) {
-    console.error('Google認証コールバック処理でエラー:', err);
-    error.value = 'Google認証処理中にエラーが発生しました';
+  } catch (error) {
+    console.error("Google認証エラー:", error);
+    toast.add({
+      title: "認証エラー",
+      description: "Google認証処理中にエラーが発生しました",
+      color: "error",
+    });
+    router.push("/auth/login");
   } finally {
     loading.value = false;
   }

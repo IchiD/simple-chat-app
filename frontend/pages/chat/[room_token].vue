@@ -452,10 +452,6 @@ const loadingMoreMessages = ref(false);
 
 // Fetch headers for conversation details, reactive to authStore.token
 const conversationDetailHeaders = computed(() => {
-  console.log(
-    "[ChatRoom] Computing conversationDetailHeaders. Auth token present:",
-    !!authStore.token
-  );
   return {
     Accept: "application/json",
     ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}),
@@ -485,15 +481,10 @@ const {
 // Function to fetch messages (to be called after conversation is loaded)
 const fetchMessagesForCurrentConversation = async () => {
   if (!currentConversation.value) {
-    console.warn(
-      "[ChatRoom] fetchMessages: No currentConversation to fetch messages for."
-    );
     messages.value = [];
     return;
   }
-  console.log(
-    `[ChatRoom] fetchMessages: Fetching messages for conv ID: ${currentConversation.value.id}, room_token: ${currentConversation.value.room_token}`
-  );
+  
   messagesPending.value = true;
   messagesError.value = null;
   currentPage.value = 1; // Reset pagination for new conversation messages
@@ -513,12 +504,6 @@ const fetchMessagesForCurrentConversation = async () => {
     );
     hasNextPage.value = msgData.next_page_url !== null;
     await markConversationAsRead(currentConversation.value.id); // Mark as read after messages load
-    console.log(
-      "[ChatRoom] Messages processed. Message count:",
-      messages.value.length,
-      "Has next page:",
-      hasNextPage.value
-    );
   } catch (e: unknown) {
     console.error(
       `[ChatRoom] Error fetching messages for conversation ${currentConversation.value.id}:`,
@@ -554,36 +539,17 @@ watchEffect(async () => {
   const roomTokenVal = currentRoomToken.value;
   const authTokenVal = authStore.token;
 
-  console.log(
-    `[ChatRoom] Main watchEffect. RoomToken: ${roomTokenVal}, AuthToken: ${
-      authTokenVal ? "present" : "null"
-    }`
-  );
-
   if (roomTokenVal && authTokenVal) {
     conversationPending.value = true;
     conversationError.value = null;
     currentConversation.value = null; // Reset before fetching new one
     messages.value = []; // Clear messages when conversation changes
 
-    console.log(
-      `[ChatRoom] watchEffect: Fetching conversation details for roomToken: ${roomTokenVal}`
-    );
     await executeFetchConversationDetails(); // Execute the fetch
 
     conversationPending.value = fetchConvPending.value; // Reflect pending state
     currentConversation.value = fetchedConvData.value;
     conversationError.value = fetchedConvError.value;
-
-    console.log(
-      "[ChatRoom] watchEffect: Conversation fetch completed.",
-      "Data:",
-      JSON.parse(JSON.stringify(currentConversation.value)),
-      "Error:",
-      JSON.parse(JSON.stringify(conversationError.value)),
-      "Pending was:",
-      fetchConvPending.value
-    );
 
     if (currentConversation.value && !conversationError.value) {
       await fetchMessagesForCurrentConversation();
@@ -595,15 +561,9 @@ watchEffect(async () => {
       // Ensure messagesPending is false if conversation fetch fails before message fetch starts
       messagesPending.value = false;
     } else {
-      console.warn(
-        `[ChatRoom] watchEffect: Conversation data is null for ${roomTokenVal} even after fetch attempt.`
-      );
       messagesPending.value = false;
     }
   } else {
-    console.log(
-      "[ChatRoom] watchEffect: Conditions not met for fetching (no roomToken or no authToken)."
-    );
     currentConversation.value = null;
     messages.value = [];
     conversationPending.value = !roomTokenVal; // If no room token, not pending. If room token but no auth, still pending auth.
@@ -622,10 +582,6 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 // サポート会話かどうかを判定
 const isSupportConversation = computed(() => {
   const result = currentConversation.value?.type === "support";
-  console.log("isSupportConversation:", {
-    type: currentConversation.value?.type,
-    result,
-  });
   return result;
 });
 
@@ -699,9 +655,6 @@ const markConversationAsRead = async (conversationId: number) => {
 watch(
   currentRoomToken,
   (newToken, oldToken) => {
-    console.log(
-      `[ChatRoom] currentRoomToken watcher (navigation). New: ${newToken}, Old: ${oldToken}`
-    );
     // The watchEffect should handle fetching new data when currentRoomToken changes.
     // We might not need to do anything explicit here anymore unless it's for
     // resetting states not covered by watchEffect's re-run.

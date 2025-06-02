@@ -228,15 +228,6 @@ const getSenderDisplayName = (
   conversation: Conversation,
   senderId: number | null
 ): string => {
-  // デバッグ用ログ
-  console.log("getSenderDisplayName:", {
-    conversationType: conversation.type,
-    senderId,
-    currentUserId: currentUserId.value,
-    senderName: conversation.latest_message?.sender?.name,
-    adminSenderId: conversation.latest_message?.admin_sender_id,
-  });
-
   // 管理者メッセージの場合
   if (conversation.latest_message?.admin_sender_id) {
     return "サポート";

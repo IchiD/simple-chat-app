@@ -795,8 +795,6 @@ onMounted(async () => {
     // 認証状態をチェック
     await authStore.checkAuth();
 
-    console.log("authStore.isAuthenticated", authStore.isAuthenticated);
-
     if (!authStore.isAuthenticated) {
       // 認証されていない場合はログインページにリダイレクト
       toast.add({
