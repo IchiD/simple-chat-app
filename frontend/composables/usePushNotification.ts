@@ -99,7 +99,7 @@ export function usePushNotification() {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js");
         return registration;
-      } catch (error) {
+      } catch (_error) {
         state.value.error = "サービスワーカーの登録に失敗しました";
         return null;
       }
@@ -256,14 +256,13 @@ export function usePushNotification() {
   // サーバーに購読情報を保存
   const saveSubscription = async (subscription: PushSubscription) => {
     try {
-      const response = await api("/notifications/subscribe", {
+      const _response = await api("/notifications/subscribe", {
         method: "POST",
         body: {
           subscription: subscription.toJSON(),
         },
       });
 
-      console.log("購読情報保存レスポンス:", response);
       return true;
     } catch (error) {
       console.error("購読情報保存エラー:", error);
@@ -274,14 +273,13 @@ export function usePushNotification() {
   // サーバーから購読情報を削除
   const deleteSubscription = async (subscription: PushSubscription) => {
     try {
-      const response = await api("/notifications/unsubscribe", {
+      const _response = await api("/notifications/unsubscribe", {
         method: "POST",
         body: {
           endpoint: subscription.endpoint,
         },
       });
 
-      console.log("購読情報削除レスポンス:", response);
       return true;
     } catch (error) {
       console.error("購読情報削除エラー:", error);
@@ -292,11 +290,10 @@ export function usePushNotification() {
   // テスト通知を送信（開発用）
   const sendTestNotification = async () => {
     try {
-      const response = await api("/notifications/test", {
+      const _response = await api("/notifications/test", {
         method: "POST",
       });
 
-      console.log("テスト通知レスポンス:", response);
       return true;
     } catch (error) {
       console.error("テスト通知エラー:", error);

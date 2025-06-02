@@ -23,10 +23,6 @@ export default defineNuxtRouteMiddleware((to) => {
     !publicPaths.some((path) => to.path.startsWith(path)) &&
     !authStore.isAuthenticated
   ) {
-    console.log(
-      `[auth.global] 認証が必要なルート ${to.path} に未認証アクセスを検出。ログインページへリダイレクト。`
-    );
-
     // 認証後に元のページに戻るための情報を保存（任意）
     // sessionStorage.setItem('intendedRoute', to.fullPath);
 
