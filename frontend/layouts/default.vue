@@ -1,7 +1,10 @@
 <template>
   <div>
-    <!-- 共通ヘッダー -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <!-- 共通ヘッダー (chat/[room_token] ページでは非表示) -->
+    <nav
+      v-if="!isChatRoomPage"
+      class="bg-white shadow-sm border-b border-gray-200"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -149,7 +152,7 @@ const openSupportChat = async () => {
     }
 
     // サポート会話を作成または取得
-    const conversation = await $fetch<any>(
+    const conversation = await $fetch<{ room_token: string }>(
       `${config.public.apiBase}/support/conversation`,
       {
         method: "POST",
