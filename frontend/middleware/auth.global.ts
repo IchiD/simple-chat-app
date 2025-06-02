@@ -1,12 +1,6 @@
 export default defineNuxtRouteMiddleware(async (to, _from) => {
-  console.log("グローバル認証ミドルウェア実行:", {
-    to: to.path,
-    isAuthPath: to.path.startsWith("/auth/"),
-  });
-
   // SSRの場合またはルートのリロード時は認証チェックをスキップ
   if (import.meta.server || to.matched.length === 0) {
-    console.log("SSRまたはリロード時のため認証チェックをスキップ");
     return;
   }
 
@@ -36,8 +30,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
 
   // 認証不要のパスはチェックをスキップ
   if (isExemptPath(to.path)) {
-    console.log("認証チェック免除パスのためスキップ:", to.path);
-
     // ログイン状態で認証ページにアクセスしている場合はリダイレクト
     if (
       to.path.startsWith("/auth/") &&
@@ -46,10 +38,6 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       await authStore.checkAuth();
 
       if (authStore.isAuthenticated) {
-        console.log(
-          "認証済みユーザーの認証ページアクセスを/userにリダイレクト:",
-          to.path
-        );
         return navigateTo("/user");
       }
     }
@@ -58,21 +46,11 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   }
 
   // 認証状態をチェック（ページの保護）
-  console.log("ミドルウェア認証チェック開始:", {
-    isAuthenticated: authStore.isAuthenticated,
-  });
-
   if (!authStore.isAuthenticated) {
-    console.log("認証がまだ済んでいないため、checkAuth()を実行");
     await authStore.checkAuth();
-    console.log("checkAuth()完了:", {
-      isAuthenticated: authStore.isAuthenticated,
-    });
 
     if (!authStore.isAuthenticated) {
       // 認証されていない場合はエラーメッセージを表示してログインページにリダイレクト
-      console.log("未認証のため、ログインページにリダイレクト");
-
       if (import.meta.client) {
         toast.add({
           title: "認証エラー",
@@ -84,6 +62,4 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       return navigateTo("/auth/login");
     }
   }
-
-  console.log("認証済み - 通常のナビゲーションを続行");
 });

@@ -37,7 +37,6 @@ export function useApi() {
   const config = useRuntimeConfig();
   const router = useRouter();
   const toast = useToast();
-  console.log("Runtime config apiBase:", config.public.apiBase);
 
   // 認証トークンをヘッダーに追加する関数
   const getAuthHeader = (): Record<string, string> => {
@@ -50,12 +49,6 @@ export function useApi() {
       // ブラウザフィンガープリントを生成（追加のセキュリティ対策）
       const fingerprint = generateBrowserFingerprint();
 
-      console.log("APIリクエスト用の認証トークン取得:", {
-        token: token ? `${token.substring(0, 10)}...` : null,
-        isClient: import.meta.client,
-        fingerprint: fingerprint ? "[生成済み]" : null,
-      });
-
       if (token) {
         // トークンが存在する場合のみ認証ヘッダーを返す
         return {
@@ -65,7 +58,6 @@ export function useApi() {
         };
       }
     }
-    console.log("認証ヘッダーなしでリクエストを実行します");
     return {};
   };
 
@@ -101,7 +93,6 @@ export function useApi() {
     options: ApiOptions = {}
   ) => {
     const baseUrl = config.public.apiBase || "http://localhost/api";
-    console.log("Effective baseUrl:", baseUrl);
 
     // URLの組み立て
     let url = `${baseUrl}${
@@ -142,11 +133,6 @@ export function useApi() {
     const body = options.body ? sanitizeData(options.body) : undefined;
 
     try {
-      console.log(`APIリクエスト: ${options.method || "GET"} ${url}`, {
-        hasAuthHeader: !!authHeaders.Authorization,
-        hasBody: !!body,
-      });
-
       // $fetchを使ってAPIリクエストを送信
       const response = await $fetch<T>(url, {
         ...options,
@@ -179,11 +165,6 @@ export function useApi() {
             errorData.error_type === "account_deleted" ||
             errorData.error_type === "account_banned"
           ) {
-            console.log(
-              "アカウント削除・バンエラーを検知:",
-              errorData.error_type
-            );
-
             // セッションストレージからトークンを削除
             if (import.meta.client) {
               sessionStorage.removeItem("auth_token");
@@ -213,12 +194,10 @@ export function useApi() {
         }
 
         if (error.status === 401 && !options.skipAuthRedirect) {
-          console.log("認証エラーを検出: ログインページへリダイレクトします");
           handleAuthError(router, toast); // 共通の認証エラーハンドリング
           // 認証エラーの場合は、ここで処理を中断させるか、特定のメッセージをthrowすることも検討
           throw enhancedError; // or throw new Error("認証が必要です。ログインしてください。");
         } else if (error.status === 429) {
-          console.warn("APIレート制限超過 (429)");
           toast.add({
             title: "リクエスト上限超過",
             description:

@@ -61,7 +61,6 @@ export const useAuthStore = defineStore("auth", () => {
 
     const encryptedToken = encryptToken(tokenValue);
     sessionStorage.setItem("auth_token", encryptedToken);
-    console.log("トークンを暗号化して保存しました");
   };
 
   // ユーザー登録処理
@@ -128,14 +127,11 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
 
     try {
-      console.log("メール認証処理を開始します:", verifyToken);
       const { api } = useApi();
       const response = await api<AuthResponse>("/verify", {
         method: "GET",
         params: { token: verifyToken },
       });
-
-      console.log("メール認証レスポンス:", response);
 
       // バックエンドから返されるのはaccess_tokenフィールド
       token.value = response.access_token || null;
@@ -146,18 +142,9 @@ export const useAuthStore = defineStore("auth", () => {
       };
       isAuthenticated.value = true;
 
-      console.log("認証トークンをsessionStorageに保存します:", token.value);
-
       // トークンをsessionStorageに暗号化して保存
       if (token.value && import.meta.client) {
-        console.log("トークン保存処理を実行します");
         storeToken(token.value);
-        console.log("トークン保存後のsessionStorage確認: [暗号化済み]");
-      } else {
-        console.log("トークン保存処理をスキップします:", {
-          hasToken: !!token.value,
-          isClient: import.meta.client,
-        });
       }
 
       return {
@@ -195,7 +182,6 @@ export const useAuthStore = defineStore("auth", () => {
       // トークンをsessionStorageに暗号化して保存
       if (token.value) {
         storeToken(token.value);
-        console.log("ログイン成功: トークンを保存しました");
       }
 
       return { success: true };
@@ -247,44 +233,27 @@ export const useAuthStore = defineStore("auth", () => {
   // 認証状態のチェック
   async function checkAuth() {
     // クライアントサイドでのみsessionStorageにアクセス
-    console.log("認証状態チェック開始:", { isClient: import.meta.client });
-
     if (!import.meta.client) {
-      console.log("サーバーサイドでの認証チェックをスキップします");
       return;
     }
 
     try {
       // 暗号化されたトークンを取得・復号
       const savedToken = getStoredToken();
-      console.log(
-        "保存されたトークン:",
-        savedToken ? `${savedToken.substring(0, 10)}...` : null
-      );
 
       if (savedToken) {
         token.value = savedToken;
-        console.log(
-          "token.value設定:",
-          token.value ? `${token.value.substring(0, 10)}...` : null
-        );
 
-        console.log("/users/meエンドポイントにリクエスト開始");
         const { api } = useApi();
 
         // skipAuthRedirectを使ってリダイレクトを制御
         const userData = await api<User>("/users/me", {
           skipAuthRedirect: true,
         });
-        console.log("ユーザーデータ取得成功:", userData);
 
         user.value = userData;
         isAuthenticated.value = true;
-        console.log("認証状態を更新:", {
-          isAuthenticated: isAuthenticated.value,
-        });
       } else {
-        console.log("保存されたトークンがありません");
         token.value = null;
         user.value = null;
         isAuthenticated.value = false;
@@ -298,7 +267,6 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = null;
       isAuthenticated.value = false;
       sessionStorage.removeItem("auth_token");
-      console.log("認証情報をクリアしました");
     }
   }
 
@@ -316,8 +284,6 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null;
 
     try {
-      console.log("Google認証コールバック処理を開始");
-
       // トークンとユーザーデータを設定
       token.value = tokenParam;
       user.value = JSON.parse(decodeURIComponent(userData));
@@ -326,7 +292,6 @@ export const useAuthStore = defineStore("auth", () => {
       // トークンをsessionStorageに暗号化して保存
       if (tokenParam) {
         storeToken(tokenParam);
-        console.log("Google認証成功: トークンを保存しました");
       }
 
       return { success: true };
