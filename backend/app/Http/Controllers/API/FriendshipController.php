@@ -47,7 +47,15 @@ class FriendshipController extends Controller
       return $user; // 認証エラーレスポンスを返す
     }
 
-    $friends = $user->friends();
+    $friends = $user->friends()->map(function ($friend) {
+      return [
+        'id' => $friend->id,
+        'name' => $friend->name,
+        'friend_id' => $friend->friend_id,
+        'email' => $friend->email,
+        'created_at' => $friend->created_at,
+      ];
+    })->toArray();
 
     return response()->json([
       'status' => 'success',
@@ -68,7 +76,26 @@ class FriendshipController extends Controller
       return $user;
     }
 
-    $requests = $user->pendingFriendRequests();
+    $requests = $user->pendingFriendRequests()->map(function ($request) {
+      return [
+        'id' => $request->id,
+        'user' => [
+          'id' => $request->user->id,
+          'name' => $request->user->name,
+          'friend_id' => $request->user->friend_id,
+          'email' => $request->user->email,
+        ],
+        'friend' => [
+          'id' => $request->friend->id,
+          'name' => $request->friend->name,
+          'friend_id' => $request->friend->friend_id,
+          'email' => $request->friend->email,
+        ],
+        'message' => $request->message,
+        'created_at' => $request->created_at,
+        'status' => $request->status,
+      ];
+    })->toArray();
 
     return response()->json([
       'status' => 'success',
@@ -89,7 +116,26 @@ class FriendshipController extends Controller
       return $user;
     }
 
-    $requests = $user->friendRequests();
+    $requests = $user->friendRequests()->map(function ($request) {
+      return [
+        'id' => $request->id,
+        'user' => [
+          'id' => $request->user->id,
+          'name' => $request->user->name,
+          'friend_id' => $request->user->friend_id,
+          'email' => $request->user->email,
+        ],
+        'friend' => [
+          'id' => $request->friend->id,
+          'name' => $request->friend->name,
+          'friend_id' => $request->friend->friend_id,
+          'email' => $request->friend->email,
+        ],
+        'message' => $request->message,
+        'created_at' => $request->created_at,
+        'status' => $request->status,
+      ];
+    })->toArray();
 
     return response()->json([
       'status' => 'success',
@@ -135,9 +181,9 @@ class FriendshipController extends Controller
 
     // 削除・バンされていないユーザーのみを検索
     $user = User::where('friend_id', $friendId)
-                ->whereNull('deleted_at')
-                ->where('is_banned', false)
-                ->first();
+      ->whereNull('deleted_at')
+      ->where('is_banned', false)
+      ->first();
 
     if (!$user) {
       return response()->json([

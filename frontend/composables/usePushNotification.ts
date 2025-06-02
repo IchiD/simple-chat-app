@@ -98,10 +98,8 @@ export function usePushNotification() {
     async (): Promise<ServiceWorkerRegistration | null> => {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js");
-        console.log("サービスワーカーが登録されました:", registration);
         return registration;
       } catch (error) {
-        console.error("サービスワーカーの登録エラー:", error);
         state.value.error = "サービスワーカーの登録に失敗しました";
         return null;
       }

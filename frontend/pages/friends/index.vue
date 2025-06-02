@@ -588,17 +588,11 @@ const refreshData = async () => {
       api<SentRequestsResponse>("/friends/requests/sent"),
     ]);
 
-    console.log("Friends API response:", friendsData);
-    console.log("Requests API response:", requestsData);
-    console.log("Sent requests API response:", sentData);
-
     // API レスポンスの構造に合わせて処理
-    // data プロパティがある場合はそれを使用し、ない場合は従来のプロパティを使用
-    friends.value = friendsData.data || [];
-    friendRequests.value = requestsData.data || [];
-    sentRequests.value = sentData.data || [];
-
-    console.log("Friends array after processing:", friends.value);
+    // API が返すプロパティ名を使用
+    friends.value = friendsData.friends || [];
+    friendRequests.value = requestsData.received_requests || [];
+    sentRequests.value = sentData.sent_requests || [];
   } catch (error: unknown) {
     console.error("Error fetching friend data:", error);
     toast.add({
