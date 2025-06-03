@@ -40,14 +40,19 @@ export function usePushNotification() {
       applicationServerPublicKey = config.vapid.publicKey;
 
       if (!applicationServerPublicKey) {
-        throw new Error("VAPID公開鍵が取得できませんでした");
+        console.warn(
+          "VAPID公開鍵が設定されていません。プッシュ通知は無効です。"
+        );
+        state.value.isSupported = false;
+        return "";
       }
 
       return applicationServerPublicKey;
     } catch (error) {
-      console.error("VAPID公開鍵取得エラー:", error);
-      state.value.error = "サーバー設定の取得に失敗しました";
-      throw error;
+      console.warn("VAPID公開鍵取得エラー（プッシュ通知は無効）:", error);
+      state.value.isSupported = false;
+      state.value.error = null; // エラーメッセージを表示しない
+      return "";
     }
   };
 
@@ -67,8 +72,13 @@ export function usePushNotification() {
     try {
       // 公開鍵を取得（失敗した場合は早期リターン）
       try {
-        await getPublicKey();
+        const publicKey = await getPublicKey();
+        if (!publicKey) {
+          // VAPID公開鍵が設定されていない場合はプッシュ通知を無効にする
+          return false;
+        }
       } catch {
+        // VAPID設定エラーの場合はプッシュ通知を無効にする
         return false;
       }
 

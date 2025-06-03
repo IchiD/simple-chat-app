@@ -148,7 +148,14 @@ export function useApi() {
       // エラーの処理と変換
       if (error instanceof FetchError) {
         const enhancedError = error as FetchError<unknown>;
-        console.error(`API Error (${url}):`, error.message, error.data);
+        console.error(`API Error (${url}):`, {
+          status: error.status,
+          message: error.message,
+          data: error.data,
+          headers: error.response?.headers,
+          url: url,
+          options: options,
+        });
 
         // アカウント削除・バンエラーの特別処理
         if (
