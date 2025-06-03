@@ -189,38 +189,12 @@ export const useAuthStore = defineStore("auth", () => {
       const errorResp = err as ErrorResponse;
       console.error("Login error:", errorResp);
 
-      // エラータイプに基づいて適切なメッセージを設定
+      // バックエンドからのエラーメッセージを取得
       let errorMessage = "ログイン中にエラーが発生しました";
 
+      // バックエンドが返すmessageフィールドをそのまま使用
       if (errorResp.message) {
-        if (
-          errorResp.message.includes("アカウントは削除されています") ||
-          errorResp.message.includes("account_deleted")
-        ) {
-          errorMessage =
-            "このアカウントは削除されています。新しいアカウントで登録してください。";
-        } else if (
-          errorResp.message.includes("利用停止されています") ||
-          errorResp.message.includes("account_banned")
-        ) {
-          errorMessage =
-            "このアカウントは利用停止されています。サポートにお問い合わせください。";
-        } else if (
-          errorResp.message.includes("メール認証がお済みでない") ||
-          errorResp.message.includes("not_verified")
-        ) {
-          errorMessage =
-            "メール認証が完了していません。登録時に送信されたメールを確認してください。";
-        } else if (
-          errorResp.message.includes(
-            "メールアドレスまたはパスワードが正しくありません"
-          ) ||
-          errorResp.message.includes("invalid_credentials")
-        ) {
-          errorMessage = "メールアドレスまたはパスワードが正しくありません。";
-        } else {
-          errorMessage = errorResp.message;
-        }
+        errorMessage = errorResp.message;
       }
 
       error.value = errorMessage;
