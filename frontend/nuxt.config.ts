@@ -7,13 +7,12 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
   ],
 
-  // 互換性日付を追加
-  compatibilityDate: "2025-05-26",
-
   // ランタイム設定
   runtimeConfig: {
     public: {
-      apiBase: process.env.API_BASE_URL || "http://localhost/api",
+      apiBase:
+        process.env.API_BASE_URL ||
+        "https://web-production-4f969.up.railway.app/api",
     },
   },
 
@@ -31,7 +30,7 @@ export default defineNuxtConfig({
         {
           "http-equiv": "Content-Security-Policy",
           content:
-            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost ws://localhost:*; font-src 'self'; object-src 'none'",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://web-production-4f969.up.railway.app http://localhost ws://localhost:*; font-src 'self'; object-src 'none'",
         },
       ],
     },
