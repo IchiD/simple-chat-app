@@ -254,11 +254,12 @@ export const useAuthStore = defineStore("auth", () => {
         user.value = userData;
         isAuthenticated.value = true;
       } else {
+        // トークンがない場合は認証情報をクリア
         token.value = null;
         user.value = null;
         isAuthenticated.value = false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("/users/meエンドポイントでエラー:", error);
 
       // useApiコンポーザブルで既にアカウント削除・バンエラーは処理されているため、
@@ -266,7 +267,11 @@ export const useAuthStore = defineStore("auth", () => {
       token.value = null;
       user.value = null;
       isAuthenticated.value = false;
-      sessionStorage.removeItem("auth_token");
+
+      // クライアントサイドでのみsessionStorageにアクセス
+      if (import.meta.client) {
+        sessionStorage.removeItem("auth_token");
+      }
     }
   }
 
@@ -274,8 +279,11 @@ export const useAuthStore = defineStore("auth", () => {
   function startGoogleLogin() {
     if (!import.meta.client) return;
 
+    const config = useRuntimeConfig();
+    const apiBase = config.public.apiBase || "http://localhost/api";
+
     // Google認証ページにリダイレクト
-    window.location.href = "http://localhost/api/auth/google/redirect";
+    window.location.href = `${apiBase}/auth/google/redirect`;
   }
 
   // Googleコールバック処理
