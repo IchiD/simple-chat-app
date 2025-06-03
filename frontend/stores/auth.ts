@@ -171,6 +171,7 @@ export const useAuthStore = defineStore("auth", () => {
       const response = await api<AuthResponse>("/login", {
         method: "POST",
         body: { email, password },
+        skipAuthRedirect: true, // 401エラー時のデフォルトハンドリングをスキップ
       });
 
       // ログイン成功した場合、ユーザー情報とトークンを保存

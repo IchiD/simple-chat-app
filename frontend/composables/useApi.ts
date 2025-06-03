@@ -200,10 +200,29 @@ export function useApi() {
           }
         }
 
-        if (error.status === 401 && !options.skipAuthRedirect) {
-          handleAuthError(router, toast); // 共通の認証エラーハンドリング
-          // 認証エラーの場合は、ここで処理を中断させるか、特定のメッセージをthrowすることも検討
-          throw enhancedError; // or throw new Error("認証が必要です。ログインしてください。");
+        if (error.status === 401) {
+          if (options.skipAuthRedirect) {
+            // skipAuthRedirectが設定されている場合は、エラーデータをそのまま呼び出し元に渡す
+            const authError = new Error() as any;
+            authError.status = error.status;
+            authError.message = error.message;
+
+            // バックエンドからのエラーデータを取得
+            if (enhancedError.data && typeof enhancedError.data === "object") {
+              const errorData = enhancedError.data as {
+                message?: string;
+                error_type?: string;
+              };
+              authError.message = errorData.message || error.message;
+              authError.error_type = errorData.error_type;
+            }
+
+            throw authError;
+          } else {
+            // skipAuthRedirectが設定されていない場合は、共通の認証エラーハンドリング
+            handleAuthError(router, toast);
+            throw enhancedError;
+          }
         } else if (error.status === 429) {
           toast.add({
             title: "リクエスト上限超過",
