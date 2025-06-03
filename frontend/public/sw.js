@@ -29,7 +29,9 @@ self.addEventListener("push", function (event) {
     icon: "/icon-192x192.png",
     badge: "/icon-192x192.png",
     data: {
-      url: data.url || "/chat",
+      url: data.url || "https://chat-app-frontend-sigma-puce.vercel.app/chat",
+      room_token: data.room_token,
+      type: data.type,
     },
     actions: [
       {
@@ -41,6 +43,8 @@ self.addEventListener("push", function (event) {
         title: "閉じる",
       },
     ],
+    requireInteraction: true,
+    tag: data.tag || "default",
   };
 
   try {
@@ -55,19 +59,40 @@ self.addEventListener("notificationclick", function (event) {
   event.notification.close();
 
   if (event.action === "open" || event.action === "") {
-    const url = event.notification.data?.url || "/chat";
-    
+    let url =
+      event.notification.data?.url ||
+      "https://chat-app-frontend-sigma-puce.vercel.app/chat";
+
+    // 相対URLの場合は絶対URLに変換
+    if (url.startsWith("/")) {
+      url = "https://chat-app-frontend-sigma-puce.vercel.app" + url;
+    }
+
+    // 特定のチャットルームがある場合は、適切なページに遷移
+    if (
+      event.notification.data?.room_token &&
+      event.notification.data?.type === "new_message"
+    ) {
+      url = `https://chat-app-frontend-sigma-puce.vercel.app/chat?room=${event.notification.data.room_token}`;
+    }
+
     event.waitUntil(
       self.clients
         .matchAll({ type: "window", includeUncontrolled: true })
         .then((clients) => {
-          // 既存のウィンドウがある場合はフォーカス
+          // 既存のウィンドウがある場合
           for (const client of clients) {
-            if (client.url.includes(url) && "focus" in client) {
+            // チャットアプリのURLが含まれている場合
+            if (
+              client.url.includes("chat-app-frontend-sigma-puce.vercel.app") &&
+              "focus" in client
+            ) {
+              // URLを更新してフォーカス
+              client.navigate(url);
               return client.focus();
             }
           }
-          
+
           // 既存のウィンドウがない場合は新しいウィンドウを開く
           if (self.clients.openWindow) {
             return self.clients.openWindow(url);
