@@ -49,6 +49,7 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 vendor/
+composer.lock
 
 # Compiled files and build artifacts
 build/
