@@ -647,7 +647,7 @@
                   </div>
 
                   <!-- アプリ使い方ガイド -->
-                  <div
+                  <!-- <div
                     class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
                   >
                     <h3
@@ -721,27 +721,12 @@
                           >友達とトークルームでメッセージを交換できます</span
                         >
                       </li>
-                      <li class="flex items-start">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                          style="color: var(--primary)"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        <span>画像も送信できます（今後実装予定）</span>
-                      </li>
                     </ul>
                   </div>
+                </div> -->
                 </div>
-              </div>
-            </template>
+              </div></template
+            >
           </div>
         </div>
       </div>

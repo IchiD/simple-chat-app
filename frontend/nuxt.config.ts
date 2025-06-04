@@ -12,7 +12,9 @@ export default defineNuxtConfig({
     public: {
       apiBase:
         process.env.API_BASE_URL ||
-        "https://web-production-4f969.up.railway.app/api",
+        (process.env.NODE_ENV === "production"
+          ? "https://web-production-4f969.up.railway.app/api"
+          : "http://localhost/api"),
     },
   },
   app: {
