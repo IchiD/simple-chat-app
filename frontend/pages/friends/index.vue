@@ -180,9 +180,6 @@
                             >
                               {{ friend.name }}
                             </h3>
-                            <p class="text-xs sm:text-sm text-gray-500">
-                              フレンドID: {{ friend.friend_id }}
-                            </p>
                           </div>
                         </div>
                         <div class="flex flex-row space-x-2">
