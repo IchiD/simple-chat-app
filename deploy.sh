@@ -37,23 +37,28 @@ echo "✅ バックエンドデプロイ完了"
 
 # 4. Railway マイグレーション実行
 echo ""
-echo "🛠️  Railway環境でマイグレーション実行中..."
+echo "🛠️  Railway環境でマイグレーション確認中..."
+echo "📋 Procfileで自動マイグレーションが設定されました"
+echo "   release: php artisan migrate --force"
+echo ""
+echo "⏳ Railwayでのデプロイとマイグレーションが進行中..."
+echo "💡 以下で進行状況を確認してください:"
+echo "   • Railway Dashboard: https://railway.app/dashboard"
+echo "   • デプロイログでマイグレーション実行を確認"
+echo "   • 数分後に本番サイトでエラーが解消されることを確認"
+
+# オプション: Railway CLIが利用可能な場合のみ実行
 if command -v railway &> /dev/null; then
-    echo "📊 マイグレーション状況確認..."
-    railway run php artisan migrate:status || echo "⚠️  マイグレーション状況の確認に失敗"
-    
-    echo "🔄 マイグレーション実行..."
-    if railway run php artisan migrate --force; then
-        echo "✅ マイグレーション実行完了"
+    echo ""
+    echo "🔧 Railway CLI利用可能 - 接続テスト中..."
+    if railway status &> /dev/null; then
+        echo "✅ Railway接続成功 - マイグレーション状況確認中..."
+        railway run php artisan migrate:status || echo "⚠️  マイグレーション状況確認失敗（通常の動作）"
     else
-        echo "❌ マイグレーション実行に失敗しました"
-        echo "💡 手動でRailwayダッシュボードから確認してください"
+        echo "⚠️  Railway接続失敗 - Procfileの自動マイグレーションに依存"
     fi
 else
-    echo "⚠️  Railway CLIが見つかりません"
-    echo "💡 インストール: npm install -g @railway/cli"
-    echo "💡 ログイン: railway login"
-    echo "💡 または手動でRailwayダッシュボードから確認してください"
+    echo "ℹ️  Railway CLIなし - Procfileの自動マイグレーションに依存"
 fi
 
 # 5. 完了
