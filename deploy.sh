@@ -115,19 +115,24 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "   ※ ガイドに従ってマイグレーションを実行してください"
     echo "   ※ 完了後 'exit' でSSHセッションを終了してください"
     
-    # 現在のディレクトリを保存
-    CURRENT_DIR=$(pwd)
-    
-    # backendディレクトリに移動
-    if [ -d "$CURRENT_DIR/backend" ]; then
-        cd "$CURRENT_DIR/backend"
+    # 現在がbackendディレクトリかチェック
+    if [ -f "artisan" ]; then
+        # 既にbackendディレクトリにいる場合
         railway ssh
-        cd "$CURRENT_DIR"
         echo "✅ Railway SSH セッション完了"
     else
-        echo "❌ backendディレクトリが見つかりません: $CURRENT_DIR/backend"
-        echo "💡 手動で以下を実行してください:"
-        echo "   cd backend && railway ssh"
+        # ルートディレクトリにいる場合、backendに移動
+        CURRENT_DIR=$(pwd)
+        if [ -d "backend" ]; then
+            cd backend
+            railway ssh
+            cd "$CURRENT_DIR"
+            echo "✅ Railway SSH セッション完了"
+        else
+            echo "❌ backendディレクトリまたはLaravelプロジェクトが見つかりません"
+            echo "💡 手動で以下を実行してください:"
+            echo "   cd backend && railway ssh"
+        fi
     fi
 else
     echo "⏭️  Railway SSH 接続をスキップしました"
