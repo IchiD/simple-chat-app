@@ -63,70 +63,65 @@ echo "✅ Railway接続確認済み"
 echo "⏳ Railway デプロイ完了まで待機中..."
 sleep 30
 
-# Railway SSH経由でマイグレーション状況確認・実行
-echo "🔍 マイグレーション状況確認中..."
+# マイグレーション実行スクリプトの作成
+echo "🔍 マイグレーション実行ガイド作成中..."
 
-# SSH経由でマイグレーション確認・実行
-MIGRATION_SCRIPT=$(cat << 'EOF'
-# マイグレーション状況確認
-echo "📊 現在のマイグレーション状況:"
-php artisan migrate:status
+cat > "railway_migration_guide.txt" << 'EOF'
+==============================================
+🚀 Railway マイグレーション実行ガイド
+==============================================
 
-# 未実行のマイグレーションがあるかチェック
-PENDING_MIGRATIONS=$(php artisan migrate:status --no-ansi | grep -c "Pending" || echo "0")
+以下のコマンドを順番に実行してください：
 
-if [ "$PENDING_MIGRATIONS" -gt 0 ]; then
-    echo ""
-    echo "🔧 $PENDING_MIGRATIONS 個の未実行マイグレーションを発見しました"
-    echo "🚀 マイグレーション実行中..."
-    
-    # マイグレーション実行
-    if php artisan migrate --force --no-interaction; then
-        echo "✅ マイグレーション実行完了"
-        echo ""
-        echo "📊 更新後のマイグレーション状況:"
-        php artisan migrate:status
-    else
-        echo "❌ マイグレーション実行失敗"
-        echo "🔧 個別マイグレーション実行を試行中..."
-        
-        # 失敗した場合、個別実行を試行
-        for migration in $(php artisan migrate:status --no-ansi | grep "Pending" | awk '{print $2}'); do
-            echo "⚡ 個別実行: $migration"
-            php artisan migrate --path=database/migrations/${migration}.php --force --no-interaction || echo "⚠️  $migration 失敗 - スキップ"
-        done
-        
-        echo ""
-        echo "📊 最終マイグレーション状況:"
-        php artisan migrate:status
-    fi
-else
-    echo "✅ すべてのマイグレーションが実行済みです"
-fi
+1. Railway SSH に接続:
+   cd backend
+   railway ssh
 
-# データベース接続テスト
-echo ""
-echo "🔌 データベース接続テスト..."
-php artisan tinker --execute="DB::connection()->getPdo(); echo 'Database connected successfully';" || echo "❌ データベース接続失敗"
+2. SSH セッション内で以下を実行:
 
-echo ""
-echo "🎯 Railway SSH セッション完了"
+   # マイグレーション状況確認
+   php artisan migrate:status
+
+   # 未実行マイグレーションがある場合のみ実行
+   php artisan migrate --force
+
+   # 実行後の状況確認
+   php artisan migrate:status
+
+   # データベース接続確認
+   php artisan tinker --execute="DB::connection()->getPdo(); echo 'Database connected successfully';"
+
+   # SSH セッション終了
+   exit
+
+3. アプリケーション動作確認:
+   ブラウザで以下のURLにアクセス
+   https://web-production-4f969.up.railway.app/admin/dashboard
+
+==============================================
 EOF
-)
 
-echo "🌐 Railway SSH経由でマイグレーション実行中..."
-echo "   (SSH接続が開始されます - 自動実行されます)"
+echo "📋 マイグレーション実行ガイドを作成しました: railway_migration_guide.txt"
+echo ""
+echo "🌐 Railway SSH 手動実行を開始..."
+echo "   ※ 上記ガイドに従って手動でマイグレーションを実行してください"
+echo ""
 
-# SSH経由でスクリプト実行
-if railway ssh --command "bash -c \"$MIGRATION_SCRIPT\""; then
-    echo "✅ Railway SSH経由マイグレーション完了"
+# オプション: 直接SSH接続を試行
+read -p "📞 今すぐ Railway SSH に接続しますか？ (y/N): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "🔗 Railway SSH に接続中..."
+    echo "   ※ ガイドに従ってマイグレーションを実行してください"
+    echo "   ※ 完了後 'exit' でSSHセッションを終了してください"
+    cd backend
+    railway ssh
+    cd ..
+    echo "✅ Railway SSH セッション完了"
 else
-    echo "⚠️  Railway SSH実行に失敗しました"
-    echo "💡 手動での確認方法:"
-    echo "   cd backend"
-    echo "   railway ssh"
-    echo "   php artisan migrate:status"
-    echo "   php artisan migrate --force"
+    echo "⏭️  Railway SSH 接続をスキップしました"
+    echo "💡 後で以下のコマンドで実行してください:"
+    echo "   cd backend && railway ssh"
 fi
 
 # 5. 完了
