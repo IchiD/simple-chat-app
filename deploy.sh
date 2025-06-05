@@ -114,10 +114,21 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🔗 Railway SSH に接続中..."
     echo "   ※ ガイドに従ってマイグレーションを実行してください"
     echo "   ※ 完了後 'exit' でSSHセッションを終了してください"
-    cd backend
-    railway ssh
-    cd ..
-    echo "✅ Railway SSH セッション完了"
+    
+    # 現在のディレクトリを保存
+    CURRENT_DIR=$(pwd)
+    
+    # backendディレクトリに移動
+    if [ -d "$CURRENT_DIR/backend" ]; then
+        cd "$CURRENT_DIR/backend"
+        railway ssh
+        cd "$CURRENT_DIR"
+        echo "✅ Railway SSH セッション完了"
+    else
+        echo "❌ backendディレクトリが見つかりません: $CURRENT_DIR/backend"
+        echo "💡 手動で以下を実行してください:"
+        echo "   cd backend && railway ssh"
+    fi
 else
     echo "⏭️  Railway SSH 接続をスキップしました"
     echo "💡 後で以下のコマンドで実行してください:"
