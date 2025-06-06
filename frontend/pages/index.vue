@@ -43,14 +43,19 @@
                 <span class="text-emerald-600">Lumo</span>Chat
               </h1>
               <p class="text-xl md:text-2xl text-gray-600 mb-8">
-                つながりを、もっと楽しく、簡単に
+                つながりを、もっとスマートに
               </p>
+              <img
+                src="/images/rogo.png"
+                alt="アプリ画面"
+                class="mx-auto mb-8 rounded-xl shadow-lg w-full max-w-md"
+              />
             </div>
 
             <!-- 主要な説明 -->
             <div class="mb-12">
               <p class="text-lg text-gray-700 mb-6 leading-relaxed">
-                LumoChatは、完全無料のチャットアプリです。
+                LumoChatは、シンプル操作と高機能を兼ね備えた無料チャットアプリです。
               </p>
 
               <!-- CTAボタン -->
@@ -94,22 +99,22 @@
             </p>
           </div>
 
-          <div class="grid md:grid-cols-3 gap-8">
+          <div class="grid gap-8 md:grid-cols-4">
             <!-- 特徴1 -->
             <div class="text-center group">
               <div
                 class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-2xl mb-6 group-hover:bg-emerald-200 transition-colors duration-300"
               >
                 <Icon
-                  name="i-heroicons-cog-6-tooth"
+                  name="i-heroicons-chat-bubble-left-right"
                   class="w-8 h-8 text-emerald-600"
                 />
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                シンプルな機能
+                リアルタイムチャット
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                複雑な機能は一切なし。必要な機能だけでストレスフリーなチャット体験。
+                サクサク会話できる高速チャットを体験
               </p>
             </div>
 
@@ -118,13 +123,13 @@
               <div
                 class="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-2xl mb-6 group-hover:bg-teal-200 transition-colors duration-300"
               >
-                <Icon name="i-heroicons-gift" class="w-8 h-8 text-teal-600" />
+                <Icon name="i-heroicons-lock-closed" class="w-8 h-8 text-teal-600" />
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                完全無料のチャットアプリ
+                安心のセキュリティ
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                登録から利用まで完全無料。隠れた費用は一切ありません。
+                メッセージは暗号化され、安全に保護されます
               </p>
             </div>
 
@@ -134,15 +139,30 @@
                 class="inline-flex items-center justify-center w-16 h-16 bg-cyan-100 rounded-2xl mb-6 group-hover:bg-cyan-200 transition-colors duration-300"
               >
                 <Icon
-                  name="i-heroicons-sparkles"
+                  name="i-heroicons-user-group"
                   class="w-8 h-8 text-cyan-600"
                 />
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                シンプル機能
+                グループチャット
               </h3>
               <p class="text-gray-600 leading-relaxed">
-                わかりやすい操作で、誰でも迷わず使える設計です。
+                複数人でも快適に会話できます
+              </p>
+            </div>
+
+            <!-- 特徴4 -->
+            <div class="text-center group">
+              <div
+                class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-6 group-hover:bg-amber-200 transition-colors duration-300"
+              >
+                <Icon name="i-heroicons-device-phone-mobile" class="w-8 h-8 text-amber-600" />
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                モバイル対応
+              </h3>
+              <p class="text-gray-600 leading-relaxed">
+                スマホからでも快適に利用できます
               </p>
             </div>
           </div>
@@ -224,31 +244,13 @@
               </div>
             </div>
 
-            <!-- イメージプレースホルダー -->
-            <div class="relative">
-              <div
-                class="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl p-8 text-white shadow-xl"
-              >
-                <div class="space-y-4">
-                  <div class="flex items-center space-x-3">
-                    <div
-                      class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center"
-                    >
-                      <Icon name="i-heroicons-user" class="w-6 h-6" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="h-4 bg-white bg-opacity-20 rounded mb-2" />
-                      <div class="h-3 bg-white bg-opacity-10 rounded w-3/4" />
-                    </div>
-                  </div>
-                  <div class="ml-13 space-y-2">
-                    <div class="bg-white bg-opacity-20 rounded-lg p-3">
-                      <div class="h-3 bg-white bg-opacity-30 rounded mb-1" />
-                      <div class="h-3 bg-white bg-opacity-20 rounded w-2/3" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <!-- イメージ -->
+            <div class="text-center">
+              <img
+                src="/images/rogo.png"
+                alt="LumoChat サンプル画面"
+                class="mx-auto rounded-2xl shadow-xl max-w-md"
+              />
             </div>
           </div>
         </div>
@@ -260,10 +262,10 @@
       <UContainer>
         <div class="max-w-4xl mx-auto text-center">
           <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
-            今すぐLumoChatを始めましょう
+            さあ、LumoChatをはじめましょう
           </h2>
           <p class="text-xl text-emerald-100 mb-8">
-            無料で始められます。大切な人とのつながりを深めませんか？
+            無料ですぐに利用開始。今すぐ登録してチャットを楽しもう
           </p>
           <div
             class="flex flex-col sm:flex-row gap-4 justify-center items-center"
