@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/tailwindcss",
   ],
-  // @ts-ignore
+  // @ts-expect-error Runtime config type inference issue
   runtimeConfig: {
     public: {
       apiBase:
@@ -25,6 +25,23 @@ export default defineNuxtConfig({
         {
           name: "description",
           content: "LumoChat - 光のようにつながるシンプルなチャットアプリ",
+        },
+      ],
+      link: [
+        // 基本のfavicon
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        // PNG版のfavicon（より鮮明）
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/favicon.png",
+          sizes: "32x32",
+        },
+        // Apple端末用
+        {
+          rel: "apple-touch-icon",
+          href: "/apple-touch-icon.png",
+          sizes: "180x180",
         },
       ],
     },
