@@ -21,15 +21,15 @@
 </template>
 
 <script setup lang="ts">
+// Nuxtの自動インポート機能を活用し、手動インポートを最小限に
 import { computed, onMounted } from "vue";
-import { useAuthStore } from "~/stores/auth";
 import { useRouter } from "vue-router";
-import ChatSidebar from "~/components/ChatSidebar.vue";
-import { useToast } from "~/composables/useToast";
+import { useAuthStore } from "~/stores/auth";
 
 type Participant = {
   id: number;
   name: string;
+  friend_id?: number | null;
 };
 
 type MessageSender = {
@@ -81,7 +81,6 @@ type PaginatedConversationsResponse = {
 const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
-
 const config = useRuntimeConfig();
 
 // 明示的な認証チェックを追加
@@ -97,7 +96,7 @@ onMounted(async () => {
         description: "ログインが必要です。ログインページに移動します。",
         color: "error",
       });
-      router.push("/auth/login");
+      await router.push("/auth/login");
       return;
     }
   } catch (error) {
@@ -108,33 +107,25 @@ onMounted(async () => {
       color: "error",
     });
     // エラー時も認証ページへリダイレクト
-    router.push("/auth/login");
+    await router.push("/auth/login");
   }
 });
+
+const fetchHeaders: Record<string, string> = {
+  Accept: "application/json",
+};
+if (authStore.token) {
+  fetchHeaders.Authorization = `Bearer ${authStore.token}`;
+}
 
 const {
   data: apiResponse,
   pending,
   error,
-} = await useFetch<PaginatedConversationsResponse>(
-  `${config.public.apiBase}/conversations`,
-  {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      ...(authStore.token
-        ? { Authorization: `Bearer ${authStore.token}` }
-        : {}),
-    },
-    server: false,
-    onResponseError({ response }) {
-      console.error(
-        `Error fetching conversations: ${response.status} ${response.statusText}`,
-        response._data
-      );
-    },
-  }
-);
+} = await useFetch(`${config.public.apiBase}/conversations`, {
+  headers: fetchHeaders,
+  server: false,
+});
 
 if (error.value) {
   console.error(
@@ -144,10 +135,11 @@ if (error.value) {
 }
 
 const conversations = computed(() => {
-  const conversationList = apiResponse.value?.data || [];
+  const conversationList =
+    (apiResponse.value as PaginatedConversationsResponse)?.data || [];
 
   // サポート会話を識別して表示名を調整
-  return conversationList.map((conversation) => {
+  return conversationList.map((conversation: Conversation) => {
     if (conversation.type === "support") {
       return {
         ...conversation,
