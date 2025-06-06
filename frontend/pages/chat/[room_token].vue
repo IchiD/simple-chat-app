@@ -178,7 +178,7 @@
                       <span v-else>さらに読み込む</span>
                     </button>
                   </div>
-                  <div class="grid grid-cols-12 gap-y-2">
+                  <div class="grid grid-cols-12 gap-y-1">
                     <template
                       v-for="(message, index) in messages"
                       :key="message.id"
@@ -206,7 +206,7 @@
                             ? 'col-start-4 col-end-13'
                             : 'col-start-1 col-end-10'
                         "
-                        class="p-3 rounded-lg"
+                        class="p-1 rounded-lg"
                       >
                         <div
                           :class="
@@ -484,7 +484,7 @@ const fetchMessagesForCurrentConversation = async () => {
     messages.value = [];
     return;
   }
-  
+
   messagesPending.value = true;
   messagesError.value = null;
   currentPage.value = 1; // Reset pagination for new conversation messages
