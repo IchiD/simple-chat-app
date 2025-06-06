@@ -15,6 +15,7 @@ export default defineNuxtConfig({
         (process.env.NODE_ENV === "production"
           ? "https://web-production-4f969.up.railway.app/api"
           : "http://localhost/api"),
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || "",
     },
   },
   app: {
