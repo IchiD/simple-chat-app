@@ -1,16 +1,10 @@
 <template>
   <div class="p-4">
     <h1 class="text-xl font-bold mb-4">{{ group?.name }} 詳細</h1>
-    <div
-      v-if="successMessage"
-      class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
-    >
+    <div v-if="successMessage" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
       {{ successMessage }}
     </div>
-    <div
-      v-if="errorMessage"
-      class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-    >
+    <div v-if="errorMessage" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
       {{ errorMessage }}
     </div>
     <div v-if="pending" class="text-gray-500">読み込み中...</div>
@@ -21,9 +15,7 @@
         <h2 class="font-semibold mb-2">メンバー</h2>
         <div class="mb-2 flex space-x-2 items-end">
           <div>
-            <label for="member-user" class="block text-sm font-medium"
-              >ユーザーID</label
-            >
+            <label for="member-user" class="block text-sm font-medium">ユーザーID</label>
             <input
               id="member-user"
               v-model="newMemberUserId"
@@ -32,9 +24,7 @@
             />
           </div>
           <div class="flex-1">
-            <label for="member-nick" class="block text-sm font-medium"
-              >ニックネーム</label
-            >
+            <label for="member-nick" class="block text-sm font-medium">ニックネーム</label>
             <input
               id="member-nick"
               v-model="newMemberNickname"
@@ -47,7 +37,7 @@
             :disabled="adding"
             @click="addMember"
           >
-            {{ adding ? "追加中..." : "追加" }}
+            {{ adding ? '追加中...' : '追加' }}
           </button>
         </div>
         <ul class="space-y-1">
@@ -77,98 +67,92 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useAuthStore } from "~/stores/auth";
-import type { Group, GroupMember } from "~/types/group";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '~/stores/auth'
+import type { Group, GroupMember } from '~/types/group'
 
-const route = useRoute();
-const router = useRouter();
-const authStore = useAuthStore();
-const config = useRuntimeConfig();
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+const config = useRuntimeConfig()
 
-const id = route.params.id as string;
-const headers: Record<string, string> = { Accept: "application/json" };
-if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`;
+const id = route.params.id as string
+const headers: Record<string, string> = { Accept: 'application/json' }
+if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`
 
 const { data, pending, error, refresh } = await useFetch<Group>(
   `${config.public.apiBase}/groups/${id}`,
   { headers, server: false }
-);
+)
 
-const group = computed(() => data.value);
-const groupMembers = computed<GroupMember[]>(
-  () => (data.value as any)?.members || []
-);
+const group = computed(() => data.value)
+const groupMembers = computed<GroupMember[]>(() => (data.value as any)?.members || [])
 
-const successMessage = ref("");
-const errorMessage = ref("");
-const adding = ref(false);
+const successMessage = ref('')
+const errorMessage = ref('')
+const adding = ref(false)
 
 function openChat() {
-  router.push(`/admin/groups/${id}/chat`);
+  router.push(`/admin/groups/${id}/chat`)
 }
 
-const newMemberUserId = ref("");
-const newMemberNickname = ref("");
+const newMemberUserId = ref('')
+const newMemberNickname = ref('')
 
 async function addMember() {
-  errorMessage.value = "";
-  successMessage.value = "";
-  if (!newMemberUserId.value || !newMemberUserId.value.trim()) {
-    errorMessage.value = "ユーザーIDを入力してください";
-    return;
-  }
+  errorMessage.value = ''
+  successMessage.value = ''
   if (!newMemberNickname.value.trim()) {
-    errorMessage.value = "ニックネームを入力してください";
-    return;
+    errorMessage.value = 'ニックネームを入力してください'
+    return
   }
   if (newMemberNickname.value.length > 50) {
-    errorMessage.value = "ニックネームは50文字以内で入力してください";
-    return;
+    errorMessage.value = 'ニックネームは50文字以内で入力してください'
+    return
   }
-  adding.value = true;
+  adding.value = true
   try {
     await $fetch(`${config.public.apiBase}/groups/${id}/members`, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: {
-        user_id: Number(newMemberUserId.value),
-        nickname: newMemberNickname.value,
-      },
-    });
-    newMemberUserId.value = "";
-    newMemberNickname.value = "";
-    await refresh();
-    successMessage.value = "メンバーを追加しました";
+        user_id: newMemberUserId.value ? Number(newMemberUserId.value) : null,
+        nickname: newMemberNickname.value
+      }
+    })
+    newMemberUserId.value = ''
+    newMemberNickname.value = ''
+    await refresh()
+    successMessage.value = 'メンバーを追加しました'
   } catch (e) {
-    console.error(e);
-    errorMessage.value = "メンバー追加に失敗しました";
+    console.error(e)
+    errorMessage.value = 'メンバー追加に失敗しました'
   } finally {
-    adding.value = false;
+    adding.value = false
   }
 }
 
 async function removeMember(memberId: number) {
-  if (!confirm("このメンバーを削除しますか？")) return;
-  errorMessage.value = "";
-  successMessage.value = "";
+  if (!confirm('このメンバーを削除しますか？')) return
+  errorMessage.value = ''
+  successMessage.value = ''
   try {
     await $fetch(`${config.public.apiBase}/groups/${id}/members/${memberId}`, {
-      method: "DELETE",
-      headers,
-    });
-    await refresh();
-    successMessage.value = "メンバーを削除しました";
+      method: 'DELETE',
+      headers
+    })
+    await refresh()
+    successMessage.value = 'メンバーを削除しました'
   } catch (e) {
-    console.error(e);
-    errorMessage.value = "メンバー削除に失敗しました";
+    console.error(e)
+    errorMessage.value = 'メンバー削除に失敗しました'
   }
 }
 
 onMounted(() => {
-  if (authStore.user?.plan === "free") {
-    router.push("/pricing");
+  if (authStore.user?.plan === 'free') {
+    router.push('/pricing')
   }
-});
+})
 </script>
