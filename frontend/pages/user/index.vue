@@ -51,7 +51,9 @@
 
                 <div v-if="authStore.user" class="space-y-6">
                   <!-- メニューカード -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  >
                     <NuxtLink to="/friends" class="block">
                       <div
                         class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
@@ -119,6 +121,92 @@
                             <h3 class="font-semibold">チャット</h3>
                             <p class="text-sm text-gray-600">
                               友達とメッセージを交換できます
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </NuxtLink>
+
+                    <!-- グループ機能カード（課金者専用） -->
+                    <NuxtLink
+                      v-if="
+                        authStore.user.plan && authStore.user.plan !== 'free'
+                      "
+                      to="/user/groups"
+                      class="block"
+                    >
+                      <div
+                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        style="border-color: var(--primary-light)"
+                      >
+                        <div class="flex items-center">
+                          <div
+                            style="
+                              background-color: white;
+                              color: var(--primary);
+                              border: 1px solid var(--primary-light);
+                            "
+                            class="p-3 rounded-full mr-4"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-6 w-6"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                              <path
+                                fill-rule="evenodd"
+                                d="M9 3a1 1 0 012 0v1.5a.5.5 0 001 0V3a2 2 0 10-4 0v1.5a.5.5 0 001 0V3z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 class="font-semibold">グループ管理</h3>
+                            <p class="text-sm text-gray-600">
+                              1対多数のグループチャットを管理
+                            </p>
+                            <span
+                              class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1"
+                            >
+                              Premium
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </NuxtLink>
+
+                    <!-- フリープランユーザー向けアップグレード案内 -->
+                    <NuxtLink v-else to="/pricing" class="block">
+                      <div
+                        class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-dashed border-yellow-300 rounded-lg h-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 p-4"
+                      >
+                        <div class="flex items-center">
+                          <div
+                            class="p-3 rounded-full mr-4 bg-yellow-100 text-yellow-600"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-6 w-6"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 class="font-semibold text-yellow-800">
+                              プレミアム機能
+                            </h3>
+                            <p class="text-sm text-yellow-700">
+                              グループチャットを利用するにはアップグレードが必要です
                             </p>
                           </div>
                         </div>
