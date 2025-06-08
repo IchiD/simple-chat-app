@@ -6,86 +6,88 @@
     <p class="mt-4 text-gray-600">アクセス権限を確認中...</p>
   </div>
   <div v-else class="p-4">
-    <h1 class="text-xl font-bold mb-4">グループ一覧</h1>
-    <div
-      v-if="successMessage"
-      class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
-    >
-      {{ successMessage }}
-    </div>
-    <div
-      v-if="errorMessage"
-      class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-    >
-      {{ errorMessage }}
-    </div>
-
-    <div class="mb-4">
-      <button
-        class="px-4 py-2 bg-emerald-600 text-white rounded"
-        @click="showCreateForm = true"
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-xl font-bold mb-4">グループ一覧</h1>
+      <div
+        v-if="successMessage"
+        class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
       >
-        新しいグループを作成
-      </button>
-    </div>
-
-    <div
-      v-if="showCreateForm"
-      class="mb-4 p-4 border rounded bg-gray-50 space-y-2"
-    >
-      <label for="group-name" class="block text-sm font-medium"
-        >グループ名</label
+        {{ successMessage }}
+      </div>
+      <div
+        v-if="errorMessage"
+        class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
       >
-      <input
-        id="group-name"
-        v-model="newGroup.name"
-        placeholder="グループ名"
-        class="w-full border rounded px-2 py-1"
-      />
-      <label for="group-desc" class="block text-sm font-medium">説明</label>
-      <textarea
-        id="group-desc"
-        v-model="newGroup.description"
-        placeholder="説明"
-        class="w-full border rounded px-2 py-1"
-      />
-      <div class="space-x-2">
+        {{ errorMessage }}
+      </div>
+
+      <div class="mb-4">
         <button
-          class="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-          :disabled="creating"
-          @click="createGroup"
+          class="px-4 py-2 bg-emerald-600 text-white rounded"
+          @click="showCreateForm = true"
         >
-          {{ creating ? "作成中..." : "作成" }}
-        </button>
-        <button
-          class="px-4 py-2 bg-gray-400 text-white rounded"
-          @click="cancelCreate"
-        >
-          キャンセル
+          新しいグループを作成
         </button>
       </div>
-    </div>
 
-    <div v-if="pending" class="text-gray-500">読み込み中...</div>
-    <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
-    <ul v-else class="space-y-2">
-      <li
-        v-for="group in groups"
-        :key="group.id"
-        class="p-3 bg-white border rounded cursor-pointer hover:bg-gray-50"
-        @click="goToGroup(group.id)"
+      <div
+        v-if="showCreateForm"
+        class="mb-4 p-4 border rounded bg-gray-50 space-y-2"
       >
-        <p class="font-medium">{{ group.name }}</p>
-        <p v-if="group.description" class="text-sm text-gray-500">
-          {{ group.description }}
-        </p>
-      </li>
-    </ul>
+        <label for="group-name" class="block text-sm font-medium"
+          >グループ名</label
+        >
+        <input
+          id="group-name"
+          v-model="newGroup.name"
+          placeholder="グループ名"
+          class="w-full border rounded px-2 py-1"
+        />
+        <label for="group-desc" class="block text-sm font-medium">説明</label>
+        <textarea
+          id="group-desc"
+          v-model="newGroup.description"
+          placeholder="説明"
+          class="w-full border rounded px-2 py-1"
+        />
+        <div class="space-x-2">
+          <button
+            class="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            :disabled="creating"
+            @click="createGroup"
+          >
+            {{ creating ? "作成中..." : "作成" }}
+          </button>
+          <button
+            class="px-4 py-2 bg-gray-400 text-white rounded"
+            @click="cancelCreate"
+          >
+            キャンセル
+          </button>
+        </div>
+      </div>
+
+      <div v-if="pending" class="text-gray-500">読み込み中...</div>
+      <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
+      <ul v-else class="space-y-2">
+        <li
+          v-for="group in groups"
+          :key="group.id"
+          class="p-3 bg-white border rounded cursor-pointer hover:bg-gray-50"
+          @click="goToGroup(group.id)"
+        >
+          <p class="font-medium">{{ group.name }}</p>
+          <p v-if="group.description" class="text-sm text-gray-500">
+            {{ group.description }}
+          </p>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import type { Group } from "~/types/group";
@@ -141,12 +143,32 @@ watch(
 const headers: Record<string, string> = { Accept: "application/json" };
 if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`;
 
-const { data, pending, error, refresh } = await useFetch<Group[]>(
-  `${config.public.apiBase}/groups`,
-  { headers, server: false }
-);
+const groups = ref<Group[]>([]);
+const pending = ref(true);
+const error = ref<Error | null>(null);
 
-const groups = computed(() => data.value || []);
+const loadGroups = async () => {
+  try {
+    pending.value = true;
+    error.value = null;
+    const data = await $fetch<Group[]>(`${config.public.apiBase}/groups`, {
+      method: "GET",
+      headers: headers,
+    });
+    groups.value = data;
+  } catch (e) {
+    error.value = e as Error;
+  } finally {
+    pending.value = false;
+  }
+};
+
+const refresh = loadGroups;
+
+// 初回ロード
+onMounted(() => {
+  loadGroups();
+});
 
 const successMessage = ref("");
 const errorMessage = ref("");

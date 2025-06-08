@@ -6,44 +6,46 @@
     <p class="mt-4 text-gray-600">アクセス権限を確認中...</p>
   </div>
   <div v-else class="p-4">
-    <h1 class="text-xl font-bold mb-4">{{ group?.name }} チャット</h1>
-    <div v-if="messagesPending" class="text-gray-500">読み込み中...</div>
-    <div v-else-if="messagesError" class="text-red-500">
-      {{ messagesError.message }}
-    </div>
-    <div
-      v-else
-      class="space-y-2 mb-4 max-h-96 overflow-y-auto border p-2 rounded bg-white"
-    >
-      <div v-for="msg in messages" :key="msg.id" class="border-b pb-1">
-        <span class="font-semibold">{{ msg.sender?.name || "匿名" }}</span
-        >:
-        {{ msg.message }}
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-xl font-bold mb-4">{{ group?.name }} チャット</h1>
+      <div v-if="messagesPending" class="text-gray-500">読み込み中...</div>
+      <div v-else-if="messagesError" class="text-red-500">
+        {{ messagesError.message }}
       </div>
-      <div v-if="nextPageUrl" class="text-center mt-2">
+      <div
+        v-else
+        class="space-y-2 mb-4 max-h-96 overflow-y-auto border p-2 rounded bg-white"
+      >
+        <div v-for="msg in messages" :key="msg.id" class="border-b pb-1">
+          <span class="font-semibold">{{ msg.sender?.name || "匿名" }}</span
+          >:
+          {{ msg.message }}
+        </div>
+        <div v-if="nextPageUrl" class="text-center mt-2">
+          <button
+            class="px-3 py-1 text-sm bg-gray-200 rounded"
+            :disabled="loadingMore"
+            @click="loadMore"
+          >
+            さらに読み込む
+          </button>
+        </div>
+      </div>
+      <div class="flex space-x-2">
+        <input
+          v-model="newMessage"
+          class="flex-1 border rounded px-2 py-1"
+          type="text"
+          placeholder="メッセージ"
+        />
         <button
-          class="px-3 py-1 text-sm bg-gray-200 rounded"
-          :disabled="loadingMore"
-          @click="loadMore"
+          class="px-4 py-1 bg-emerald-600 text-white rounded"
+          :disabled="sending || !newMessage.trim()"
+          @click="send"
         >
-          さらに読み込む
+          送信
         </button>
       </div>
-    </div>
-    <div class="flex space-x-2">
-      <input
-        v-model="newMessage"
-        class="flex-1 border rounded px-2 py-1"
-        type="text"
-        placeholder="メッセージ"
-      />
-      <button
-        class="px-4 py-1 bg-emerald-600 text-white rounded"
-        :disabled="sending || !newMessage.trim()"
-        @click="send"
-      >
-        送信
-      </button>
     </div>
   </div>
 </template>

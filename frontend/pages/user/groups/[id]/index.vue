@@ -6,78 +6,80 @@
     <p class="mt-4 text-gray-600">アクセス権限を確認中...</p>
   </div>
   <div v-else class="p-4">
-    <h1 class="text-xl font-bold mb-4">{{ group?.name }} 詳細</h1>
-    <div
-      v-if="successMessage"
-      class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
-    >
-      {{ successMessage }}
-    </div>
-    <div
-      v-if="errorMessage"
-      class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-    >
-      {{ errorMessage }}
-    </div>
-    <div v-if="pending" class="text-gray-500">読み込み中...</div>
-    <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
-    <div v-else-if="group" class="space-y-4">
-      <p>{{ group.description }}</p>
-      <div>
-        <h2 class="font-semibold mb-2">メンバー</h2>
-        <div class="mb-2 flex space-x-2 items-end">
-          <div>
-            <label for="member-user" class="block text-sm font-medium"
-              >ユーザーID</label
-            >
-            <input
-              id="member-user"
-              v-model="newMemberUserId"
-              placeholder="ユーザーID"
-              class="border rounded px-2 py-1 w-32"
-            />
-          </div>
-          <div class="flex-1">
-            <label for="member-nick" class="block text-sm font-medium"
-              >ニックネーム</label
-            >
-            <input
-              id="member-nick"
-              v-model="newMemberNickname"
-              placeholder="ニックネーム"
-              class="border rounded px-2 py-1 w-full"
-            />
-          </div>
-          <button
-            class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
-            :disabled="adding"
-            @click="addMember"
-          >
-            {{ adding ? "追加中..." : "追加" }}
-          </button>
-        </div>
-        <ul class="space-y-1">
-          <li
-            v-for="member in groupMembers"
-            :key="member.id"
-            class="border p-2 rounded flex justify-between"
-          >
-            <span>{{ member.nickname }}</span>
-            <button
-              class="px-2 py-1 bg-red-600 text-white rounded text-sm"
-              @click="removeMember(member.id)"
-            >
-              削除
-            </button>
-          </li>
-        </ul>
-      </div>
-      <button
-        class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded"
-        @click="openChat"
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-xl font-bold mb-4">{{ group?.name }} 詳細</h1>
+      <div
+        v-if="successMessage"
+        class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
       >
-        チャットを開く
-      </button>
+        {{ successMessage }}
+      </div>
+      <div
+        v-if="errorMessage"
+        class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+      >
+        {{ errorMessage }}
+      </div>
+      <div v-if="pending" class="text-gray-500">読み込み中...</div>
+      <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
+      <div v-else-if="group" class="space-y-4">
+        <p>{{ group.description }}</p>
+        <div>
+          <h2 class="font-semibold mb-2">メンバー</h2>
+          <div class="mb-2 flex space-x-2 items-end">
+            <div>
+              <label for="member-user" class="block text-sm font-medium"
+                >ユーザーID</label
+              >
+              <input
+                id="member-user"
+                v-model="newMemberUserId"
+                placeholder="ユーザーID"
+                class="border rounded px-2 py-1 w-32"
+              />
+            </div>
+            <div class="flex-1">
+              <label for="member-nick" class="block text-sm font-medium"
+                >ニックネーム</label
+              >
+              <input
+                id="member-nick"
+                v-model="newMemberNickname"
+                placeholder="ニックネーム"
+                class="border rounded px-2 py-1 w-full"
+              />
+            </div>
+            <button
+              class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
+              :disabled="adding"
+              @click="addMember"
+            >
+              {{ adding ? "追加中..." : "追加" }}
+            </button>
+          </div>
+          <ul class="space-y-1">
+            <li
+              v-for="member in groupMembers"
+              :key="member.id"
+              class="border p-2 rounded flex justify-between"
+            >
+              <span>{{ member.nickname }}</span>
+              <button
+                class="px-2 py-1 bg-red-600 text-white rounded text-sm"
+                @click="removeMember(member.id)"
+              >
+                削除
+              </button>
+            </li>
+          </ul>
+        </div>
+        <button
+          class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded"
+          @click="openChat"
+        >
+          チャットを開く
+        </button>
+      </div>
     </div>
   </div>
 </template>
