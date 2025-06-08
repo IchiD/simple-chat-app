@@ -13,7 +13,8 @@ class GroupMessageController extends Controller
 {
   public function __construct()
   {
-    $this->middleware(['auth:sanctum', 'premium-required']);
+    // プレミアム要求を削除して、認証のみ必要
+    $this->middleware(['auth:sanctum']);
   }
 
   public function index(Group $group)

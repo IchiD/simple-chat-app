@@ -59,6 +59,7 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../../../stores/auth';
 import { useToast } from '../../../composables/useToast';
 import { useRouter, useRoute } from 'vue-router';
+import { useApi } from '../../../composables/useApi';
 
 definePageMeta({
   layout: 'default',
@@ -103,7 +104,40 @@ onMounted(async () => {
         description: "Google認証でログインしました",
         color: "success",
       });
-      // 認証成功後はユーザーページへリダイレクト
+
+      // 保留中のグループ参加があるかチェック
+      const pendingGroupToken = sessionStorage.getItem('pendingGroupToken');
+      if (pendingGroupToken) {
+        try {
+          sessionStorage.removeItem('pendingGroupToken');
+          
+          // グループ参加処理
+          const { api } = useApi();
+          const member = await api(`/groups/join/${pendingGroupToken}`, {
+            method: "POST",
+            body: { nickname: authStore.user?.name || "ユーザー" },
+          });
+
+          toast.add({
+            title: "参加完了",
+            description: "Googleログイン後、グループに参加しました",
+            color: "success",
+          });
+
+          // チャットページにリダイレクト
+          router.push("/chat");
+          return;
+        } catch (error: any) {
+          console.error("グループ参加エラー:", error);
+          toast.add({
+            title: "参加エラー",
+            description: error.data?.message || "グループ参加に失敗しました",
+            color: "error",
+          });
+        }
+      }
+
+      // 通常の認証成功後はユーザーページへリダイレクト
       router.push("/user");
     } else {
       throw new Error(result.message || "Google認証に失敗しました");
