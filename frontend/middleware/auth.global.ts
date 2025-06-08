@@ -4,6 +4,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     return;
   }
 
+  console.log("[auth.global] アクセス先パス:", to.path);
+
   const authStore = useAuthStore();
   const toast = useToast();
 
@@ -19,6 +21,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     "/auth/reset-password", // パスワードリセットページ
     "/auth/verify-email-change", // メール変更認証ページ
     "/auth/google/callback", // Google認証コールバックページ
+    "/join", // QRコード参加ページ
+    // "/guest", // ゲストユーザー専用ページ（廃止）
   ];
 
   // 任意のパスが免除パスのプレフィックスで始まるかチェック
@@ -28,8 +32,12 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     );
   };
 
+  const isExempt = isExemptPath(to.path);
+  console.log("[auth.global] 認証免除対象:", isExempt, "パス:", to.path);
+
   // 認証不要のパスはチェックをスキップ
-  if (isExemptPath(to.path)) {
+  if (isExempt) {
+    console.log("[auth.global] 認証チェックをスキップ");
     // ログイン状態で認証ページにアクセスしている場合はリダイレクト
     if (
       to.path.startsWith("/auth/") &&
@@ -45,11 +53,14 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     return;
   }
 
+  console.log("[auth.global] 認証チェック開始");
+
   // 認証状態をチェック（ページの保護）
   if (!authStore.isAuthenticated) {
     await authStore.checkAuth();
 
     if (!authStore.isAuthenticated) {
+      console.log("[auth.global] 未認証のためリダイレクト");
       // 認証されていない場合はエラーメッセージを表示してログインページにリダイレクト
       if (import.meta.client) {
         toast.add({

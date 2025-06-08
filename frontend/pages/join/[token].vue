@@ -3,7 +3,7 @@
     <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
       <div class="text-center mb-8">
         <h1 class="text-2xl font-bold text-gray-900 mb-2">グループへ参加</h1>
-        <p class="text-gray-600">参加方法を選択してください</p>
+        <p class="text-gray-600">ログインしてグループに参加してください</p>
       </div>
 
       <!-- エラーメッセージ -->
@@ -22,59 +22,61 @@
         {{ successMessage }}
       </div>
 
-      <!-- 選択状態 -->
-      <div v-if="!selectedOption" class="space-y-4">
-        <!-- アカウントをお持ちの方 -->
-        <button
-          @click="selectAccountLogin"
-          class="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-        >
-          <div class="flex items-center justify-between">
-            <div class="text-left">
-              <h3 class="font-semibold text-gray-900">アカウントをお持ちの方</h3>
-              <p class="text-sm text-gray-600">ログインしてチャットリストに追加</p>
-            </div>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      <!-- 認証済みの場合の自動参加 -->
+      <div v-if="isAuthenticated && !joining" class="text-center">
+        <div class="mb-6">
+          <div
+            class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
           </div>
-        </button>
-
-        <!-- ゲストとして続ける方 -->
+          <p class="text-gray-700 mb-4">
+            ログイン済みです。グループに参加しますか？
+          </p>
+        </div>
         <button
-          @click="selectGuestLogin"
-          class="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors"
+          class="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          @click="joinGroup"
         >
-          <div class="flex items-center justify-between">
-            <div class="text-left">
-              <h3 class="font-semibold text-gray-900">ゲストとして続ける方</h3>
-              <p class="text-sm text-gray-600">すぐにチャットを開始</p>
-            </div>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
+          グループに参加
         </button>
       </div>
 
-      <!-- ログインフォーム -->
-      <div v-if="selectedOption === 'account'" class="space-y-6">
-        <div class="flex items-center mb-4">
-          <button
-            @click="goBack"
-            class="mr-3 p-1 text-gray-500 hover:text-gray-700"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <h2 class="text-lg font-semibold text-gray-900">ログイン</h2>
+      <!-- 参加処理中 -->
+      <div v-else-if="joining" class="text-center">
+        <div class="mb-6">
+          <div
+            class="w-16 h-16 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+          />
+          <p class="mt-4 text-gray-600">グループに参加中...</p>
         </div>
+      </div>
+
+      <!-- 未認証の場合のログインフォーム -->
+      <div v-else class="space-y-6">
+        <h2 class="text-lg font-semibold text-gray-900 text-center">
+          ログインが必要です
+        </h2>
 
         <!-- 通常ログインフォーム -->
-        <form @submit.prevent="loginAndJoin" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="loginAndJoin">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               メールアドレス
             </label>
             <input
@@ -87,7 +89,10 @@
             />
           </div>
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
               パスワード
             </label>
             <input
@@ -119,9 +124,9 @@
         </div>
 
         <button
-          @click="googleLoginAndJoin"
           :disabled="loginPending"
           class="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+          @click="googleLoginAndJoin"
         >
           <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
             <path
@@ -156,75 +161,36 @@
           </p>
         </div>
       </div>
-
-      <!-- ゲストフォーム -->
-      <div v-if="selectedOption === 'guest'" class="space-y-6">
-        <div class="flex items-center mb-4">
-          <button
-            @click="goBack"
-            class="mr-3 p-1 text-gray-500 hover:text-gray-700"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <h2 class="text-lg font-semibold text-gray-900">ゲストとして参加</h2>
-        </div>
-
-        <div>
-          <label for="nickname" class="block text-sm font-medium text-gray-700 mb-1">
-            ニックネーム
-          </label>
-          <input
-            id="nickname"
-            v-model="nickname"
-            type="text"
-            required
-            maxlength="50"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            placeholder="ニックネームを入力"
-          />
-        </div>
-
-        <button
-          @click="joinAsGuest"
-          :disabled="guestPending || !nickname.trim()"
-          class="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ guestPending ? "参加中..." : "ゲストとして参加" }}
-        </button>
-
-        <div class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md">
-          <p class="font-medium mb-1">ゲスト参加の制限</p>
-          <ul class="text-xs space-y-1">
-            <li>• 友達機能は利用できません</li>
-            <li>• ユーザー設定が一部制限されます</li>
-            <li>• このチャットのみ利用可能です</li>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useApi } from "~/composables/useApi";
+import { ref, reactive, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
-import type { GroupMember } from "~/types/group";
+// import type { GroupParticipant } from "~/types/group";
+
+definePageMeta({
+  layout: "default",
+  title: "グループへ参加",
+  auth: false, // QRコードアクセスのため初期は認証不要だが、実際の参加には認証が必要
+});
 
 const route = useRoute();
 const router = useRouter();
-const { api } = useApi();
 const authStore = useAuthStore();
+const groupConversations = useGroupConversations();
 
 const token = route.params.token as string;
 
 // UI状態
-const selectedOption = ref<'account' | 'guest' | null>(null);
 const errorMessage = ref("");
 const successMessage = ref("");
+const joining = ref(false);
+
+// 認証状態
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 // ログインフォーム
 const loginForm = reactive({
@@ -233,67 +199,40 @@ const loginForm = reactive({
 });
 const loginPending = ref(false);
 
-// ゲストフォーム
-const nickname = ref("");
-const guestPending = ref(false);
-
-// 選択肢の処理
-const selectAccountLogin = () => {
-  selectedOption.value = 'account';
-  errorMessage.value = "";
-};
-
-const selectGuestLogin = () => {
-  selectedOption.value = 'guest';
-  errorMessage.value = "";
-};
-
-const goBack = () => {
-  selectedOption.value = null;
-  errorMessage.value = "";
-  successMessage.value = "";
-};
-
 // グループ参加処理
-const joinGroup = async (isLoggedIn: boolean) => {
-  errorMessage.value = "";
-  
-  if (isLoggedIn) {
-    loginPending.value = true;
-  } else {
-    guestPending.value = true;
+const joinGroup = async () => {
+  if (!isAuthenticated.value) {
+    errorMessage.value = "ログインが必要です";
+    return;
   }
 
+  errorMessage.value = "";
+  joining.value = true;
+
   try {
-    const requestBody = {
-      nickname: isLoggedIn ? authStore.user?.name || "ユーザー" : nickname.value,
-    };
-
-    const member = await api<GroupMember>(`/groups/join/${token}`, {
-      method: "POST",
-      body: requestBody,
-    });
-
+    await groupConversations.joinByToken(token);
     successMessage.value = "グループに参加しました";
-    
-    // 参加成功後のリダイレクト
-    if (isLoggedIn) {
-      // ログインユーザーはチャット一覧に追加される
-      router.push("/chat");
-    } else {
-      // ゲストは直接チャットルームへ
-      router.push(`/chat/${member.group_id}`);
-    }
-  } catch (error: any) {
+
+    // 参加成功後、グループ一覧に戻る
+    setTimeout(() => {
+      router.push("/user/groups");
+    }, 2000);
+  } catch (error: unknown) {
     console.error("参加エラー:", error);
-    if (error.data?.message) {
-      errorMessage.value = error.data.message;
+    if (
+      error &&
+      typeof error === "object" &&
+      "data" in error &&
+      error.data &&
+      typeof error.data === "object" &&
+      "message" in error.data
+    ) {
+      errorMessage.value = error.data.message as string;
     } else {
       errorMessage.value = "参加に失敗しました";
     }
   } finally {
-    loginPending.value = false;
-    guestPending.value = false;
+    joining.value = false;
   }
 };
 
@@ -304,16 +243,11 @@ const loginAndJoin = async () => {
 
   try {
     // ログイン処理
-    const loginResult = await authStore.login(loginForm.email, loginForm.password);
-    
-    if (!loginResult.success) {
-      errorMessage.value = loginResult.message || "ログインに失敗しました";
-      return;
-    }
+    await authStore.login(loginForm.email, loginForm.password);
 
-    // グループ参加処理
-    await joinGroup(true);
-  } catch (error) {
+    // ログイン成功後にグループ参加処理
+    await joinGroup();
+  } catch (error: unknown) {
     console.error("ログインエラー:", error);
     errorMessage.value = "ログイン処理中にエラーが発生しました";
   } finally {
@@ -324,27 +258,22 @@ const loginAndJoin = async () => {
 // Googleログインして参加
 const googleLoginAndJoin = () => {
   // グループトークンをセッションストレージに保存
-  sessionStorage.setItem('pendingGroupToken', token);
-  // Googleログインを開始
-  authStore.startGoogleLogin();
+  sessionStorage.setItem("pendingGroupToken", token);
+
+  // Google認証ページに直接リダイレクト
+  const config = useRuntimeConfig();
+  const apiBase = config.public.apiBase || "http://localhost/api";
+  window.location.href = `${apiBase}/auth/google/redirect`;
 };
 
-// ゲストとして参加
-const joinAsGuest = async () => {
-  if (!nickname.value.trim()) {
-    errorMessage.value = "ニックネームを入力してください";
-    return;
+// 認証済みユーザーが復帰した場合の自動参加処理
+onMounted(() => {
+  if (import.meta.client) {
+    const pendingToken = sessionStorage.getItem("pendingGroupToken");
+    if (pendingToken === token && isAuthenticated.value) {
+      sessionStorage.removeItem("pendingGroupToken");
+      joinGroup();
+    }
   }
-  
-  await joinGroup(false);
-};
-
-// Googleログインからの復帰処理
-if (process.client) {
-  const pendingToken = sessionStorage.getItem('pendingGroupToken');
-  if (pendingToken === token && authStore.isAuthenticated) {
-    sessionStorage.removeItem('pendingGroupToken');
-    joinGroup(true);
-  }
-}
+});
 </script>

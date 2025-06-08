@@ -24,28 +24,164 @@
       <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
       <div v-else-if="group" class="space-y-4">
         <p>{{ group.description }}</p>
+
+        <!-- QRコード招待セクション -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h2 class="font-semibold text-lg mb-4 flex items-center">
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 16h4.01M12 8h4.01"
+              />
+            </svg>
+            QRコード招待（認証必須）
+          </h2>
+
+          <div v-if="qrLoading" class="text-center py-8">
+            <div
+              class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"
+            />
+            <p class="mt-2 text-gray-600">QRコードを生成中...</p>
+          </div>
+
+          <div v-else-if="qrError" class="text-center py-8">
+            <div class="text-red-600 mb-4">
+              <svg
+                class="w-12 h-12 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <p class="text-red-600 mb-4">{{ qrError }}</p>
+            <button
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              @click="loadQRCode"
+            >
+              再試行
+            </button>
+          </div>
+
+          <div v-else-if="qrCodeImage" class="text-center">
+            <div class="bg-white p-4 rounded-lg shadow-sm inline-block mb-4">
+              <img
+                :src="qrCodeImage"
+                alt="QRコード"
+                class="w-48 h-48 mx-auto"
+              />
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+              このQRコードをスキャンして、メンバーをグループに招待できます（要ログイン）
+            </p>
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+              <button
+                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center justify-center"
+                @click="downloadQRCode"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                ダウンロード
+              </button>
+              <button
+                v-if="canShare"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center"
+                @click="shareQRCode"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                  />
+                </svg>
+                共有
+              </button>
+              <button
+                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center justify-center"
+                @click="copyJoinUrl"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                URLをコピー
+              </button>
+              <button
+                :disabled="regenerating"
+                class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center"
+                @click="regenerateQRCode"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                {{ regenerating ? "再生成中..." : "再生成" }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div>
           <h2 class="font-semibold mb-2">メンバー</h2>
           <div class="mb-2 flex space-x-2 items-end">
-            <div>
+            <div class="flex-1">
               <label for="member-user" class="block text-sm font-medium"
                 >ユーザーID</label
               >
               <input
                 id="member-user"
                 v-model="newMemberUserId"
+                type="number"
                 placeholder="ユーザーID"
-                class="border rounded px-2 py-1 w-32"
-              />
-            </div>
-            <div class="flex-1">
-              <label for="member-nick" class="block text-sm font-medium"
-                >ニックネーム</label
-              >
-              <input
-                id="member-nick"
-                v-model="newMemberNickname"
-                placeholder="ニックネーム"
                 class="border rounded px-2 py-1 w-full"
               />
             </div>
@@ -59,14 +195,15 @@
           </div>
           <ul class="space-y-1">
             <li
-              v-for="member in groupMembers"
-              :key="member.id"
+              v-for="participant in groupParticipants"
+              :key="participant.id"
               class="border p-2 rounded flex justify-between"
             >
-              <span>{{ member.nickname }}</span>
+              <span>{{ participant.user?.name || "Unknown User" }}</span>
               <button
+                v-if="participant.user_id !== authStore.user?.id"
                 class="px-2 py-1 bg-red-600 text-white rounded text-sm"
-                @click="removeMember(member.id)"
+                @click="removeMember(participant.id)"
               >
                 削除
               </button>
@@ -86,9 +223,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
-import type { Group, GroupMember } from "~/types/group";
+import type { GroupConversation, GroupParticipant } from "~/types/group";
+import { useQRCode } from "~/composables/useQRCode";
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
 definePageMeta({
@@ -98,7 +236,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const config = useRuntimeConfig();
+const groupConversations = useGroupConversations();
 
 const isCheckingAccess = ref(true);
 
@@ -137,54 +275,170 @@ watch(
   { immediate: true }
 );
 
-const id = route.params.id as string;
-const headers: Record<string, string> = { Accept: "application/json" };
-if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`;
+const id = Number(route.params.id as string);
 
-const { data, pending, error, refresh } = await useFetch<Group>(
-  `${config.public.apiBase}/groups/${id}`,
-  { headers, server: false }
-);
+// データ取得
+const group = ref<GroupConversation | null>(null);
+const pending = ref(true);
+const error = ref<Error | null>(null);
 
-const group = computed(() => data.value);
-const groupMembers = computed<GroupMember[]>(
-  () => (data.value as any)?.members || []
+const loadGroup = async () => {
+  try {
+    pending.value = true;
+    error.value = null;
+    group.value = await groupConversations.getGroup(id);
+  } catch (e) {
+    error.value = e as Error;
+  } finally {
+    pending.value = false;
+  }
+};
+
+const refresh = loadGroup;
+
+// 初回読み込み
+await loadGroup();
+
+const groupParticipants = computed<GroupParticipant[]>(
+  () => group.value?.conversationParticipants || []
 );
 
 const successMessage = ref("");
 const errorMessage = ref("");
 const adding = ref(false);
 
+// QRコード関連の状態
+const qrLoading = ref(false);
+const qrError = ref("");
+const qrCodeImage = ref("");
+const regenerating = ref(false);
+
+// Web Share API対応チェック
+const canShare = computed(() => {
+  return import.meta.client && "share" in navigator;
+});
+
+const { generateQRImage } = useQRCode();
+
+// QRコード読み込み
+const loadQRCode = async () => {
+  if (!group.value?.id) return;
+
+  qrLoading.value = true;
+  qrError.value = "";
+
+  try {
+    const { qr_code_token } = await groupConversations.getQrCode(
+      group.value.id
+    );
+    qrCodeImage.value = await generateQRImage(qr_code_token);
+  } catch (error: unknown) {
+    console.error("QRコード取得エラー:", error);
+    qrError.value = "QRコードの取得に失敗しました";
+  } finally {
+    qrLoading.value = false;
+  }
+};
+
+// QRコード再生成
+const regenerateQRCode = async () => {
+  if (!group.value?.id) return;
+
+  regenerating.value = true;
+  qrError.value = "";
+
+  try {
+    const { qr_code_token } = await groupConversations.regenerateQrCode(
+      group.value.id
+    );
+    qrCodeImage.value = await generateQRImage(qr_code_token);
+    successMessage.value = "QRコードを再生成しました";
+  } catch (error: unknown) {
+    console.error("QRコード再生成エラー:", error);
+    errorMessage.value = "QRコードの再生成に失敗しました";
+  } finally {
+    regenerating.value = false;
+  }
+};
+
+// QRコードダウンロード
+const downloadQRCode = () => {
+  if (!qrCodeImage.value) return;
+
+  const link = document.createElement("a");
+  link.download = `group-${group.value?.id}-qr.png`;
+  link.href = qrCodeImage.value;
+  link.click();
+};
+
+// QRコード共有（Web Share API）
+const shareQRCode = async () => {
+  if (!qrCodeImage.value || !group.value) return;
+
+  try {
+    // Data URLをBlobに変換
+    const response = await fetch(qrCodeImage.value);
+    const blob = await response.blob();
+    const file = new File([blob], `group-${group.value.id}-qr.png`, {
+      type: "image/png",
+    });
+
+    await navigator.share({
+      title: `${group.value.name}に参加`,
+      text: `グループ「${group.value.name}」に参加しませんか？`,
+      files: [file],
+    });
+  } catch (error) {
+    console.error("共有エラー:", error);
+    errorMessage.value = "共有に失敗しました";
+  }
+};
+
+// 参加URLコピー
+const copyJoinUrl = async () => {
+  if (!group.value?.qr_code_token) return;
+
+  const joinUrl = `${window.location.origin}/join/${group.value.qr_code_token}`;
+
+  try {
+    await navigator.clipboard.writeText(joinUrl);
+    successMessage.value = "参加URLをコピーしました";
+  } catch (error) {
+    console.error("コピーエラー:", error);
+    errorMessage.value = "URLのコピーに失敗しました";
+  }
+};
+
+// グループ読み込み後にQRコードも読み込む
+watch(
+  group,
+  (newGroup) => {
+    if (newGroup && !qrCodeImage.value) {
+      loadQRCode();
+    }
+  },
+  { immediate: true }
+);
+
 function openChat() {
   router.push(`/user/groups/${id}/chat`);
 }
 
 const newMemberUserId = ref("");
-const newMemberNickname = ref("");
 
 async function addMember() {
   errorMessage.value = "";
   successMessage.value = "";
-  if (!newMemberNickname.value.trim()) {
-    errorMessage.value = "ニックネームを入力してください";
-    return;
-  }
-  if (newMemberNickname.value.length > 50) {
-    errorMessage.value = "ニックネームは50文字以内で入力してください";
+  if (!newMemberUserId.value.trim()) {
+    errorMessage.value = "ユーザーIDを入力してください";
     return;
   }
   adding.value = true;
   try {
-    await $fetch(`${config.public.apiBase}/groups/${id}/members`, {
-      method: "POST",
-      headers,
-      body: {
-        user_id: newMemberUserId.value ? Number(newMemberUserId.value) : null,
-        nickname: newMemberNickname.value,
-      },
+    await groupConversations.addMember(id, {
+      user_id: Number(newMemberUserId.value),
     });
     newMemberUserId.value = "";
-    newMemberNickname.value = "";
     await refresh();
     successMessage.value = "メンバーを追加しました";
   } catch (e) {
@@ -195,15 +449,12 @@ async function addMember() {
   }
 }
 
-async function removeMember(memberId: number) {
+async function removeMember(participantId: number) {
   if (!confirm("このメンバーを削除しますか？")) return;
   errorMessage.value = "";
   successMessage.value = "";
   try {
-    await $fetch(`${config.public.apiBase}/groups/${id}/members/${memberId}`, {
-      method: "DELETE",
-      headers,
-    });
+    await groupConversations.removeMember(id, participantId);
     await refresh();
     successMessage.value = "メンバーを削除しました";
   } catch (e) {

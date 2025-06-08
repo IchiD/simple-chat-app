@@ -30,6 +30,7 @@ interface ApiOptions {
   body?: Record<string, unknown>;
   params?: Record<string, string>;
   skipAuthRedirect?: boolean; // 認証リダイレクトをスキップするオプション
+  skipAuth?: boolean; // 認証ヘッダーをスキップするオプション
   [key: string]: unknown;
 }
 
@@ -117,14 +118,14 @@ export function useApi() {
     // CSRFトークンを取得
     const csrfToken = getCsrfToken();
 
-    // 認証ヘッダーを取得
-    const authHeaders = getAuthHeader();
+    // 認証ヘッダーを取得（skipAuthが指定されていない場合のみ）
+    const authHeaders = options.skipAuth ? {} : getAuthHeader();
 
     // デフォルトのヘッダー
     const headers = {
       "Content-Type": "application/json",
       Accept: "application/json",
-      ...authHeaders, // 認証ヘッダーを追加
+      ...authHeaders, // 認証ヘッダーを追加（条件付き）
       ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
       ...(options.headers || {}),
     };

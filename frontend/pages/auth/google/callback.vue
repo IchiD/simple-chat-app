@@ -27,8 +27,18 @@
 
       <div v-else-if="error" class="flex flex-col items-center">
         <div class="rounded-full bg-red-100 p-4">
-          <svg class="h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          <svg
+            class="h-12 w-12 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         </div>
         <h2 class="mt-4 text-lg font-semibold text-gray-900">認証エラー</h2>
@@ -43,27 +53,39 @@
 
       <div v-else class="flex flex-col items-center">
         <div class="rounded-full bg-green-100 p-4">
-          <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          <svg
+            class="h-12 w-12 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
         <h2 class="mt-4 text-lg font-semibold text-gray-900">認証完了</h2>
-        <p class="mt-2 text-gray-600">Googleアカウントでのログインが完了しました。</p>
+        <p class="mt-2 text-gray-600">
+          Googleアカウントでのログインが完了しました。
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '../../../stores/auth';
-import { useToast } from '../../../composables/useToast';
-import { useRouter, useRoute } from 'vue-router';
-import { useApi } from '../../../composables/useApi';
+import { ref, onMounted } from "vue";
+import { useAuthStore } from "../../../stores/auth";
+import { useToast } from "../../../composables/useToast";
+import { useRouter, useRoute } from "#app";
+import { useApi } from "../../../composables/useApi";
 
 definePageMeta({
-  layout: 'default',
-  title: 'Google認証処理中',
+  layout: "default",
+  title: "Google認証処理中",
 });
 
 const authStore = useAuthStore();
@@ -74,11 +96,13 @@ const route = useRoute();
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-onMounted(async () => {
-  const route = useRoute();
-  const router = useRouter();
-  const authStore = useAuthStore();
+interface ApiError {
+  data?: {
+    message?: string;
+  };
+}
 
+onMounted(async () => {
   // URLパラメータからトークンとユーザーデータを取得
   const token = route.query.token as string;
   const user = route.query.user as string;
@@ -106,14 +130,14 @@ onMounted(async () => {
       });
 
       // 保留中のグループ参加があるかチェック
-      const pendingGroupToken = sessionStorage.getItem('pendingGroupToken');
+      const pendingGroupToken = sessionStorage.getItem("pendingGroupToken");
       if (pendingGroupToken) {
         try {
-          sessionStorage.removeItem('pendingGroupToken');
-          
+          sessionStorage.removeItem("pendingGroupToken");
+
           // グループ参加処理
           const { api } = useApi();
-          const member = await api(`/groups/join/${pendingGroupToken}`, {
+          const _member = await api(`/groups/join/${pendingGroupToken}`, {
             method: "POST",
             body: { nickname: authStore.user?.name || "ユーザー" },
           });
@@ -127,11 +151,12 @@ onMounted(async () => {
           // チャットページにリダイレクト
           router.push("/chat");
           return;
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const apiError = error as ApiError;
           console.error("グループ参加エラー:", error);
           toast.add({
             title: "参加エラー",
-            description: error.data?.message || "グループ参加に失敗しました",
+            description: apiError.data?.message || "グループ参加に失敗しました",
             color: "error",
           });
         }

@@ -90,7 +90,7 @@
 import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import type { Group } from "~/types/group";
+import type { GroupConversation } from "~/types/group";
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
 definePageMeta({
@@ -99,7 +99,7 @@ definePageMeta({
 
 const router = useRouter();
 const authStore = useAuthStore();
-const config = useRuntimeConfig();
+const groupConversations = useGroupConversations();
 
 const isCheckingAccess = ref(true);
 
@@ -140,10 +140,7 @@ watch(
   { immediate: true }
 );
 
-const headers: Record<string, string> = { Accept: "application/json" };
-if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`;
-
-const groups = ref<Group[]>([]);
+const groups = ref<GroupConversation[]>([]);
 const pending = ref(true);
 const error = ref<Error | null>(null);
 
@@ -151,10 +148,7 @@ const loadGroups = async () => {
   try {
     pending.value = true;
     error.value = null;
-    const data = await $fetch<Group[]>(`${config.public.apiBase}/groups`, {
-      method: "GET",
-      headers: headers,
-    });
+    const data = await groupConversations.getGroups();
     groups.value = data;
   } catch (e) {
     error.value = e as Error;
@@ -197,11 +191,7 @@ async function createGroup() {
   }
   creating.value = true;
   try {
-    await $fetch(`${config.public.apiBase}/groups`, {
-      method: "POST",
-      headers,
-      body: newGroup.value,
-    });
+    await groupConversations.createGroup(newGroup.value);
     showCreateForm.value = false;
     newGroup.value = { name: "", description: "" };
     await refresh();

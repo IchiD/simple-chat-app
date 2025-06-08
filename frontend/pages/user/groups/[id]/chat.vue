@@ -10,7 +10,7 @@
       <h1 class="text-xl font-bold mb-4">{{ group?.name }} チャット</h1>
       <div v-if="messagesPending" class="text-gray-500">読み込み中...</div>
       <div v-else-if="messagesError" class="text-red-500">
-        {{ messagesError.message }}
+        {{ messagesError }}
       </div>
       <div
         v-else
@@ -19,7 +19,10 @@
         <div v-for="msg in messages" :key="msg.id" class="border-b pb-1">
           <span class="font-semibold">{{ msg.sender?.name || "匿名" }}</span
           >:
-          {{ msg.message }}
+          {{ msg.text_content }}
+          <span class="text-xs text-gray-500 ml-2">
+            {{ formatTime(msg.sent_at) }}
+          </span>
         </div>
         <div v-if="nextPageUrl" class="text-center mt-2">
           <button
@@ -37,6 +40,7 @@
           class="flex-1 border rounded px-2 py-1"
           type="text"
           placeholder="メッセージ"
+          @keypress.enter="send"
         />
         <button
           class="px-4 py-1 bg-emerald-600 text-white rounded"
@@ -51,11 +55,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect, watch, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, computed, watch, nextTick } from "vue";
+import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import type {
-  Group,
+  GroupConversation,
   GroupMessage,
   PaginatedGroupMessages,
 } from "~/types/group";
@@ -68,8 +72,8 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const config = useRuntimeConfig();
-const id = route.params.id as string;
+const groupConversations = useGroupConversations();
+const id = Number(route.params.id as string);
 
 const isCheckingAccess = ref(true);
 
@@ -108,51 +112,68 @@ watch(
   { immediate: true }
 );
 
-const headers: Record<string, string> = { Accept: "application/json" };
-if (authStore.token) headers.Authorization = `Bearer ${authStore.token}`;
-
-const { data: groupData } = await useFetch<Group>(
-  `${config.public.apiBase}/groups/${id}`,
-  { headers, server: false }
-);
-const group = computed(() => groupData.value);
-
-const {
-  data,
-  pending: messagesPending,
-  error: messagesError,
-  refresh,
-} = await useFetch<PaginatedGroupMessages>(
-  `${config.public.apiBase}/groups/${id}/messages`,
-  { headers, server: false }
-);
+// グループ情報とメッセージの状態
+const group = ref<GroupConversation | null>(null);
 const messages = ref<GroupMessage[]>([]);
+const messagesPending = ref(true);
+const messagesError = ref("");
 const nextPageUrl = ref<string | null>(null);
 const loadingMore = ref(false);
 
-watchEffect(() => {
-  if (data.value) {
-    messages.value = data.value.data;
-    nextPageUrl.value = (data.value.links?.next as string) || null;
+// グループ情報を取得
+const loadGroup = async () => {
+  try {
+    group.value = await groupConversations.getGroup(id);
+  } catch (error) {
+    console.error("グループ取得エラー:", error);
+    messagesError.value = "グループの取得に失敗しました";
   }
-});
+};
+
+// メッセージを取得
+const loadMessages = async () => {
+  if (!group.value?.room_token) return;
+
+  messagesPending.value = true;
+  messagesError.value = "";
+
+  try {
+    const data = await groupConversations.getMessages(group.value.room_token);
+    messages.value = data.data;
+    nextPageUrl.value = data.links?.next || null;
+  } catch (error) {
+    console.error("メッセージ取得エラー:", error);
+    messagesError.value = "メッセージの取得に失敗しました";
+  } finally {
+    messagesPending.value = false;
+  }
+};
+
+// 初期データ読み込み
+const refresh = async () => {
+  await loadGroup();
+  await loadMessages();
+};
+
+// 初回読み込み
+await refresh();
 
 const newMessage = ref("");
 const sending = ref(false);
 
 async function send() {
-  if (!newMessage.value.trim()) return;
+  if (!newMessage.value.trim() || !group.value?.room_token) return;
   sending.value = true;
   try {
-    await $fetch(`${config.public.apiBase}/groups/${id}/messages`, {
-      method: "POST",
-      headers,
-      body: { message: newMessage.value },
-    });
+    await groupConversations.sendMessage(
+      group.value.room_token,
+      newMessage.value
+    );
     newMessage.value = "";
-    await refresh();
+    await loadMessages(); // メッセージ一覧を再読み込み
   } catch (e) {
-    console.error(e);
+    console.error("メッセージ送信エラー:", e);
+    messagesError.value = "メッセージの送信に失敗しました";
   } finally {
     sending.value = false;
   }
@@ -162,15 +183,27 @@ async function loadMore() {
   if (!nextPageUrl.value) return;
   loadingMore.value = true;
   try {
-    const res = await $fetch<PaginatedGroupMessages>(nextPageUrl.value, {
-      headers,
-    });
+    // ページネーション用のAPIエンドポイントを直接呼び出し
+    const config = useRuntimeConfig();
+    const { api } = useApi();
+
+    const res = await api<PaginatedGroupMessages>(
+      nextPageUrl.value.replace(config.public.apiBase, "")
+    );
     messages.value.push(...res.data);
-    nextPageUrl.value = (res.links?.next as string) || null;
+    nextPageUrl.value = res.links?.next || null;
   } catch (e) {
-    console.error(e);
+    console.error("追加メッセージ取得エラー:", e);
   } finally {
     loadingMore.value = false;
   }
 }
+
+// 時刻フォーマット
+const formatTime = (dateString: string) => {
+  return new Date(dateString).toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
