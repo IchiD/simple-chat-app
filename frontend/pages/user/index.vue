@@ -170,9 +170,10 @@
                               1対多数のグループチャットを管理
                             </p>
                             <span
-                              class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1"
+                              class="inline-block text-xs px-2 py-1 rounded-full mt-1"
+                              :class="getPlanLabelClass(authStore.user?.plan)"
                             >
-                              Premium
+                              {{ getPlanLabelText(authStore.user?.plan) }}
                             </span>
                           </div>
                         </div>
@@ -1135,5 +1136,25 @@ const cancelChangePassword = () => {
   currentPassword.value = "";
   newPassword.value = "";
   newPasswordConfirmation.value = "";
+};
+
+const getPlanLabelClass = (plan: string | undefined) => {
+  if (plan === "standard") {
+    return "bg-green-100 text-green-800";
+  } else if (plan === "premium") {
+    return "bg-yellow-100 text-yellow-800";
+  } else {
+    return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getPlanLabelText = (plan: string | undefined) => {
+  if (plan === "standard") {
+    return "Standard";
+  } else if (plan === "premium") {
+    return "Premium";
+  } else {
+    return "Free";
+  }
 };
 </script>

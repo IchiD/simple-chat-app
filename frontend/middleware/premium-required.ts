@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware((_to) => {
+export default defineNuxtRouteMiddleware(async (_to) => {
   const authStore = useAuthStore();
 
   // SSRの場合は認証チェックをスキップ
@@ -11,7 +11,12 @@ export default defineNuxtRouteMiddleware((_to) => {
     return;
   }
 
-  // ユーザー情報が読み込まれていない場合は待機
+  // ユーザー情報が読み込まれていない場合は認証チェックを実行
+  if (!authStore.user) {
+    await authStore.checkAuth();
+  }
+
+  // 認証チェック後もユーザー情報がない場合は認証エラー
   if (!authStore.user) {
     return;
   }
