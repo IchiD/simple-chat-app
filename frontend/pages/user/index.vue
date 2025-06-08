@@ -5,7 +5,82 @@
       style="height: calc(100vh - 7.5rem)"
     >
       <div class="flex h-full w-full">
-        <div class="w-full overflow-y-auto">
+        <!-- ゲストユーザー制限メッセージ -->
+        <div v-if="!authStore.isAuthenticated" class="w-full overflow-y-auto">
+          <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+              <div class="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">ユーザー設定は制限されています</h2>
+              <p class="text-gray-600 mb-6">
+                ゲストユーザーはユーザー設定の一部機能が制限されています。<br>
+                すべての機能をご利用いただくには、アカウント登録またはログインが必要です。
+              </p>
+              
+              <!-- ゲスト向け限定メニュー -->
+              <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">ご利用可能な機能</h3>
+                <div class="grid gap-4">
+                  <NuxtLink to="/chat" class="block">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors">
+                      <div class="flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-6 w-6 text-green-600 mr-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                          />
+                          <path
+                            d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                          />
+                        </svg>
+                        <div>
+                          <h4 class="font-semibold text-green-800">チャット機能</h4>
+                          <p class="text-sm text-green-700">参加済みのグループチャットを利用できます</p>
+                        </div>
+                      </div>
+                    </div>
+                  </NuxtLink>
+                </div>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <NuxtLink
+                  to="/auth/register"
+                  class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  アカウント登録
+                </NuxtLink>
+                <NuxtLink
+                  to="/auth/login"
+                  class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  ログイン
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- メインコンテンツ (認証済みユーザーのみ) -->
+        <div v-else class="w-full overflow-y-auto">
           <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div v-if="isLoading" class="py-16 text-center">
               <!-- ローディングスピナー -->

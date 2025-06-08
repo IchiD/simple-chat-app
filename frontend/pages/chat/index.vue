@@ -5,7 +5,44 @@
       style="height: calc(100vh - 7.5rem)"
     >
       <div class="flex h-full w-full">
-        <div class="max-w-4xl mx-auto w-full">
+        <!-- ゲストユーザー向けメッセージ -->
+        <div v-if="!authStore.isAuthenticated" class="max-w-4xl mx-auto w-full">
+          <div class="h-full flex items-center justify-center p-8">
+            <div class="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
+              <div class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8 text-green-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                  />
+                  <path
+                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
+                  />
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold text-gray-900 mb-4">ゲストユーザー</h2>
+              <p class="text-gray-600 mb-6">
+                ゲストユーザーとしてチャット機能をご利用いただけます。<br>
+                参加済みのグループチャットがある場合は、直接チャットルームにアクセスしてください。
+              </p>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                <p class="font-medium mb-1">制限事項</p>
+                <ul class="text-left space-y-1">
+                  <li>• 友達とのプライベートチャットは利用できません</li>
+                  <li>• チャット一覧機能は利用できません</li>
+                  <li>• 参加済みのグループチャットのみ利用可能です</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 認証済みユーザー向け通常のチャット一覧 -->
+        <div v-else class="max-w-4xl mx-auto w-full">
           <ChatSidebar
             :conversations="conversations"
             :pending="pending"
@@ -22,9 +59,11 @@
 
 <script setup lang="ts">
 // Nuxtの自動インポート機能を活用し、手動インポートを最小限に
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
+import { useApi } from "~/composables/useApi";
+import { useToast } from "~/composables/useToast";
 
 type Participant = {
   id: number;
@@ -83,60 +122,66 @@ const router = useRouter();
 const toast = useToast();
 const config = useRuntimeConfig();
 
-// 明示的な認証チェックを追加
+// API応答の状態管理
+const apiResponse = ref<PaginatedConversationsResponse | null>(null);
+const pending = ref(false);
+const error = ref<any>(null);
+
+// 会話データを取得する関数
+const fetchConversations = async () => {
+  if (!authStore.isAuthenticated || !authStore.token) {
+    return;
+  }
+
+  try {
+    pending.value = true;
+    error.value = null;
+
+    const { api } = useApi();
+    const data = await api<PaginatedConversationsResponse>("/conversations");
+
+    apiResponse.value = data;
+  } catch (err) {
+    error.value = err;
+    console.error("Detailed error fetching conversations:", JSON.stringify(err, null, 2));
+  } finally {
+    pending.value = false;
+  }
+};
+
+// 認証チェック（ゲストユーザーも許可）
 onMounted(async () => {
   try {
-    // 認証状態をチェック
+    // 認証状態をチェック（失敗してもエラーを投げない）
     await authStore.checkAuth();
-
-    if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
-      toast.add({
-        title: "認証エラー",
-        description: "ログインが必要です。ログインページに移動します。",
-        color: "error",
-      });
-      await router.push("/auth/login");
-      return;
+    
+    // 認証済みの場合は会話データを取得
+    if (authStore.isAuthenticated) {
+      await fetchConversations();
     }
   } catch (error) {
-    console.error("Auth check error:", error);
-    toast.add({
-      title: "エラー",
-      description: "認証情報の取得に失敗しました",
-      color: "error",
-    });
-    // エラー時も認証ページへリダイレクト
-    await router.push("/auth/login");
+    console.log("認証チェック失敗 - ゲストユーザーとして続行:", error);
+    // ゲストユーザーとして継続
   }
 });
 
-const fetchHeaders: Record<string, string> = {
-  Accept: "application/json",
-};
-if (authStore.token) {
-  fetchHeaders.Authorization = `Bearer ${authStore.token}`;
-}
-
-const {
-  data: apiResponse,
-  pending,
-  error,
-} = await useFetch(`${config.public.apiBase}/conversations`, {
-  headers: fetchHeaders,
-  server: false,
+// 認証状態の変化を監視
+watch(() => authStore.isAuthenticated, async (isAuthenticated) => {
+  if (isAuthenticated) {
+    await fetchConversations();
+  } else {
+    // 認証されていない場合はデータをクリア
+    apiResponse.value = null;
+    error.value = null;
+  }
 });
 
-if (error.value) {
-  console.error(
-    "Detailed error fetching conversations:",
-    JSON.stringify(error.value, null, 2)
-  );
-}
-
 const conversations = computed(() => {
-  const conversationList =
-    (apiResponse.value as PaginatedConversationsResponse)?.data || [];
+  if (!authStore.isAuthenticated) {
+    return [];
+  }
+
+  const conversationList = apiResponse.value?.data || [];
 
   // サポート会話を識別して表示名を調整
   return conversationList.map((conversation: Conversation) => {

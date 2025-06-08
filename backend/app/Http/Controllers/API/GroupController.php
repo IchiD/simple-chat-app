@@ -154,18 +154,14 @@ class GroupController extends Controller
 
     $user = Auth::user();
 
-    // 認証されたユーザーの場合、プレミアムプランチェック
-    if ($user) {
-      if (!$user->plan || $user->plan === 'free') {
-        return response()->json([
-          'message' => 'This feature requires a premium plan',
-          'error' => 'premium_required'
-        ], 403);
-      }
+    // 認証されたユーザーの場合の重複チェック
+    if ($user && $group->members()->where('user_id', $user->id)->exists()) {
+      return response()->json(['message' => __('errors.already_member')], 422);
+    }
 
-      if ($group->members()->where('user_id', $user->id)->exists()) {
-        return response()->json(['message' => __('errors.already_member')], 422);
-      }
+    // ゲストユーザーの場合はニックネームの重複チェック
+    if (!$user && $group->members()->whereNull('user_id')->where('nickname', $request->nickname)->exists()) {
+      return response()->json(['message' => 'このニックネームは既に使用されています'], 422);
     }
 
     $member = GroupMember::create([
