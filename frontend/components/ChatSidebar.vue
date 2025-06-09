@@ -93,10 +93,7 @@
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center mb-1">
             <p class="text-sm font-semibold text-gray-900 truncate">
-              {{
-                convo.participants.find((p) => p.id !== currentUserId)?.name ||
-                "会話"
-              }}
+              {{ getConversationDisplayName(convo) }}
             </p>
             <p
               v-if="convo.latest_message?.sent_at"
@@ -194,6 +191,7 @@ type Conversation = {
   unread_messages_count: number;
   room_token: string;
   type?: string;
+  name?: string; // グループ名
   created_at?: string;
   updated_at?: string;
 };
@@ -222,6 +220,25 @@ const emit = defineEmits(["conversationSelected", "closeSidebar"]);
 const { user: authUser } = storeToRefs(useAuthStore());
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
+
+// 会話の表示名を取得する関数
+const getConversationDisplayName = (conversation: Conversation): string => {
+  // サポート会話の場合
+  if (conversation.type === "support") {
+    return "サポート";
+  }
+
+  // グループ会話の場合はグループ名を表示
+  if (conversation.type === "group") {
+    return conversation.name || "グループ";
+  }
+
+  // ダイレクト会話の場合は相手の名前を表示
+  return (
+    conversation.participants.find((p) => p.id !== currentUserId.value)?.name ||
+    "会話"
+  );
+};
 
 // 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）
 const getSenderDisplayName = (

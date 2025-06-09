@@ -9,7 +9,9 @@
         <div v-if="!authStore.isAuthenticated" class="max-w-4xl mx-auto w-full">
           <div class="h-full flex items-center justify-center p-8">
             <div class="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
-              <div class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div
+                class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-8 w-8 text-green-600"
@@ -24,12 +26,16 @@
                   />
                 </svg>
               </div>
-              <h2 class="text-xl font-bold text-gray-900 mb-4">ゲストユーザー</h2>
+              <h2 class="text-xl font-bold text-gray-900 mb-4">
+                ゲストユーザー
+              </h2>
               <p class="text-gray-600 mb-6">
-                ゲストユーザーとしてチャット機能をご利用いただけます。<br>
+                ゲストユーザーとしてチャット機能をご利用いただけます。<br />
                 参加済みのグループチャットがある場合は、直接チャットルームにアクセスしてください。
               </p>
-              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+              <div
+                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800"
+              >
                 <p class="font-medium mb-1">制限事項</p>
                 <ul class="text-left space-y-1">
                   <li>• 友達とのプライベートチャットは利用できません</li>
@@ -63,7 +69,6 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { useApi } from "~/composables/useApi";
-import { useToast } from "~/composables/useToast";
 
 type Participant = {
   id: number;
@@ -97,6 +102,7 @@ type Conversation = {
   unread_messages_count: number;
   room_token: string;
   type?: string;
+  name?: string; // グループ名
   created_at?: string;
   updated_at?: string;
 };
@@ -119,13 +125,11 @@ type PaginatedConversationsResponse = {
 
 const authStore = useAuthStore();
 const router = useRouter();
-const toast = useToast();
-const config = useRuntimeConfig();
 
 // API応答の状態管理
 const apiResponse = ref<PaginatedConversationsResponse | null>(null);
 const pending = ref(false);
-const error = ref<any>(null);
+const error = ref<Error | null>(null);
 
 // 会話データを取得する関数
 const fetchConversations = async () => {
@@ -142,8 +146,11 @@ const fetchConversations = async () => {
 
     apiResponse.value = data;
   } catch (err) {
-    error.value = err;
-    console.error("Detailed error fetching conversations:", JSON.stringify(err, null, 2));
+    error.value = err instanceof Error ? err : new Error("Unknown error");
+    console.error(
+      "Detailed error fetching conversations:",
+      JSON.stringify(err, null, 2)
+    );
   } finally {
     pending.value = false;
   }
@@ -154,7 +161,7 @@ onMounted(async () => {
   try {
     // 認証状態をチェック（失敗してもエラーを投げない）
     await authStore.checkAuth();
-    
+
     // 認証済みの場合は会話データを取得
     if (authStore.isAuthenticated) {
       await fetchConversations();
@@ -166,15 +173,18 @@ onMounted(async () => {
 });
 
 // 認証状態の変化を監視
-watch(() => authStore.isAuthenticated, async (isAuthenticated) => {
-  if (isAuthenticated) {
-    await fetchConversations();
-  } else {
-    // 認証されていない場合はデータをクリア
-    apiResponse.value = null;
-    error.value = null;
+watch(
+  () => authStore.isAuthenticated,
+  async (isAuthenticated) => {
+    if (isAuthenticated) {
+      await fetchConversations();
+    } else {
+      // 認証されていない場合はデータをクリア
+      apiResponse.value = null;
+      error.value = null;
+    }
   }
-});
+);
 
 const conversations = computed(() => {
   if (!authStore.isAuthenticated) {
