@@ -99,3 +99,42 @@ auth.json
 
 # cursor
 .cursor/
+
+# Development and backup files
+*.backup
+*.bak
+*_backup_*.sql
+backup_*.sql
+*_final_backup_*.sql
+conversations_final_backup_*.sql
+*.orig
+*.swp
+*.swo
+*.tmp
+test_*.php
+debug_*.txt
+temp_*.md
+
+# Laravel additional excludes
+/backend/.phpunit.result.cache
+/backend/storage/app/*
+!/backend/storage/app/.gitignore
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+!/backend/storage/logs/.gitignore
+/backend/bootstrap/cache/*
+!/backend/bootstrap/cache/.gitignore
+/backend/reverb.log
+
+# Nuxt additional excludes
+/frontend/.nuxt/
+/frontend/.output/
+/frontend/dist/
+/frontend/.nitro/
+
+# AI and development docs (keep implementation docs but exclude temporary)
+*.draft.md
+*_draft.md
+temp_*.md
