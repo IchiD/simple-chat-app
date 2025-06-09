@@ -9,6 +9,7 @@ interface CreateGroupRequest extends Record<string, unknown> {
   name: string;
   description?: string;
   max_members?: number;
+  chatStyles?: string[];
 }
 
 interface AddMemberRequest extends Record<string, unknown> {

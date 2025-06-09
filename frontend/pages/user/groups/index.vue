@@ -32,24 +32,83 @@
 
       <div
         v-if="showCreateForm"
-        class="mb-4 p-4 border rounded bg-gray-50 space-y-2"
+        class="mb-4 p-4 border rounded bg-gray-50 space-y-4"
       >
-        <label for="group-name" class="block text-sm font-medium"
-          >グループ名</label
-        >
-        <input
-          id="group-name"
-          v-model="newGroup.name"
-          placeholder="グループ名"
-          class="w-full border rounded px-2 py-1"
-        />
-        <label for="group-desc" class="block text-sm font-medium">説明</label>
-        <textarea
-          id="group-desc"
-          v-model="newGroup.description"
-          placeholder="説明"
-          class="w-full border rounded px-2 py-1"
-        />
+        <div>
+          <label for="group-name" class="block text-sm font-medium"
+            >グループ名</label
+          >
+          <input
+            id="group-name"
+            v-model="newGroup.name"
+            placeholder="グループ名"
+            class="w-full border rounded px-2 py-1"
+          />
+        </div>
+
+        <div>
+          <label for="group-desc" class="block text-sm font-medium">説明</label>
+          <textarea
+            id="group-desc"
+            v-model="newGroup.description"
+            placeholder="説明"
+            class="w-full border rounded px-2 py-1"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2"
+            >チャットルームスタイル</label
+          >
+          <div class="space-y-2">
+            <div class="flex items-start space-x-2">
+              <input
+                id="style-group"
+                v-model="newGroup.chatStyles"
+                type="checkbox"
+                value="group"
+                class="mt-0.5"
+              />
+              <div>
+                <label
+                  for="style-group"
+                  class="text-sm font-medium cursor-pointer"
+                >
+                  グループ全体チャット
+                </label>
+                <p class="text-xs text-gray-600">
+                  グループメンバー全員が参加する共通のチャットルーム
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-2">
+              <input
+                id="style-group-member"
+                v-model="newGroup.chatStyles"
+                type="checkbox"
+                value="group_member"
+                class="mt-0.5"
+              />
+              <div>
+                <label
+                  for="style-group-member"
+                  class="text-sm font-medium cursor-pointer"
+                >
+                  作成者とメンバー間個別チャット
+                </label>
+                <p class="text-xs text-gray-600">
+                  グループ作成者と各メンバーとの1対1チャットルーム
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="chatStyleError" class="mt-2 text-sm text-red-600">
+            {{ chatStyleError }}
+          </div>
+        </div>
+
         <div class="space-x-2">
           <button
             class="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
@@ -166,6 +225,7 @@ onMounted(() => {
 
 const successMessage = ref("");
 const errorMessage = ref("");
+const chatStyleError = ref("");
 const creating = ref(false);
 
 function goToGroup(id: number) {
@@ -173,14 +233,21 @@ function goToGroup(id: number) {
 }
 
 const showCreateForm = ref(false);
-const newGroup = ref<{ name: string; description: string }>({
+const newGroup = ref<{
+  name: string;
+  description: string;
+  chatStyles: string[];
+}>({
   name: "",
   description: "",
+  chatStyles: [],
 });
 
 async function createGroup() {
   errorMessage.value = "";
   successMessage.value = "";
+  chatStyleError.value = "";
+
   if (!newGroup.value.name.trim()) {
     errorMessage.value = "グループ名を入力してください";
     return;
@@ -189,11 +256,17 @@ async function createGroup() {
     errorMessage.value = "グループ名は50文字以内で入力してください";
     return;
   }
+  if (newGroup.value.chatStyles.length === 0) {
+    chatStyleError.value =
+      "チャットルームスタイルを少なくとも1つ選択してください";
+    return;
+  }
+
   creating.value = true;
   try {
     await groupConversations.createGroup(newGroup.value);
     showCreateForm.value = false;
-    newGroup.value = { name: "", description: "" };
+    newGroup.value = { name: "", description: "", chatStyles: [] };
     await refresh();
     successMessage.value = "グループを作成しました";
   } catch (e) {
@@ -206,7 +279,8 @@ async function createGroup() {
 
 function cancelCreate() {
   showCreateForm.value = false;
-  newGroup.value = { name: "", description: "" };
+  newGroup.value = { name: "", description: "", chatStyles: [] };
   errorMessage.value = "";
+  chatStyleError.value = "";
 }
 </script>
