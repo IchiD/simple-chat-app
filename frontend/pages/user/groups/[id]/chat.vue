@@ -7,193 +7,9 @@
   </div>
   <div v-else class="p-4">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-xl font-bold mb-4">{{ group?.name }} メンバーチャット</h1>
-
-      <!-- メンバー一覧セクション -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-3">メンバーを選択してください</h2>
-
-        <div v-if="membersPending" class="text-gray-500">
-          メンバー読み込み中...
-        </div>
-        <div v-else-if="membersError" class="text-red-500 mb-4">
-          {{ membersError }}
-        </div>
-        <div v-else class="space-y-3">
-          <!-- 全選択オプション -->
-          <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
-            <input
-              id="select-all"
-              v-model="selectAll"
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              @change="toggleSelectAll"
-            />
-            <label
-              for="select-all"
-              class="ml-2 text-sm font-medium text-gray-900"
-            >
-              全員を選択
-            </label>
-          </div>
-
-          <!-- メンバー一覧 -->
-          <div
-            v-for="member in members"
-            :key="member.id"
-            class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-          >
-            <div class="flex items-center">
-              <input
-                :id="`member-${member.id}`"
-                v-model="selectedMemberIds"
-                :value="member.id"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-3"
-              />
-              <!-- <div
-                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
-              >
-                <span class="text-blue-600 font-semibold">{{
-                  member.name.charAt(0)
-                }}</span>
-              </div> -->
-              <div>
-                <div class="text-sm font-medium text-gray-900">
-                  {{ member.name }}
-                </div>
-                <!-- <div class="text-xs text-gray-500">
-                  {{ member.group_member_label }}
-                </div> -->
-                <div class="text-xs text-gray-400">
-                  ID: {{ member.friend_id }}
-                </div>
-              </div>
-            </div>
-            <button
-              class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-              @click="startChatWithMember(member)"
-            >
-              個別チャット
-            </button>
-          </div>
-
-          <div
-            v-if="members.length === 0"
-            class="text-center py-8 text-gray-500"
-          >
-            このグループにはまだ他のメンバーがいません
-          </div>
-
-          <!-- アクションボタン -->
-          <div
-            v-if="selectedMemberIds.length > 0"
-            class="bg-blue-50 p-4 rounded-lg"
-          >
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-sm text-gray-700">
-                {{ selectedMemberIds.length }}人のメンバーが選択されています
-              </span>
-            </div>
-            <div class="flex space-x-3">
-              <button
-                v-if="selectedMemberIds.length === 1"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                @click="startChatWithSelectedMember()"
-              >
-                選択メンバーと個別チャット
-              </button>
-              <button
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                @click="showBulkMessageForm = true"
-              >
-                選択メンバーに一斉送信
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 一斉送信フォーム -->
+      <!-- グループ全体チャットのみの場合 -->
       <div
-        v-if="showBulkMessageForm"
-        class="mb-6 bg-green-50 p-4 rounded-lg border border-green-200"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-semibold text-green-800">
-            一斉メッセージ送信
-          </h3>
-          <button
-            class="text-green-600 hover:text-green-800"
-            @click="showBulkMessageForm = false"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div class="mb-3">
-          <p class="text-sm text-green-700 mb-2">
-            送信先: {{ selectedMemberIds.length }}人
-          </p>
-          <div class="text-xs text-green-600">
-            {{ selectedMembers.map((m) => m.name).join(", ") }}
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <textarea
-            v-model="bulkMessage"
-            class="w-full border rounded px-3 py-2 resize-none"
-            rows="4"
-            placeholder="一斉送信するメッセージを入力してください..."
-          />
-
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-green-600">
-              選択中: {{ selectedMemberIds.length }}人のメンバー
-            </div>
-            <div class="space-x-2">
-              <button
-                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                @click="showBulkMessageForm = false"
-              >
-                キャンセル
-              </button>
-              <button
-                class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                :disabled="sending || !bulkMessage.trim()"
-                @click="sendBulkMessage"
-              >
-                {{ sending ? "送信中..." : "一斉送信" }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 送信結果 -->
-      <div
-        v-if="sendResult"
-        class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
-      >
-        <h4 class="font-semibold text-green-800 mb-2">送信完了</h4>
-        <p class="text-sm text-green-700">
-          {{ sendResult.sent_count }}人のメンバーにメッセージを送信しました
-        </p>
-      </div>
-
-      <!-- エラー表示 -->
-      <div
-        v-if="sendError"
-        class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
-      >
-        <h4 class="font-semibold text-red-800 mb-2">送信エラー</h4>
-        <p class="text-sm text-red-700">{{ sendError }}</p>
-      </div>
-
-      <!-- 現在のチャット表示 -->
-      <div
-        v-if="currentChatMember"
+        v-if="isGroupChatOnly"
         class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
       >
         <div
@@ -211,11 +27,7 @@
                   <div class="flex items-center">
                     <button
                       class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
-                      @click="
-                        currentChatMember = null;
-                        currentConversation = null;
-                        messages = [];
-                      "
+                      @click="router.push(`/user/groups/${id}`)"
                     >
                       <span class="sr-only">戻る</span>
                       <svg
@@ -235,8 +47,11 @@
                     </button>
                     <div>
                       <h2 class="text-base font-semibold text-gray-900">
-                        {{ currentChatMember.name }}とのチャット
+                        {{ group?.name || "グループチャット" }}
                       </h2>
+                      <p class="text-sm text-gray-500">
+                        メンバー {{ (group?.member_count || 0) + 1 }}人
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -246,11 +61,11 @@
                 >
                   <!-- Messages Display Area -->
                   <div
-                    ref="messageContainerRef"
+                    ref="groupMessageContainerRef"
                     class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
                   >
                     <div
-                      v-if="messagesPending"
+                      v-if="groupMessagesPending"
                       class="flex items-center justify-center h-full"
                     >
                       <div class="text-center">
@@ -263,7 +78,7 @@
                       </div>
                     </div>
                     <div
-                      v-else-if="messagesError"
+                      v-else-if="groupMessagesError"
                       class="flex items-center justify-center h-full"
                     >
                       <div class="text-center">
@@ -284,19 +99,23 @@
                           </svg>
                         </div>
                         <p class="text-red-600 font-medium mb-2">
-                          {{ messagesError }}
+                          {{ groupMessagesError }}
                         </p>
                       </div>
                     </div>
                     <div v-else>
                       <div class="grid grid-cols-12 gap-y-1">
                         <template
-                          v-for="(message, index) in messages"
+                          v-for="(message, index) in groupMessages"
                           :key="message.id"
                         >
                           <div
                             v-if="
-                              shouldShowDateSeparator(message, index, messages)
+                              shouldShowDateSeparator(
+                                message,
+                                index,
+                                groupMessages
+                              )
                             "
                             class="col-span-12 text-center my-4"
                           >
@@ -337,6 +156,12 @@
                                 ]"
                               >
                                 <div
+                                  v-if="!isMyMessage(message.sender_id)"
+                                  class="text-xs text-gray-500 mb-1"
+                                >
+                                  {{ message.sender?.name || "不明なユーザー" }}
+                                </div>
+                                <div
                                   class="whitespace-pre-line leading-relaxed"
                                 >
                                   {{ message.text_content }}
@@ -357,7 +182,7 @@
                         </template>
                       </div>
                       <div
-                        v-if="messages.length === 0"
+                        v-if="groupMessages.length === 0"
                         class="flex items-center justify-center h-full"
                       >
                         <div class="text-center">
@@ -395,27 +220,27 @@
                     <div class="flex items-center space-x-3">
                       <div class="flex-grow">
                         <textarea
-                          v-model="newMessage"
-                          :disabled="sending"
+                          v-model="groupNewMessage"
+                          :disabled="groupSending"
                           class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                           rows="1"
                           placeholder="メッセージを入力..."
-                          @keydown="handleKeydown"
+                          @keydown="handleGroupKeydown"
                         />
                       </div>
                       <button
                         type="submit"
                         class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         :class="
-                          sending || !newMessage.trim()
+                          groupSending || !groupNewMessage.trim()
                             ? 'bg-gray-400'
                             : 'bg-emerald-600 hover:bg-emerald-700'
                         "
-                        :disabled="sending || !newMessage.trim()"
-                        @click="sendMessage"
+                        :disabled="groupSending || !groupNewMessage.trim()"
+                        @click="sendGroupMessage"
                       >
                         <svg
-                          v-if="sending"
+                          v-if="groupSending"
                           class="animate-spin h-5 w-5 text-white"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -453,6 +278,517 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 個別チャット選択UI（既存のUI） -->
+      <div v-else-if="isMemberChatOnly || hasBothStyles">
+        <h1 class="text-xl font-bold mb-4">
+          {{ group?.name }} メンバーチャット
+        </h1>
+
+        <!-- 両方のスタイルがある場合のタブ切り替え -->
+        <div v-if="hasBothStyles" class="mb-6">
+          <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+            <button
+              class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
+              :class="
+                currentView === 'group'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
+              @click="currentView = 'group'"
+            >
+              グループ全体チャット
+            </button>
+            <button
+              class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
+              :class="
+                currentView === 'member'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
+              @click="currentView = 'member'"
+            >
+              個別チャット
+            </button>
+          </div>
+        </div>
+
+        <!-- グループ全体チャット表示（両方のスタイルがある場合） -->
+        <div v-if="hasBothStyles && currentView === 'group'">
+          <!-- グループ全体チャットのコンポーネントをここに表示 -->
+          <div class="text-center py-8 text-gray-500">
+            グループ全体チャットは開発中です...
+          </div>
+        </div>
+
+        <!-- 個別チャット選択UI -->
+        <div
+          v-if="(hasBothStyles && currentView === 'member') || isMemberChatOnly"
+        >
+          <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-3">
+              メンバーを選択してください
+            </h2>
+
+            <div v-if="membersPending" class="text-gray-500">
+              メンバー読み込み中...
+            </div>
+            <div v-else-if="membersError" class="text-red-500 mb-4">
+              {{ membersError }}
+            </div>
+            <div v-else class="space-y-3">
+              <!-- 全選択オプション -->
+              <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
+                <input
+                  id="select-all"
+                  v-model="selectAll"
+                  type="checkbox"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  @change="toggleSelectAll"
+                />
+                <label
+                  for="select-all"
+                  class="ml-2 text-sm font-medium text-gray-900"
+                >
+                  全員を選択
+                </label>
+              </div>
+
+              <!-- メンバー一覧 -->
+              <div
+                v-for="member in members"
+                :key="member.id"
+                class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+              >
+                <div class="flex items-center">
+                  <input
+                    :id="`member-${member.id}`"
+                    v-model="selectedMemberIds"
+                    :value="member.id"
+                    type="checkbox"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-3"
+                  />
+                  <!-- <div
+                    class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+                  >
+                    <span class="text-blue-600 font-semibold">{{
+                      member.name.charAt(0)
+                    }}</span>
+                  </div> -->
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      {{ member.name }}
+                    </div>
+                    <!-- <div class="text-xs text-gray-500">
+                      {{ member.group_member_label }}
+                    </div> -->
+                    <div class="text-xs text-gray-400">
+                      ID: {{ member.friend_id }}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  @click="startChatWithMember(member)"
+                >
+                  個別チャット
+                </button>
+              </div>
+
+              <div
+                v-if="members.length === 0"
+                class="text-center py-8 text-gray-500"
+              >
+                このグループにはまだ他のメンバーがいません
+              </div>
+
+              <!-- アクションボタン -->
+              <div
+                v-if="selectedMemberIds.length > 0"
+                class="bg-blue-50 p-4 rounded-lg"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-sm text-gray-700">
+                    {{ selectedMemberIds.length }}人のメンバーが選択されています
+                  </span>
+                </div>
+                <div class="flex space-x-3">
+                  <button
+                    v-if="selectedMemberIds.length === 1"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    @click="startChatWithSelectedMember()"
+                  >
+                    選択メンバーと個別チャット
+                  </button>
+                  <button
+                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    @click="showBulkMessageForm = true"
+                  >
+                    選択メンバーに一斉送信
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 一斉送信フォーム -->
+          <div
+            v-if="showBulkMessageForm"
+            class="mb-6 bg-green-50 p-4 rounded-lg border border-green-200"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold text-green-800">
+                一斉メッセージ送信
+              </h3>
+              <button
+                class="text-green-600 hover:text-green-800"
+                @click="showBulkMessageForm = false"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div class="mb-3">
+              <p class="text-sm text-green-700 mb-2">
+                送信先: {{ selectedMemberIds.length }}人
+              </p>
+              <div class="text-xs text-green-600">
+                {{ selectedMembers.map((m) => m.name).join(", ") }}
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <textarea
+                v-model="bulkMessage"
+                class="w-full border rounded px-3 py-2 resize-none"
+                rows="4"
+                placeholder="一斉送信するメッセージを入力してください..."
+              />
+
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-green-600">
+                  選択中: {{ selectedMemberIds.length }}人のメンバー
+                </div>
+                <div class="space-x-2">
+                  <button
+                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                    @click="showBulkMessageForm = false"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    :disabled="sending || !bulkMessage.trim()"
+                    @click="sendBulkMessage"
+                  >
+                    {{ sending ? "送信中..." : "一斉送信" }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 送信結果 -->
+          <div
+            v-if="sendResult"
+            class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg"
+          >
+            <h4 class="font-semibold text-green-800 mb-2">送信完了</h4>
+            <p class="text-sm text-green-700">
+              {{ sendResult.sent_count }}人のメンバーにメッセージを送信しました
+            </p>
+          </div>
+
+          <!-- エラー表示 -->
+          <div
+            v-if="sendError"
+            class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+          >
+            <h4 class="font-semibold text-red-800 mb-2">送信エラー</h4>
+            <p class="text-sm text-red-700">{{ sendError }}</p>
+          </div>
+
+          <!-- 現在のチャット表示 -->
+          <div
+            v-if="currentChatMember"
+            class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+          >
+            <div
+              class="relative flex antialiased text-gray-800"
+              style="height: calc(100vh - 4rem)"
+            >
+              <div class="flex h-full w-full">
+                <!-- Main Chat Area -->
+                <div class="max-w-4xl mx-auto w-full">
+                  <div class="flex h-full w-full flex-col pt-3 md:p-6">
+                    <!-- Header for Chat Area -->
+                    <div
+                      class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+                    >
+                      <div class="flex items-center">
+                        <button
+                          class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
+                          @click="
+                            currentChatMember = null;
+                            currentConversation = null;
+                            messages = [];
+                          "
+                        >
+                          <span class="sr-only">戻る</span>
+                          <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                            />
+                          </svg>
+                        </button>
+                        <div>
+                          <h2 class="text-base font-semibold text-gray-900">
+                            {{ currentChatMember.name }}とのチャット
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+                    >
+                      <!-- Messages Display Area -->
+                      <div
+                        ref="messageContainerRef"
+                        class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                      >
+                        <div
+                          v-if="messagesPending"
+                          class="flex items-center justify-center h-full"
+                        >
+                          <div class="text-center">
+                            <div
+                              class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"
+                            />
+                            <p class="text-gray-600 font-medium">
+                              メッセージを読み込み中...
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          v-else-if="messagesError"
+                          class="flex items-center justify-center h-full"
+                        >
+                          <div class="text-center">
+                            <div
+                              class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-8 w-8 text-red-600"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                            <p class="text-red-600 font-medium mb-2">
+                              {{ messagesError }}
+                            </p>
+                          </div>
+                        </div>
+                        <div v-else>
+                          <div class="grid grid-cols-12 gap-y-1">
+                            <template
+                              v-for="(message, index) in messages"
+                              :key="message.id"
+                            >
+                              <div
+                                v-if="
+                                  shouldShowDateSeparator(
+                                    message,
+                                    index,
+                                    messages
+                                  )
+                                "
+                                class="col-span-12 text-center my-4"
+                              >
+                                <div class="relative">
+                                  <div
+                                    class="absolute inset-0 flex items-center"
+                                  >
+                                    <div
+                                      class="w-full border-t border-gray-300"
+                                    />
+                                  </div>
+                                  <div class="relative flex justify-center">
+                                    <span
+                                      class="text-xs text-gray-500 bg-white px-3 py-1 border border-gray-300 shadow-sm"
+                                    >
+                                      {{
+                                        formatDateSeparatorText(message.sent_at)
+                                      }}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div
+                                :class="
+                                  isMyMessage(message.sender_id)
+                                    ? 'col-start-4 col-end-13'
+                                    : 'col-start-1 col-end-10'
+                                "
+                                class="p-1 rounded-lg"
+                              >
+                                <div
+                                  :class="
+                                    isMyMessage(message.sender_id)
+                                      ? 'flex justify-start flex-row-reverse'
+                                      : 'flex flex-row'
+                                  "
+                                >
+                                  <div
+                                    class="relative text-sm py-2 px-4 shadow-md rounded-2xl"
+                                    :class="[
+                                      isMyMessage(message.sender_id)
+                                        ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'
+                                        : 'bg-white border border-gray-200 max-w-md lg:max-w-xl',
+                                    ]"
+                                  >
+                                    <div
+                                      class="whitespace-pre-line leading-relaxed"
+                                    >
+                                      {{ message.text_content }}
+                                    </div>
+                                  </div>
+                                  <div
+                                    class="text-xs min-w-[3.5rem] flex items-end self-end mb-1"
+                                    :class="[
+                                      isMyMessage(message.sender_id)
+                                        ? 'text-emerald-600 mr-2 justify-end'
+                                        : 'text-gray-500 ml-2 justify-end',
+                                    ]"
+                                  >
+                                    {{ formatMessageTime(message.sent_at) }}
+                                  </div>
+                                </div>
+                              </div>
+                            </template>
+                          </div>
+                          <div
+                            v-if="messages.length === 0"
+                            class="flex items-center justify-center h-full"
+                          >
+                            <div class="text-center">
+                              <div
+                                class="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="h-8 w-8 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z"
+                                  />
+                                </svg>
+                              </div>
+                              <p class="text-gray-600 font-medium">
+                                まだメッセージはありません
+                              </p>
+                              <p class="text-gray-500 text-sm mt-1">
+                                最初のメッセージを送信してみましょう
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Message Input Area -->
+                      <div class="border-t border-gray-200 bg-white p-4">
+                        <div class="flex items-center space-x-3">
+                          <div class="flex-grow">
+                            <textarea
+                              v-model="newMessage"
+                              :disabled="sending"
+                              class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                              rows="1"
+                              placeholder="メッセージを入力..."
+                              @keydown="handleKeydown"
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            :class="
+                              sending || !newMessage.trim()
+                                ? 'bg-gray-400'
+                                : 'bg-emerald-600 hover:bg-emerald-700'
+                            "
+                            :disabled="sending || !newMessage.trim()"
+                            @click="sendMessage"
+                          >
+                            <svg
+                              v-if="sending"
+                              class="animate-spin h-5 w-5 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                              />
+                              <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                            <svg
+                              v-else
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- エラー表示（グループが存在しない場合） -->
+        <div v-else class="text-center py-8 text-gray-500">
+          無効なグループまたはチャットスタイルです
         </div>
       </div>
     </div>
@@ -544,6 +880,36 @@ const members = ref<GroupMember[]>([]);
 const membersPending = ref(true);
 const membersError = ref("");
 
+// チャットスタイル分岐用
+const currentView = ref<"group" | "member">("group");
+
+// グループ全体チャット状態
+const groupMessages = ref<GroupMessage[]>([]);
+const groupMessagesPending = ref(false);
+const groupMessagesError = ref("");
+const groupNewMessage = ref("");
+const groupSending = ref(false);
+const groupMessageContainerRef = ref<HTMLElement | null>(null);
+
+// チャットスタイルに基づく表示判定
+const isGroupChatOnly = computed(() => {
+  const chatStyles = group.value?.chat_styles;
+  if (!chatStyles || !Array.isArray(chatStyles)) return false;
+  return chatStyles.includes("group") && !chatStyles.includes("group_member");
+});
+
+const isMemberChatOnly = computed(() => {
+  const chatStyles = group.value?.chat_styles;
+  if (!chatStyles || !Array.isArray(chatStyles)) return false;
+  return !chatStyles.includes("group") && chatStyles.includes("group_member");
+});
+
+const hasBothStyles = computed(() => {
+  const chatStyles = group.value?.chat_styles;
+  if (!chatStyles || !Array.isArray(chatStyles)) return false;
+  return chatStyles.includes("group") && chatStyles.includes("group_member");
+});
+
 // メンバー選択状態
 const selectedMemberIds = ref<number[]>([]);
 const selectAll = ref(false);
@@ -574,6 +940,72 @@ const selectedMembers = computed(() => {
     selectedMemberIds.value.includes(member.id)
   );
 });
+
+// グループ全体チャット用関数
+const loadGroupMessages = async () => {
+  if (!group.value?.room_token) return;
+
+  groupMessagesPending.value = true;
+  groupMessagesError.value = "";
+
+  try {
+    const data = await groupConversations.getMessages(group.value.room_token);
+    groupMessages.value = data.data.sort(
+      (a: GroupMessage, b: GroupMessage) =>
+        new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
+    );
+  } catch (error) {
+    console.error("グループメッセージ取得エラー:", error);
+    groupMessagesError.value = "メッセージの取得に失敗しました";
+  } finally {
+    groupMessagesPending.value = false;
+    await nextTick();
+    await scrollGroupToBottom("auto");
+  }
+};
+
+const sendGroupMessage = async () => {
+  if (!groupNewMessage.value.trim() || !group.value?.room_token) return;
+
+  groupSending.value = true;
+  const messageText = groupNewMessage.value;
+  try {
+    const sentMessage = await groupConversations.sendMessage(
+      group.value.room_token,
+      messageText
+    );
+
+    if (sentMessage) {
+      groupMessages.value.push(sentMessage);
+    }
+
+    groupNewMessage.value = "";
+    await scrollGroupToBottom("smooth");
+  } catch (error) {
+    console.error("グループメッセージ送信エラー:", error);
+    groupMessagesError.value = "メッセージの送信に失敗しました";
+    await loadGroupMessages();
+  } finally {
+    groupSending.value = false;
+  }
+};
+
+const handleGroupKeydown = (event: KeyboardEvent) => {
+  if (event.key === "Enter" && event.shiftKey) {
+    event.preventDefault();
+    sendGroupMessage();
+  }
+};
+
+const scrollGroupToBottom = async (behavior: "auto" | "smooth" = "auto") => {
+  await nextTick();
+  if (groupMessageContainerRef.value) {
+    groupMessageContainerRef.value.scrollTo({
+      top: groupMessageContainerRef.value.scrollHeight,
+      behavior: behavior,
+    });
+  }
+};
 
 // グループ情報を取得
 const loadGroup = async () => {
@@ -772,14 +1204,6 @@ const sendBulkMessage = async () => {
   }
 };
 
-// 時刻フォーマット（未使用のため削除）
-// const formatTime = (dateString: string) => {
-//   return new Date(dateString).toLocaleTimeString("ja-JP", {
-//     hour: "2-digit",
-//     minute: "2-digit",
-//   });
-// };
-
 // 個別チャット用の時刻フォーマット
 const formatMessageTime = (sentAt?: string | null): string => {
   if (!sentAt) return "";
@@ -880,7 +1304,34 @@ watch(
 const refresh = async () => {
   await loadGroup();
   await loadMembers();
+
+  // グループ全体チャットのみの場合は、グループメッセージを読み込み
+  if (isGroupChatOnly.value) {
+    await loadGroupMessages();
+  }
 };
+
+// グループメッセージの自動スクロール監視
+watch(
+  groupMessages,
+  async (newMessages, oldMessages) => {
+    if (newMessages.length > (oldMessages?.length || 0)) {
+      await scrollGroupToBottom("smooth");
+    }
+  },
+  { deep: true }
+);
+
+// グループ情報が更新された時の処理
+watch(
+  group,
+  async (newGroup) => {
+    if (newGroup && isGroupChatOnly.value) {
+      await loadGroupMessages();
+    }
+  },
+  { deep: true }
+);
 
 // 初回読み込み
 await refresh();

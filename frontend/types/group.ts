@@ -8,6 +8,7 @@ export interface GroupConversation {
   owner_user_id: number;
   qr_code_token?: string;
   room_token: string;
+  chat_styles?: string[];
   created_at?: string;
   updated_at?: string;
   conversationParticipants?: GroupParticipant[];
