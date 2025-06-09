@@ -192,82 +192,267 @@
       </div>
 
       <!-- 現在のチャット表示 -->
-      <div v-if="currentChatMember" class="border-t pt-6">
-        <div class="flex items-center mb-4">
-          <button
-            class="mr-3 text-gray-600 hover:text-gray-800"
-            @click="
-              currentChatMember = null;
-              currentConversation = null;
-              messages = [];
-            "
-          >
-            ← 戻る
-          </button>
-          <h3 class="text-lg font-semibold">
-            {{ currentChatMember.name }} とのチャット
-          </h3>
-        </div>
-
-        <!-- メッセージ一覧 -->
-        <div v-if="messagesPending" class="text-gray-500 text-center py-4">
-          メッセージを読み込み中...
-        </div>
-        <div v-else-if="messagesError" class="text-red-500 mb-4">
-          {{ messagesError }}
-        </div>
+      <div
+        v-if="currentChatMember"
+        class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+      >
         <div
-          v-else
-          class="space-y-3 mb-4 max-h-96 overflow-y-auto border p-4 rounded bg-gray-50"
+          class="relative flex antialiased text-gray-800"
+          style="height: calc(100vh - 4rem)"
         >
-          <div
-            v-for="msg in messages"
-            :key="msg.id"
-            class="flex"
-            :class="
-              msg.sender_id === authStore.user?.id
-                ? 'justify-end'
-                : 'justify-start'
-            "
-          >
-            <div
-              class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg"
-              :class="
-                msg.sender_id === authStore.user?.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white border'
-              "
-            >
-              <p class="text-sm">{{ msg.text_content }}</p>
-              <p class="text-xs mt-1 opacity-70">
-                {{ formatTime(msg.sent_at) }}
-              </p>
+          <div class="flex h-full w-full">
+            <!-- Main Chat Area -->
+            <div class="max-w-4xl mx-auto w-full">
+              <div class="flex h-full w-full flex-col pt-3 md:p-6">
+                <!-- Header for Chat Area -->
+                <div
+                  class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+                >
+                  <div class="flex items-center">
+                    <button
+                      class="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 mr-3"
+                      @click="
+                        currentChatMember = null;
+                        currentConversation = null;
+                        messages = [];
+                      "
+                    >
+                      <span class="sr-only">戻る</span>
+                      <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                        />
+                      </svg>
+                    </button>
+                    <div>
+                      <h2 class="text-base font-semibold text-gray-900">
+                        {{ currentChatMember.name }}とのチャット
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+                >
+                  <!-- Messages Display Area -->
+                  <div
+                    ref="messageContainerRef"
+                    class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                  >
+                    <div
+                      v-if="messagesPending"
+                      class="flex items-center justify-center h-full"
+                    >
+                      <div class="text-center">
+                        <div
+                          class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"
+                        />
+                        <p class="text-gray-600 font-medium">
+                          メッセージを読み込み中...
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      v-else-if="messagesError"
+                      class="flex items-center justify-center h-full"
+                    >
+                      <div class="text-center">
+                        <div
+                          class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-8 w-8 text-red-600"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <p class="text-red-600 font-medium mb-2">
+                          {{ messagesError }}
+                        </p>
+                      </div>
+                    </div>
+                    <div v-else>
+                      <div class="grid grid-cols-12 gap-y-1">
+                        <template
+                          v-for="(message, index) in messages"
+                          :key="message.id"
+                        >
+                          <div
+                            v-if="
+                              shouldShowDateSeparator(message, index, messages)
+                            "
+                            class="col-span-12 text-center my-4"
+                          >
+                            <div class="relative">
+                              <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300" />
+                              </div>
+                              <div class="relative flex justify-center">
+                                <span
+                                  class="text-xs text-gray-500 bg-white px-3 py-1 border border-gray-300 shadow-sm"
+                                >
+                                  {{ formatDateSeparatorText(message.sent_at) }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            :class="
+                              isMyMessage(message.sender_id)
+                                ? 'col-start-4 col-end-13'
+                                : 'col-start-1 col-end-10'
+                            "
+                            class="p-1 rounded-lg"
+                          >
+                            <div
+                              :class="
+                                isMyMessage(message.sender_id)
+                                  ? 'flex justify-start flex-row-reverse'
+                                  : 'flex flex-row'
+                              "
+                            >
+                              <div
+                                class="relative text-sm py-2 px-4 shadow-md rounded-2xl"
+                                :class="[
+                                  isMyMessage(message.sender_id)
+                                    ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'
+                                    : 'bg-white border border-gray-200 max-w-md lg:max-w-xl',
+                                ]"
+                              >
+                                <div
+                                  class="whitespace-pre-line leading-relaxed"
+                                >
+                                  {{ message.text_content }}
+                                </div>
+                              </div>
+                              <div
+                                class="text-xs min-w-[3.5rem] flex items-end self-end mb-1"
+                                :class="[
+                                  isMyMessage(message.sender_id)
+                                    ? 'text-emerald-600 mr-2 justify-end'
+                                    : 'text-gray-500 ml-2 justify-end',
+                                ]"
+                              >
+                                {{ formatMessageTime(message.sent_at) }}
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                      <div
+                        v-if="messages.length === 0"
+                        class="flex items-center justify-center h-full"
+                      >
+                        <div class="text-center">
+                          <div
+                            class="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-8 w-8 text-gray-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z"
+                              />
+                            </svg>
+                          </div>
+                          <p class="text-gray-600 font-medium">
+                            まだメッセージはありません
+                          </p>
+                          <p class="text-gray-500 text-sm mt-1">
+                            最初のメッセージを送信してみましょう
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Message Input Area -->
+                  <div class="border-t border-gray-200 bg-white p-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="flex-grow">
+                        <textarea
+                          v-model="newMessage"
+                          :disabled="sending"
+                          class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                          rows="1"
+                          placeholder="メッセージを入力..."
+                          @keydown="handleKeydown"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        :class="
+                          sending || !newMessage.trim()
+                            ? 'bg-gray-400'
+                            : 'bg-emerald-600 hover:bg-emerald-700'
+                        "
+                        :disabled="sending || !newMessage.trim()"
+                        @click="sendMessage"
+                      >
+                        <svg
+                          v-if="sending"
+                          class="animate-spin h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          />
+                          <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        <svg
+                          v-else
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div
-            v-if="messages.length === 0"
-            class="text-center py-8 text-gray-500"
-          >
-            まだメッセージはありません
-          </div>
-        </div>
-
-        <!-- メッセージ送信 -->
-        <div class="flex space-x-2">
-          <input
-            v-model="newMessage"
-            class="flex-1 border rounded px-3 py-2"
-            type="text"
-            placeholder="メッセージを入力..."
-            @keypress.enter="sendMessage"
-          />
-          <button
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-            :disabled="sending || !newMessage.trim()"
-            @click="sendMessage"
-          >
-            {{ sending ? "送信中..." : "送信" }}
-          </button>
         </div>
       </div>
     </div>
@@ -380,6 +565,9 @@ const messagesError = ref("");
 const newMessage = ref("");
 const sending = ref(false);
 
+// メッセージコンテナの参照
+const messageContainerRef = ref<HTMLElement | null>(null);
+
 // 選択されたメンバー情報を取得
 const selectedMembers = computed(() => {
   return members.value.filter((member) =>
@@ -447,6 +635,10 @@ const startChatWithSelectedMember = () => {
 const startChatWithMember = async (member: GroupMember) => {
   currentChatMember.value = member;
 
+  // メッセージとエラー状態をリセット
+  messages.value = [];
+  messagesError.value = "";
+
   console.log("個別チャット開始:", { member, target_user_id: member.id });
 
   try {
@@ -462,6 +654,12 @@ const startChatWithMember = async (member: GroupMember) => {
 
     currentConversation.value = conversation;
     await loadMessages();
+
+    // チャット画面表示後に確実にスクロール
+    await nextTick();
+    setTimeout(() => {
+      scrollToBottom("auto");
+    }, 100);
   } catch (error: unknown) {
     console.error("チャットルーム作成エラー:", error);
     if (error && typeof error === "object" && "response" in error) {
@@ -490,12 +688,19 @@ const loadMessages = async () => {
     const data = await groupConversations.getMessages(
       currentConversation.value.room_token
     );
-    messages.value = data.data;
+    // メッセージを送信日時で昇順ソート（古いものから新しいものへ）
+    messages.value = data.data.sort(
+      (a: GroupMessage, b: GroupMessage) =>
+        new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
+    );
   } catch (error) {
     console.error("メッセージ取得エラー:", error);
     messagesError.value = "メッセージの取得に失敗しました";
   } finally {
     messagesPending.value = false;
+    // メッセージ読み込み完了後にスクロール
+    await nextTick();
+    await scrollToBottom("auto");
   }
 };
 
@@ -505,16 +710,25 @@ const sendMessage = async () => {
     return;
 
   sending.value = true;
+  const messageText = newMessage.value;
   try {
-    await groupConversations.sendMessage(
+    const sentMessage = await groupConversations.sendMessage(
       currentConversation.value.room_token,
-      newMessage.value
+      messageText
     );
+
+    // 送信されたメッセージを一覧に追加（最下部に表示）
+    if (sentMessage) {
+      messages.value.push(sentMessage);
+    }
+
     newMessage.value = "";
-    await loadMessages(); // メッセージ一覧を再読み込み
+    await scrollToBottom("smooth");
   } catch (error) {
     console.error("メッセージ送信エラー:", error);
     messagesError.value = "メッセージの送信に失敗しました";
+    // エラーが発生した場合は、メッセージ一覧を再読み込みして同期を保つ
+    await loadMessages();
   } finally {
     sending.value = false;
   }
@@ -558,13 +772,109 @@ const sendBulkMessage = async () => {
   }
 };
 
-// 時刻フォーマット
-const formatTime = (dateString: string) => {
-  return new Date(dateString).toLocaleTimeString("ja-JP", {
-    hour: "2-digit",
+// 時刻フォーマット（未使用のため削除）
+// const formatTime = (dateString: string) => {
+//   return new Date(dateString).toLocaleTimeString("ja-JP", {
+//     hour: "2-digit",
+//     minute: "2-digit",
+//   });
+// };
+
+// 個別チャット用の時刻フォーマット
+const formatMessageTime = (sentAt?: string | null): string => {
+  if (!sentAt) return "";
+  return new Date(sentAt).toLocaleTimeString("ja-JP", {
+    hour: "numeric",
     minute: "2-digit",
+    hour12: false,
   });
 };
+
+// 日付セパレーター用のフォーマット
+const formatDateSeparatorText = (sentAt?: string | null): string => {
+  if (!sentAt) return "";
+  const date = new Date(sentAt);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}.${String(date.getDate()).padStart(2, "0")}`;
+};
+
+// 日付セパレーターを表示するかどうか
+const shouldShowDateSeparator = (
+  message: GroupMessage,
+  index: number,
+  allMessages: GroupMessage[]
+): boolean => {
+  if (index === 0) return true;
+  const prevMessage = allMessages[index - 1];
+  if (!prevMessage?.sent_at || !message.sent_at) return false;
+  return (
+    new Date(prevMessage.sent_at).toDateString() !==
+    new Date(message.sent_at).toDateString()
+  );
+};
+
+// 自分のメッセージかどうか
+const isMyMessage = (senderId: number | null): boolean => {
+  return senderId === authStore.user?.id;
+};
+
+// キーボード入力処理
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === "Enter" && event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+};
+
+// メッセージコンテナを最下部にスクロール
+const scrollToBottom = async (behavior: "auto" | "smooth" = "auto") => {
+  await nextTick();
+  if (messageContainerRef.value) {
+    messageContainerRef.value.scrollTo({
+      top: messageContainerRef.value.scrollHeight,
+      behavior: behavior,
+    });
+  }
+};
+
+// メッセージが変更された時に自動スクロール
+watch(
+  messages,
+  async (newMessages, oldMessages) => {
+    if (newMessages.length > (oldMessages?.length || 0)) {
+      await scrollToBottom("smooth");
+    }
+  },
+  { deep: true }
+);
+
+// 個別チャット画面が表示された時にスクロール
+watch(currentChatMember, async (newMember) => {
+  if (newMember) {
+    // DOM更新を待ってからスクロール
+    await nextTick();
+    setTimeout(() => {
+      scrollToBottom("auto");
+    }, 200);
+  }
+});
+
+// メッセージとチャット状態の両方を監視
+watch(
+  [messages, currentChatMember],
+  async ([newMessages, newMember]) => {
+    if (newMember && newMessages.length > 0 && !messagesPending.value) {
+      // DOM更新を確実に待つ
+      await nextTick();
+      setTimeout(() => {
+        scrollToBottom("auto");
+      }, 100);
+    }
+  },
+  { deep: true }
+);
 
 // 初期データ読み込み
 const refresh = async () => {
