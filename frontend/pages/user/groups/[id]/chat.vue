@@ -371,19 +371,19 @@
                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-3"
                   />
                   <!-- <div
-                    class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
-                  >
-                    <span class="text-blue-600 font-semibold">{{
-                      member.name.charAt(0)
-                    }}</span>
-                  </div> -->
+                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
+              >
+                <span class="text-blue-600 font-semibold">{{
+                  member.name.charAt(0)
+                }}</span>
+              </div> -->
                   <div>
                     <div class="text-sm font-medium text-gray-900">
                       {{ member.name }}
                     </div>
                     <!-- <div class="text-xs text-gray-500">
-                      {{ member.group_member_label }}
-                    </div> -->
+                  {{ member.group_member_label }}
+                </div> -->
                     <div class="text-xs text-gray-400">
                       ID: {{ member.friend_id }}
                     </div>
