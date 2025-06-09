@@ -237,7 +237,12 @@
                             : 'bg-emerald-600 hover:bg-emerald-700'
                         "
                         :disabled="groupSending || !groupNewMessage.trim()"
-                        @click="sendGroupMessage"
+                        @click="
+                          () => {
+                            console.log('Send button clicked!');
+                            sendGroupMessage();
+                          }
+                        "
                       >
                         <svg
                           v-if="groupSending"
@@ -965,18 +970,38 @@ const loadGroupMessages = async () => {
 };
 
 const sendGroupMessage = async () => {
-  if (!groupNewMessage.value.trim() || !group.value?.room_token) return;
+  console.log("sendGroupMessage called!");
+  console.log("groupNewMessage:", groupNewMessage.value);
+  console.log("group object:", group.value);
+  console.log("group room_token:", group.value?.room_token);
 
+  if (!groupNewMessage.value.trim() || !group.value?.room_token) {
+    console.log("Validation failed - message or room_token is empty");
+    return;
+  }
+
+  console.log("Validation passed, sending message...");
   groupSending.value = true;
   const messageText = groupNewMessage.value;
   try {
+    console.log("About to call sendMessage with:", {
+      room_token: group.value.room_token,
+      messageText,
+    });
+
     const sentMessage = await groupConversations.sendMessage(
       group.value.room_token,
       messageText
     );
 
+    console.log("Message sent successfully:", sentMessage);
+
     if (sentMessage) {
       groupMessages.value.push(sentMessage);
+      console.log(
+        "Message added to groupMessages, count:",
+        groupMessages.value.length
+      );
     }
 
     groupNewMessage.value = "";
@@ -987,6 +1012,7 @@ const sendGroupMessage = async () => {
     await loadGroupMessages();
   } finally {
     groupSending.value = false;
+    console.log("sendGroupMessage finished");
   }
 };
 
@@ -1009,8 +1035,11 @@ const scrollGroupToBottom = async (behavior: "auto" | "smooth" = "auto") => {
 
 // グループ情報を取得
 const loadGroup = async () => {
+  console.log("loadGroup called with id:", id);
   try {
-    group.value = await groupConversations.getGroup(id);
+    const groupData = await groupConversations.getGroup(id);
+    console.log("Group data loaded:", groupData);
+    group.value = groupData;
   } catch (error) {
     console.error("グループ取得エラー:", error);
     membersError.value = "グループの取得に失敗しました";
