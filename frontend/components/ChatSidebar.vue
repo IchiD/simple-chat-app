@@ -186,7 +186,8 @@ type LatestMessage = {
 
 type Conversation = {
   id: number;
-  participants: Participant[];
+  participants?: Participant[]; // 旧構造との互換性のため
+  other_participant?: Participant; // 新構造（member_chat）
   latest_message: LatestMessage | null;
   unread_messages_count: number;
   room_token: string;
@@ -233,11 +234,20 @@ const getConversationDisplayName = (conversation: Conversation): string => {
     return conversation.name || "グループ";
   }
 
-  // ダイレクト会話の場合は相手の名前を表示
-  return (
-    conversation.participants.find((p) => p.id !== currentUserId.value)?.name ||
-    "会話"
-  );
+  // メンバーチャットの場合は other_participant を使用
+  if (conversation.type === "member_chat" && conversation.other_participant) {
+    return conversation.other_participant.name;
+  }
+
+  // ダイレクト会話の場合は participants を使用（旧構造との互換性）
+  if (conversation.participants && conversation.participants.length > 0) {
+    return (
+      conversation.participants.find((p) => p.id !== currentUserId.value)
+        ?.name || "会話"
+    );
+  }
+
+  return "会話";
 };
 
 // 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）

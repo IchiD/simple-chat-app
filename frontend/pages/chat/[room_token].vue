@@ -590,7 +590,18 @@ const conversationDisplayName = computed(() => {
   if (isSupportConversation.value) {
     return "サポート（順次対応いたします）";
   }
-  return currentConversation.value?.participants[0]?.name || "チャット";
+  // 新構造に対応: other_participant を使用
+  if (currentConversation.value?.other_participant) {
+    return currentConversation.value.other_participant.name;
+  }
+  // 旧構造との互換性: participants 配列がある場合
+  if (
+    currentConversation.value?.participants &&
+    currentConversation.value.participants.length > 0
+  ) {
+    return currentConversation.value.participants[0]?.name || "チャット";
+  }
+  return "チャット";
 });
 
 // メッセージが管理者からかどうかを判定
@@ -638,7 +649,7 @@ const markConversationAsRead = async (conversationId: number) => {
         : {}),
     };
     await $fetch(
-      `${config.public.apiBase}/conversations/${conversationId}/read`,
+      `${config.public.apiBase}/conversations/room/${conversationId}/read`,
       {
         method: "POST",
         headers: fetchPostHeaders,
