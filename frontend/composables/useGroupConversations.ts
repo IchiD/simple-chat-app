@@ -15,6 +15,28 @@ interface AddMemberRequest extends Record<string, unknown> {
   user_id: number;
 }
 
+interface GroupMember extends Record<string, unknown> {
+  id: number;
+  name: string;
+  friend_id: string;
+  group_member_label: string;
+}
+
+interface BulkMessageRequest extends Record<string, unknown> {
+  target_user_ids: number[];
+  text_content: string;
+}
+
+interface BulkMessageResponse extends Record<string, unknown> {
+  message: string;
+  sent_count: number;
+  sent_messages: Array<{
+    conversation_id: number;
+    target_user_id: number;
+    message_id: number;
+  }>;
+}
+
 export const useGroupConversations = () => {
   const { api } = useApi();
 
@@ -138,6 +160,29 @@ export const useGroupConversations = () => {
     });
   };
 
+  // グループメンバー一覧を取得
+  const getGroupMembers = async (
+    conversationId: number
+  ): Promise<GroupMember[]> => {
+    return await api<GroupMember[]>(
+      `/conversations/groups/${conversationId}/members`
+    );
+  };
+
+  // グループメンバーに一斉メッセージ送信
+  const sendBulkMessage = async (
+    conversationId: number,
+    data: BulkMessageRequest
+  ): Promise<BulkMessageResponse> => {
+    return await api<BulkMessageResponse>(
+      `/conversations/groups/${conversationId}/messages/bulk`,
+      {
+        method: "POST",
+        body: data,
+      }
+    );
+  };
+
   return {
     getGroups,
     createGroup,
@@ -151,5 +196,7 @@ export const useGroupConversations = () => {
     joinByToken,
     getMessages,
     sendMessage,
+    getGroupMembers,
+    sendBulkMessage,
   };
 };
