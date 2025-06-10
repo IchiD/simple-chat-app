@@ -7,6 +7,28 @@
   </div>
   <div v-else class="p-4">
     <div class="max-w-4xl mx-auto">
+      <!-- 戻るボタン -->
+      <div class="mb-6">
+        <button
+          class="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 hover:shadow-md active:scale-95"
+          @click="goBack"
+        >
+          <svg
+            class="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
       <h1 class="text-xl font-bold mb-4">{{ group?.name }} 詳細</h1>
       <div
         v-if="successMessage"
@@ -170,18 +192,49 @@
           </div>
         </div>
 
+        <!-- メンバー一覧セクション -->
         <div>
-          <h2 class="font-semibold mb-2">メンバー</h2>
+          <h2 class="font-semibold mb-4">メンバー一覧</h2>
+          <div v-if="membersPending" class="text-gray-500">
+            メンバー一覧を読み込み中...
+          </div>
+          <div v-else-if="membersError" class="text-red-500">
+            メンバー一覧の取得に失敗しました
+          </div>
+          <div v-else-if="groupMembers.length === 0" class="text-gray-500">
+            他のメンバーはいません
+          </div>
+          <div v-else class="grid gap-3">
+            <div
+              v-for="member in groupMembers"
+              :key="member.id"
+              class="bg-gray-50 border rounded-lg p-3"
+            >
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-medium">{{ member.name }}</div>
+                  <div class="text-sm text-gray-600">
+                    フレンドID: {{ member.friend_id }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- メンバー追加セクション -->
+        <div>
+          <h2 class="font-semibold mb-2">メンバー追加</h2>
           <div class="mb-2 flex space-x-2 items-end">
             <div class="flex-1">
               <label for="member-user" class="block text-sm font-medium"
-                >ユーザーID</label
+                >フレンドID</label
               >
               <input
                 id="member-user"
-                v-model="newMemberUserId"
-                type="number"
-                placeholder="ユーザーID"
+                v-model="newMemberFriendId"
+                type="text"
+                placeholder="フレンドID"
                 class="border rounded px-2 py-1 w-full"
               />
             </div>
@@ -193,22 +246,6 @@
               {{ adding ? "追加中..." : "追加" }}
             </button>
           </div>
-          <ul class="space-y-1">
-            <li
-              v-for="participant in groupParticipants"
-              :key="participant.id"
-              class="border p-2 rounded flex justify-between"
-            >
-              <span>{{ participant.user?.name || "Unknown User" }}</span>
-              <button
-                v-if="participant.user_id !== authStore.user?.id"
-                class="px-2 py-1 bg-red-600 text-white rounded text-sm"
-                @click="removeMember(participant.id)"
-              >
-                削除
-              </button>
-            </li>
-          </ul>
         </div>
         <button
           class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded"
@@ -225,8 +262,16 @@
 import { ref, computed, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
-import type { GroupConversation, GroupParticipant } from "~/types/group";
+import type { GroupConversation } from "~/types/group";
 import { useQRCode } from "~/composables/useQRCode";
+
+// GroupMember型の定義
+interface GroupMember {
+  id: number;
+  name: string;
+  friend_id: string;
+  group_member_label: string;
+}
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
 definePageMeta({
@@ -299,13 +344,32 @@ const refresh = loadGroup;
 // 初回読み込み
 await loadGroup();
 
-const groupParticipants = computed<GroupParticipant[]>(
-  () => group.value?.conversationParticipants || []
-);
-
 const successMessage = ref("");
 const errorMessage = ref("");
 const adding = ref(false);
+
+// メンバー一覧データ
+const groupMembers = ref<GroupMember[]>([]);
+const membersPending = ref(false);
+const membersError = ref<Error | null>(null);
+
+// メンバー一覧を取得
+const loadMembers = async () => {
+  if (!group.value?.id) return;
+
+  try {
+    membersPending.value = true;
+    membersError.value = null;
+    groupMembers.value = await groupConversations.getGroupMembers(
+      group.value.id
+    );
+  } catch (e) {
+    membersError.value = e as Error;
+    groupMembers.value = [];
+  } finally {
+    membersPending.value = false;
+  }
+};
 
 // QRコード関連の状態
 const qrLoading = ref(false);
@@ -409,12 +473,15 @@ const copyJoinUrl = async () => {
   }
 };
 
-// グループ読み込み後にQRコードも読み込む
+// グループ読み込み後にQRコードとメンバー一覧も読み込む
 watch(
   group,
   (newGroup) => {
-    if (newGroup && !qrCodeImage.value) {
-      loadQRCode();
+    if (newGroup) {
+      if (!qrCodeImage.value) {
+        loadQRCode();
+      }
+      loadMembers();
     }
   },
   { immediate: true }
@@ -424,42 +491,39 @@ function openChat() {
   router.push(`/user/groups/${id}/chat`);
 }
 
-const newMemberUserId = ref("");
+function goBack() {
+  // ブラウザの履歴を使用して前のページに戻る
+  // 履歴がない場合はグループ一覧に戻る
+  if (window.history.length > 1) {
+    router.go(-1);
+  } else {
+    router.push("/user/groups");
+  }
+}
+
+const newMemberFriendId = ref("");
 
 async function addMember() {
   errorMessage.value = "";
   successMessage.value = "";
-  if (!newMemberUserId.value.trim()) {
-    errorMessage.value = "ユーザーIDを入力してください";
+  if (!newMemberFriendId.value.trim()) {
+    errorMessage.value = "フレンドIDを入力してください";
     return;
   }
   adding.value = true;
   try {
     await groupConversations.addMember(id, {
-      user_id: Number(newMemberUserId.value),
+      friend_id: newMemberFriendId.value.trim(),
     });
-    newMemberUserId.value = "";
+    newMemberFriendId.value = "";
     await refresh();
+    await loadMembers(); // メンバー一覧も再読み込み
     successMessage.value = "メンバーを追加しました";
   } catch (e) {
     console.error(e);
     errorMessage.value = "メンバー追加に失敗しました";
   } finally {
     adding.value = false;
-  }
-}
-
-async function removeMember(participantId: number) {
-  if (!confirm("このメンバーを削除しますか？")) return;
-  errorMessage.value = "";
-  successMessage.value = "";
-  try {
-    await groupConversations.removeMember(id, participantId);
-    await refresh();
-    successMessage.value = "メンバーを削除しました";
-  } catch (e) {
-    console.error(e);
-    errorMessage.value = "メンバー削除に失敗しました";
   }
 }
 </script>

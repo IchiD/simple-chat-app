@@ -23,6 +23,7 @@ export interface GroupParticipant {
   user?: {
     id: number;
     name: string;
+    friend_id: string;
     email?: string;
   };
 }

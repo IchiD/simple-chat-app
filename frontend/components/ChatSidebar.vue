@@ -184,15 +184,24 @@ type LatestMessage = {
   adminSender?: AdminSender | null;
 };
 
+type GroupOwner = {
+  id: number;
+  name: string;
+  friend_id: string;
+};
+
 type Conversation = {
   id: number;
   participants?: Participant[]; // 旧構造との互換性のため
-  other_participant?: Participant; // 新構造（member_chat）
+  other_participant?: Participant; // 新構造（member_chat/friend_chat）
   latest_message: LatestMessage | null;
   unread_messages_count: number;
   room_token: string;
   type?: string;
   name?: string; // グループ名
+  group_name?: string; // グループ名
+  group_owner?: GroupOwner; // グループオーナー情報（member_chatの場合）
+  participant_count?: number; // 参加者数（group_chatの場合）
   created_at?: string;
   updated_at?: string;
 };
@@ -225,17 +234,28 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 // 会話の表示名を取得する関数
 const getConversationDisplayName = (conversation: Conversation): string => {
   // サポート会話の場合
-  if (conversation.type === "support") {
+  if (conversation.type === "support_chat") {
     return "サポート";
   }
 
-  // グループ会話の場合はグループ名を表示
-  if (conversation.type === "group") {
-    return conversation.name || "グループ";
+  // グループチャットの場合：「グループ名（6人）」
+  if (conversation.type === "group_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const count = conversation.participant_count || 0;
+    return `${groupName}（${count}人）`;
   }
 
-  // メンバーチャットの場合は other_participant を使用
-  if (conversation.type === "member_chat" && conversation.other_participant) {
+  // メンバーチャットの場合：「グループ名 グループオーナー名」
+  if (conversation.type === "member_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const ownerName = conversation.group_owner?.name || "オーナー";
+    return `${groupName} ${ownerName}`;
+  }
+
+  // フレンドチャットの場合：相手の名前
+  if (conversation.type === "friend_chat" && conversation.other_participant) {
     return conversation.other_participant.name;
   }
 

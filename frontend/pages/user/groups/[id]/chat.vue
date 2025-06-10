@@ -7,6 +7,28 @@
   </div>
   <div v-else class="p-4">
     <div class="max-w-4xl mx-auto">
+      <!-- 戻るボタン -->
+      <div class="mb-4">
+        <button
+          class="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 hover:shadow-md active:scale-95"
+          @click="goBack"
+        >
+          <svg
+            class="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
       <!-- グループ全体チャットのみの場合 -->
       <div
         v-if="isGroupChatOnly"
@@ -841,6 +863,16 @@ const router = useRouter();
 const authStore = useAuthStore();
 const groupConversations = useGroupConversations();
 const id = Number(route.params.id as string);
+
+function goBack() {
+  // ブラウザの履歴を使用して前のページに戻る
+  // 履歴がない場合はグループ詳細ページに戻る
+  if (window.history.length > 1) {
+    router.go(-1);
+  } else {
+    router.push(`/user/groups/${id}`);
+  }
+}
 
 const isCheckingAccess = ref(true);
 

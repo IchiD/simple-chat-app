@@ -7,6 +7,28 @@
   </div>
   <div v-else class="p-4">
     <div class="max-w-4xl mx-auto">
+      <!-- 戻るボタン -->
+      <div class="mb-6">
+        <button
+          class="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 hover:shadow-md active:scale-95"
+          @click="goBack"
+        >
+          <svg
+            class="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
       <h1 class="text-xl font-bold mb-4">グループ一覧</h1>
       <div
         v-if="successMessage"
@@ -230,6 +252,16 @@ const creating = ref(false);
 
 function goToGroup(id: number) {
   router.push(`/user/groups/${id}`);
+}
+
+function goBack() {
+  // ブラウザの履歴を使用して前のページに戻る
+  // 履歴がない場合はダッシュボードに戻る
+  if (window.history.length > 1) {
+    router.go(-1);
+  } else {
+    router.push("/user/dashboard");
+  }
 }
 
 const showCreateForm = ref(false);

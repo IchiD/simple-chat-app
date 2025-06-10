@@ -95,6 +95,12 @@ type LatestMessage = {
   adminSender?: AdminSender | null;
 };
 
+type GroupOwner = {
+  id: number;
+  name: string;
+  friend_id: string;
+};
+
 type Conversation = {
   id: number;
   participants: Participant[];
@@ -103,6 +109,9 @@ type Conversation = {
   room_token: string;
   type?: string;
   name?: string; // グループ名
+  group_name?: string; // グループ名
+  group_owner?: GroupOwner; // グループオーナー情報（member_chatの場合）
+  participant_count?: number; // 参加者数（group_chatの場合）
   created_at?: string;
   updated_at?: string;
 };

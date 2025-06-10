@@ -13,7 +13,7 @@ interface CreateGroupRequest extends Record<string, unknown> {
 }
 
 interface AddMemberRequest extends Record<string, unknown> {
-  user_id: number;
+  friend_id: string;
 }
 
 interface GroupMember extends Record<string, unknown> {
