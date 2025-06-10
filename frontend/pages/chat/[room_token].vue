@@ -223,6 +223,20 @@
                                 : 'bg-white border border-gray-200 max-w-md lg:max-w-xl',
                             ]"
                           >
+                            <div
+                              v-if="
+                                !isMyMessage(message.sender_id) &&
+                                shouldShowSenderName()
+                              "
+                              class="text-xs mb-1"
+                              :class="
+                                isMyMessage(message.sender_id)
+                                  ? 'text-emerald-200'
+                                  : 'text-gray-500'
+                              "
+                            >
+                              {{ getMessageSenderName(message) }}
+                            </div>
                             <div class="whitespace-pre-line leading-relaxed">
                               {{ message.text_content }}
                             </div>
@@ -654,6 +668,22 @@ const _getMessageSenderName = (message: Message): string => {
     return message.sender.name;
   }
   return "不明";
+};
+
+// グループチャットで発言者名を表示するかどうかを判定
+const shouldShowSenderName = (): boolean => {
+  return currentConversation.value?.type === "group_chat";
+};
+
+// メッセージの発言者名を取得
+const getMessageSenderName = (message: Message): string => {
+  if (isAdminMessage(message)) {
+    return "サポート";
+  }
+  if (message.sender) {
+    return message.sender.name;
+  }
+  return "不明なユーザー";
 };
 
 const isMyMessage = (messageSenderId: number | null): boolean => {
