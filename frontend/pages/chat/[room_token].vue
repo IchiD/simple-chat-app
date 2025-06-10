@@ -348,13 +348,24 @@ type LatestMessage = {
   adminSender?: AdminSender | null;
 };
 
+type GroupOwner = {
+  id: number;
+  name: string;
+  friend_id: string;
+};
+
 type Conversation = {
   id: number;
   room_token: string;
   participants: Participant[];
+  other_participant?: Participant; // member_chat/friend_chatの相手
   latest_message: LatestMessage | null;
   unread_messages_count: number;
   type?: string;
+  name?: string; // グループ名
+  group_name?: string; // グループ名
+  group_owner?: GroupOwner; // グループオーナー情報（member_chatの場合）
+  participant_count?: number; // 参加者数（group_chatの場合）
   created_at?: string;
   updated_at?: string;
 };
@@ -579,28 +590,51 @@ const isLoadingInitialData = computed(
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
-// サポート会話かどうかを判定
-const isSupportConversation = computed(() => {
+// サポート会話かどうかを判定（将来の利用のため）
+const _isSupportConversation = computed(() => {
   const result = currentConversation.value?.type === "support";
   return result;
 });
 
-// サポート会話の場合は「サポート」、そうでなければ参加者名を表示
+// チャットタイプに応じた表示名を取得
 const conversationDisplayName = computed(() => {
-  if (isSupportConversation.value) {
+  const conversation = currentConversation.value;
+  if (!conversation) return "チャット";
+
+  // サポートチャットの場合
+  if (conversation.type === "support_chat") {
     return "サポート（順次対応いたします）";
   }
-  // 新構造に対応: other_participant を使用
-  if (currentConversation.value?.other_participant) {
-    return currentConversation.value.other_participant.name;
+
+  // グループチャットの場合：「グループ名（6人）」
+  if (conversation.type === "group_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const count = conversation.participant_count || 0;
+    return `${groupName}（${count}人）`;
   }
+
+  // メンバーチャットの場合：「グループ名 グループオーナー名」
+  if (conversation.type === "member_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const ownerName = conversation.group_owner?.name || "オーナー";
+    return `${groupName} ${ownerName}`;
+  }
+
+  // フレンドチャットの場合：相手の名前
+  if (conversation.type === "friend_chat" && conversation.other_participant) {
+    return conversation.other_participant.name;
+  }
+
   // 旧構造との互換性: participants 配列がある場合
-  if (
-    currentConversation.value?.participants &&
-    currentConversation.value.participants.length > 0
-  ) {
-    return currentConversation.value.participants[0]?.name || "チャット";
+  if (conversation.participants && conversation.participants.length > 0) {
+    const otherParticipant = conversation.participants.find(
+      (p) => p.id !== currentUserId.value
+    );
+    return otherParticipant?.name || "チャット";
   }
+
   return "チャット";
 });
 
