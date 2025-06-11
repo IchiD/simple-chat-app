@@ -47,6 +47,29 @@
       <div v-else-if="group" class="space-y-4">
         <p>{{ group.description }}</p>
 
+        <!-- チャットスタイル表示セクション -->
+        <div
+          v-if="group.chat_styles && group.chat_styles.length > 0"
+          class="flex flex-wrap gap-2"
+        >
+          <span
+            v-for="style in group.chat_styles"
+            :key="style"
+            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+            :class="{
+              'bg-blue-50 text-blue-700 border border-blue-200':
+                style === 'group',
+              'bg-green-50 text-green-700 border border-green-200':
+                style === 'group_member',
+            }"
+          >
+            <span v-if="style === 'group'">グループチャット</span>
+            <span v-else-if="style === 'group_member'">メンバー間チャット</span>
+          </span>
+        </div>
+        <div v-else class="text-gray-500 text-xs">
+          チャットスタイルが設定されていません
+        </div>
         <!-- QRコード招待セクション -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h2 class="font-semibold text-lg mb-4 flex items-center">
