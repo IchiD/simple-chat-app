@@ -237,7 +237,9 @@
                             >
                               {{ getMessageSenderName(message) }}
                             </div>
-                            <div class="whitespace-pre-line leading-relaxed">
+                            <div
+                              class="whitespace-pre-line leading-relaxed break-all"
+                            >
                               {{ message.text_content }}
                             </div>
                           </div>

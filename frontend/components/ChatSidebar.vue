@@ -111,7 +111,9 @@
             </p>
           </div>
           <div class="flex justify-between items-center">
-            <p class="text-xs text-gray-600 truncate flex-1 text-left">
+            <p
+              class="text-xs text-gray-600 truncate flex-1 text-left break-all"
+            >
               <span
                 v-if="
                   convo.latest_message?.sender?.name ||

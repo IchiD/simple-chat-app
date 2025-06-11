@@ -184,7 +184,7 @@
                                   {{ message.sender?.name || "不明なユーザー" }}
                                 </div>
                                 <div
-                                  class="whitespace-pre-line leading-relaxed"
+                                  class="whitespace-pre-line leading-relaxed break-all"
                                 >
                                   {{ message.text_content }}
                                 </div>
@@ -483,7 +483,7 @@
                                       }}
                                     </div>
                                     <div
-                                      class="whitespace-pre-line leading-relaxed"
+                                      class="whitespace-pre-line leading-relaxed break-all"
                                     >
                                       {{ message.text_content }}
                                     </div>
@@ -1067,7 +1067,7 @@
                                     ]"
                                   >
                                     <div
-                                      class="whitespace-pre-line leading-relaxed"
+                                      class="whitespace-pre-line leading-relaxed break-all"
                                     >
                                       {{ message.text_content }}
                                     </div>
