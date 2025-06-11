@@ -9,7 +9,9 @@
         <div v-if="!authStore.isAuthenticated" class="w-full overflow-y-auto">
           <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-xl shadow-sm p-8 text-center">
-              <div class="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div
+                class="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-8 w-8 text-blue-600"
@@ -25,18 +27,24 @@
                   />
                 </svg>
               </div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">ユーザー設定は制限されています</h2>
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                ユーザー設定は制限されています
+              </h2>
               <p class="text-gray-600 mb-6">
-                ゲストユーザーはユーザー設定の一部機能が制限されています。<br>
+                ゲストユーザーはユーザー設定の一部機能が制限されています。<br />
                 すべての機能をご利用いただくには、アカウント登録またはログインが必要です。
               </p>
-              
+
               <!-- ゲスト向け限定メニュー -->
               <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">ご利用可能な機能</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                  ご利用可能な機能
+                </h3>
                 <div class="grid gap-4">
                   <NuxtLink to="/chat" class="block">
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors">
+                    <div
+                      class="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors"
+                    >
                       <div class="flex items-center justify-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -52,8 +60,12 @@
                           />
                         </svg>
                         <div>
-                          <h4 class="font-semibold text-green-800">チャット機能</h4>
-                          <p class="text-sm text-green-700">参加済みのグループチャットを利用できます</p>
+                          <h4 class="font-semibold text-green-800">
+                            チャット機能
+                          </h4>
+                          <p class="text-sm text-green-700">
+                            参加済みのグループチャットを利用できます
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -95,7 +107,7 @@
             <template v-else>
               <div class="max-w-4xl mx-auto">
                 <!-- ヘッダーエリア -->
-                <div class="mb-6 flex justify-between items-center">
+                <div class="mb-6">
                   <div>
                     <p v-if="authStore.user" class="text-lg text-gray-600 mt-1">
                       ようこそ、<span style="color: var(--primary)">{{
@@ -104,24 +116,6 @@
                       >さん
                     </p>
                   </div>
-                  <button
-                    class="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2 flex items-center transition transform hover:scale-105 cursor-pointer"
-                    @click="handleLogout"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-5 w-5 mr-2"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h4v10H4V5zm6 0h4v10h-4V5z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    ログアウト
-                  </button>
                 </div>
 
                 <div v-if="authStore.user" class="space-y-6">
@@ -810,6 +804,28 @@
                     <NotificationSettings :is-dev="isDevelopment" />
                   </div>
 
+                  <!-- ログアウトボタン -->
+                  <div class="text-center pt-6 pb-8">
+                    <button
+                      class="bg-red-500 hover:bg-red-600 text-white rounded-md px-8 py-3 flex items-center mx-auto transition transform hover:scale-105 cursor-pointer shadow-md hover:shadow-lg"
+                      @click="handleLogout"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M3 3a1 1 0 011 1v12a1 1 0 01-1 1h12a1 1 0 01-1-1V4a1 1 0 011-1H3zm7 8a2 2 0 100-4 2 2 0 000 4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      ログアウト
+                    </button>
+                  </div>
+
                   <!-- アプリ使い方ガイド -->
                   <!-- <div
                     class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
@@ -886,11 +902,10 @@
                         >
                       </li>
                     </ul>
-                  </div>
-                </div> -->
+                  </div> -->
                 </div>
-              </div></template
-            >
+              </div>
+            </template>
           </div>
         </div>
       </div>
