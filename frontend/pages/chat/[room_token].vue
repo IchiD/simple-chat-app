@@ -35,7 +35,7 @@
                 </NuxtLink>
                 <div>
                   <h2 class="text-base font-semibold text-gray-900">
-                    {{ conversationDisplayName }}
+                    {{ titleDisplay }}
                   </h2>
                 </div>
               </div>
@@ -1066,6 +1066,47 @@ const handleConversationError = () => {
   // その他のエラーの場合はチャット一覧に戻る
   router.push("/chat");
 };
+
+const titleDisplay = computed(() => {
+  const conversation = currentConversation.value;
+  if (!conversation) return "チャット";
+
+  // サポートチャットの場合
+  if (conversation.type === "support_chat") {
+    return "サポート（順次対応いたします）";
+  }
+
+  // グループチャットの場合：「グループ名 メンバー X人」
+  if (conversation.type === "group_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const count = conversation.participant_count || 0;
+    return `${groupName}（${count}人）`;
+  }
+
+  // メンバーチャットの場合：「グループ名 グループオーナー名」
+  if (conversation.type === "member_chat") {
+    const groupName =
+      conversation.group_name || conversation.name || "グループ";
+    const ownerName = conversation.group_owner?.name || "オーナー";
+    return `${groupName} ${ownerName}`;
+  }
+
+  // フレンドチャットの場合：相手の名前
+  if (conversation.type === "friend_chat" && conversation.other_participant) {
+    return conversation.other_participant.name;
+  }
+
+  // 旧構造との互換性: participants 配列がある場合
+  if (conversation.participants && conversation.participants.length > 0) {
+    const otherParticipant = conversation.participants.find(
+      (p) => p.id !== currentUserId.value
+    );
+    return otherParticipant?.name || "チャット";
+  }
+
+  return "チャット";
+});
 </script>
 
 <style scoped>

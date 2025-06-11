@@ -92,8 +92,16 @@
         <!-- メッセージ内容 -->
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center mb-1">
-            <p class="text-sm font-semibold text-gray-900 truncate">
-              {{ getConversationDisplayName(convo) }}
+            <p
+              class="text-sm font-semibold text-gray-900 truncate flex items-center"
+            >
+              <span>{{ getConversationDisplayName(convo) }}</span>
+              <span
+                v-if="convo.type === 'group_chat'"
+                class="text-xs text-gray-600 ml-2 whitespace-nowrap"
+              >
+                メンバー {{ convo.participant_count || 0 }}人
+              </span>
             </p>
             <p
               v-if="convo.latest_message?.sent_at"
@@ -238,12 +246,9 @@ const getConversationDisplayName = (conversation: Conversation): string => {
     return "サポート";
   }
 
-  // グループチャットの場合：「グループ名（6人）」
+  // グループチャットの場合：「グループ名」(人数行は別途表示)
   if (conversation.type === "group_chat") {
-    const groupName =
-      conversation.group_name || conversation.name || "グループ";
-    const count = conversation.participant_count || 0;
-    return `${groupName}（${count}人）`;
+    return conversation.group_name || conversation.name || "グループ";
   }
 
   // メンバーチャットの場合：「グループ名 グループオーナー名」
