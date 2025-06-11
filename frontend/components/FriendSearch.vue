@@ -67,17 +67,10 @@
       <div
         v-for="result in searchResults"
         :key="result.id"
-        class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl p-6 border border-emerald-100 mb-4"
+        class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl p-3 sm:p-6 border border-emerald-100 mb-4"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <div
-              class="h-14 w-14 bg-emerald-100 rounded-full flex items-center justify-center"
-            >
-              <span class="text-emerald-600 font-bold text-xl">
-                {{ result.name.charAt(0).toUpperCase() }}
-              </span>
-            </div>
             <div>
               <h3 class="font-semibold text-gray-900 text-lg">
                 {{ result.name }}
@@ -88,7 +81,7 @@
             </div>
           </div>
           <button
-            class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+            class="inline-flex items-center p-2 sm:px-6 sm:py-3 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
             @click="selectFriend(result)"
           >
             <svg
@@ -101,7 +94,7 @@
                 d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
               />
             </svg>
-            友達追加
+            友達申請
           </button>
         </div>
       </div>

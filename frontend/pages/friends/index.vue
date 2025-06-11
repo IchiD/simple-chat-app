@@ -6,10 +6,15 @@
     >
       <div class="flex h-full w-full">
         <!-- ゲストユーザー制限メッセージ -->
-        <div v-if="!authStore.isAuthenticated" class="w-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div
+          v-if="!authStore.isAuthenticated"
+          class="w-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
+        >
           <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-xl shadow-sm p-8 text-center">
-              <div class="h-16 w-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div
+                class="h-16 w-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-8 w-8 text-yellow-600"
@@ -25,9 +30,11 @@
                   />
                 </svg>
               </div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">友達機能はご利用いただけません</h2>
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                友達機能はご利用いただけません
+              </h2>
               <p class="text-gray-600 mb-6">
-                ゲストユーザーは友達機能をご利用いただけません。<br>
+                ゲストユーザーは友達機能をご利用いただけません。<br />
                 友達機能をご利用いただくには、アカウント登録またはログインが必要です。
               </p>
               <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -49,7 +56,10 @@
         </div>
 
         <!-- メインコンテンツ (認証済みユーザーのみ) -->
-        <div v-else class="w-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div
+          v-else
+          class="w-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
+        >
           <div v-if="loading" class="flex justify-center items-center py-20">
             <div class="text-center">
               <div
@@ -412,9 +422,11 @@
                       class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 sm:p-6 border border-orange-100"
                     >
                       <div
-                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0"
+                        class="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0"
                       >
-                        <div class="flex items-center space-x-3 sm:space-x-4">
+                        <div
+                          class="flex items-start space-x-3 sm:space-x-4 flex-1"
+                        >
                           <div class="min-w-0 flex-1">
                             <h3
                               class="font-semibold text-gray-900 text-base sm:text-lg truncate"
@@ -432,6 +444,13 @@
                                 >承認待ち</span
                               >
                             </div>
+                            <!-- メッセージ表示 -->
+                            <p
+                              v-if="request.message"
+                              class="text-xs sm:text-sm text-gray-700 bg-white rounded-lg p-3 border border-gray-200 mt-2"
+                            >
+                              {{ request.message }}
+                            </p>
                           </div>
                         </div>
                         <button
@@ -471,24 +490,61 @@
             class="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-xl transform transition-all"
           >
             <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">友達追加</h3>
-              <p class="text-gray-600 mb-6">
+              <p class="text-gray-600 mb-4">
                 <span class="font-semibold">{{ pendingFriend?.name }}</span>
                 さんに友達申請を送信しますか？
               </p>
+
+              <!-- メッセージ入力欄 -->
+              <div class="mb-6">
+                <label
+                  for="friendRequestMessage"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  メッセージ（任意）
+                </label>
+                <input
+                  id="friendRequestMessage"
+                  v-model="friendRequestMessage"
+                  type="text"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  :class="{
+                    'border-red-500 focus:ring-red-500 focus:border-red-500':
+                      friendRequestMessage.length > 30,
+                  }"
+                  placeholder="よろしくお願いします！"
+                  maxlength="35"
+                />
+                <div class="mt-1 flex justify-between items-center">
+                  <p class="text-xs text-gray-500">
+                    {{ friendRequestMessage.length }}/30文字
+                  </p>
+                  <p
+                    v-if="friendRequestMessage.length > 30"
+                    class="text-xs text-red-500 font-medium"
+                  >
+                    30文字以内で入力してください
+                  </p>
+                </div>
+              </div>
+
               <div
                 class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3"
               >
                 <button
                   type="button"
                   class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-                  @click="showAddFriendModal = false"
+                  @click="
+                    showAddFriendModal = false;
+                    friendRequestMessage = '';
+                  "
                 >
                   キャンセル
                 </button>
                 <button
                   type="button"
-                  class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200"
+                  class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="friendRequestMessage.length > 30"
                   @click="addFriend"
                 >
                   送信する
@@ -507,12 +563,14 @@
             class="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-xl transform transition-all"
           >
             <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">友達削除</h3>
               <p class="text-gray-600 mb-6">
                 <span class="font-semibold">{{
                   friends.find((f) => f.id === pendingUnfriendId)?.name
                 }}</span>
                 さんを友達から削除しますか？
+              </p>
+              <p class="text-gray-600 mb-6">
+                削除すると、このユーザーとのチャットルームも削除されます。
               </p>
               <div
                 class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3"
@@ -614,6 +672,7 @@ const activeTab = ref("friends");
 // モーダル関連の状態
 const showAddFriendModal = ref(false);
 const pendingFriend = ref<User | null>(null);
+const friendRequestMessage = ref("");
 const showUnfriendModal = ref(false);
 const pendingUnfriendId = ref<number | null>(null);
 
@@ -692,10 +751,29 @@ const extractErrorMessage = (
 const addFriend = async () => {
   if (!pendingFriend.value) return;
 
+  // メッセージの長さバリデーション
+  if (friendRequestMessage.value.length > 30) {
+    toast.add({
+      title: "エラー",
+      description: "メッセージは30文字以内で入力してください",
+      color: "error",
+    });
+    return;
+  }
+
   try {
+    const requestBody: { user_id: number; message?: string } = {
+      user_id: pendingFriend.value.id,
+    };
+
+    // メッセージが入力されている場合は追加
+    if (friendRequestMessage.value.trim()) {
+      requestBody.message = friendRequestMessage.value.trim();
+    }
+
     const response = await api<ApiResponse<void>>("/friends/requests", {
       method: "POST",
-      body: { user_id: pendingFriend.value.id },
+      body: requestBody,
     });
 
     // レスポンスに含まれるメッセージをそのまま表示
@@ -718,6 +796,7 @@ const addFriend = async () => {
   } finally {
     showAddFriendModal.value = false;
     pendingFriend.value = null;
+    friendRequestMessage.value = ""; // メッセージをクリア
   }
 };
 
