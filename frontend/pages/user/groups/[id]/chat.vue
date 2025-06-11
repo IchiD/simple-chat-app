@@ -624,6 +624,98 @@
               {{ membersError }}
             </div>
             <div v-else class="space-y-3">
+              <!-- 検索・ソートコントロール -->
+              <div class="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
+                <!-- 検索フィールド -->
+                <div>
+                  <label
+                    for="member-search"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    メンバー検索
+                  </label>
+                  <input
+                    id="member-search"
+                    v-model="keyword"
+                    type="text"
+                    placeholder="名前またはユーザーIDで検索..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <!-- ソートコントロール -->
+                <div class="flex flex-wrap gap-3 items-end">
+                  <div>
+                    <label
+                      for="sort-key"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      並び順
+                    </label>
+                    <select
+                      id="sort-key"
+                      v-model="sortKey"
+                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="name">名前</option>
+                      <option value="friend_id">ユーザーID</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      for="sort-order"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      順序
+                    </label>
+                    <select
+                      id="sort-order"
+                      v-model="sortOrder"
+                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="asc">昇順</option>
+                      <option value="desc">降順</option>
+                    </select>
+                  </div>
+                  <div v-if="hasActiveFilters">
+                    <button
+                      type="button"
+                      class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors flex items-center gap-2"
+                      @click="resetFilters"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      リセット
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 結果情報 -->
+                <div class="text-sm text-gray-600">
+                  全 {{ members.length }}人中
+                  <span v-if="keyword.trim()">
+                    検索結果 {{ paginatedItems.length }}人を表示
+                  </span>
+                  <span v-else>
+                    {{ paginatedItems.length }}人を表示 ({{ page }}/{{
+                      totalPages
+                    }}ページ)
+                  </span>
+                </div>
+              </div>
+
               <!-- 全選択オプション -->
               <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
                 <input
@@ -643,7 +735,7 @@
 
               <!-- メンバー一覧 -->
               <div
-                v-for="member in members"
+                v-for="member in paginatedItems"
                 :key="member.id"
                 class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
               >
@@ -687,6 +779,30 @@
                 class="text-center py-8 text-gray-500"
               >
                 このグループにはまだ他のメンバーがいません
+              </div>
+
+              <!-- ページネーション -->
+              <div
+                v-if="totalPages > 1"
+                class="flex justify-center items-center gap-2 mt-4"
+              >
+                <button
+                  :disabled="page === 1"
+                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="prev"
+                >
+                  前へ
+                </button>
+                <span class="text-sm text-gray-600">
+                  {{ page }} / {{ totalPages }}
+                </span>
+                <button
+                  :disabled="page === totalPages"
+                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="next"
+                >
+                  次へ
+                </button>
               </div>
 
               <!-- アクションボタン -->
@@ -1085,6 +1201,7 @@ import { ref, computed, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import type { GroupConversation, GroupMessage } from "~/types/group";
+import { useSortableMembers } from "~/composables/useSortableMembers";
 
 interface GroupMember {
   id: number;
@@ -1227,10 +1344,33 @@ const sending = ref(false);
 // メッセージコンテナの参照
 const messageContainerRef = ref<HTMLElement | null>(null);
 
+// ソート・検索・ページネーション機能
+const {
+  keyword,
+  sortKey,
+  sortOrder,
+  page,
+  totalPages,
+  paginatedItems,
+  next,
+  prev,
+} = useSortableMembers(members, 50);
+
 // 選択されたメンバー情報を取得
 const selectedMembers = computed(() => {
   return members.value.filter((member) =>
     selectedMemberIds.value.includes(member.id)
+  );
+});
+
+// フィルターが適用されているかどうかを判定
+const hasActiveFilters = computed(() => {
+  return (
+    keyword.value.trim() !== "" ||
+    sortKey.value !== "name" ||
+    sortOrder.value !== "asc" ||
+    page.value !== 1 ||
+    selectedMemberIds.value.length > 0
   );
 });
 
@@ -1349,24 +1489,49 @@ const loadMembers = async () => {
   }
 };
 
-// 全選択/全解除
+// 全選択/全解除（現在のページのメンバーのみ）
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedMemberIds.value = members.value.map((m) => m.id);
+    // 現在のページのメンバーを選択状態に追加
+    const currentPageIds = paginatedItems.value.map((m) => m.id);
+    const newSelected = [
+      ...new Set([...selectedMemberIds.value, ...currentPageIds]),
+    ];
+    selectedMemberIds.value = newSelected;
   } else {
-    selectedMemberIds.value = [];
+    // 現在のページのメンバーを選択状態から除去
+    const currentPageIds = paginatedItems.value.map((m) => m.id);
+    selectedMemberIds.value = selectedMemberIds.value.filter(
+      (id) => !currentPageIds.includes(id)
+    );
   }
 };
 
-// 選択状態の監視
+// 選択状態の監視（現在のページのメンバーに基づく）
 watch(
-  selectedMemberIds,
-  (newSelected) => {
+  [selectedMemberIds, paginatedItems],
+  ([newSelected, currentPageItems]) => {
     selectAll.value =
-      newSelected.length === members.value.length && members.value.length > 0;
+      currentPageItems.length > 0 &&
+      currentPageItems.every((item) => newSelected.includes(item.id));
   },
   { deep: true }
 );
+
+// 検索キーワードが変更されたらページを1にリセット
+watch(keyword, () => {
+  page.value = 1;
+});
+
+// フィルター・ソート・選択状態をリセットする関数
+const resetFilters = () => {
+  keyword.value = "";
+  sortKey.value = "name";
+  sortOrder.value = "asc";
+  page.value = 1;
+  selectedMemberIds.value = [];
+  selectAll.value = false;
+};
 
 // 選択したメンバーと個別チャット開始
 const startChatWithSelectedMember = () => {

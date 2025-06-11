@@ -218,18 +218,43 @@
         <!-- メンバー一覧セクション -->
         <div>
           <h2 class="font-semibold mb-4">メンバー一覧</h2>
+
+          <!-- 検索 & ソート UI -->
+          <div class="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              v-model="keyword"
+              type="text"
+              placeholder="検索 (名前・ID)"
+              class="border rounded px-2 py-1 w-full sm:w-60"
+            />
+            <select
+              v-model="sortKey"
+              class="border rounded px-2 py-1 w-full sm:w-32"
+            >
+              <option value="name">名前</option>
+              <option value="friend_id">フレンドID</option>
+            </select>
+            <select
+              v-model="sortOrder"
+              class="border rounded px-2 py-1 w-full sm:w-28"
+            >
+              <option value="asc">昇順</option>
+              <option value="desc">降順</option>
+            </select>
+          </div>
+
           <div v-if="membersPending" class="text-gray-500">
             メンバー一覧を読み込み中...
           </div>
           <div v-else-if="membersError" class="text-red-500">
             メンバー一覧の取得に失敗しました
           </div>
-          <div v-else-if="groupMembers.length === 0" class="text-gray-500">
+          <div v-else-if="paginatedItems.length === 0" class="text-gray-500">
             他のメンバーはいません
           </div>
           <div v-else class="grid gap-3">
             <div
-              v-for="member in groupMembers"
+              v-for="member in paginatedItems"
               :key="member.id"
               class="bg-gray-50 border rounded-lg p-3"
             >
@@ -242,6 +267,30 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- ページネーション -->
+          <div
+            v-if="totalPages > 1"
+            class="flex justify-center items-center gap-4 mt-4"
+          >
+            <button
+              class="px-3 py-1 border rounded disabled:opacity-40"
+              :disabled="page === 1"
+              @click="prev"
+            >
+              前へ
+            </button>
+            <span class="text-sm text-gray-600">
+              {{ page }} / {{ totalPages }}
+            </span>
+            <button
+              class="px-3 py-1 border rounded disabled:opacity-40"
+              :disabled="page === totalPages"
+              @click="next"
+            >
+              次へ
+            </button>
           </div>
         </div>
 
@@ -287,6 +336,7 @@ import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import type { GroupConversation } from "~/types/group";
 import { useQRCode } from "~/composables/useQRCode";
+import { useSortableMembers } from "~/composables/useSortableMembers";
 
 // GroupMember型の定義
 interface GroupMember {
@@ -375,6 +425,18 @@ const adding = ref(false);
 const groupMembers = ref<GroupMember[]>([]);
 const membersPending = ref(false);
 const membersError = ref<Error | null>(null);
+
+// 検索・ソート・ページネーション composable
+const {
+  keyword,
+  sortKey,
+  sortOrder,
+  page,
+  totalPages,
+  paginatedItems,
+  next,
+  prev,
+} = useSortableMembers(groupMembers, 50);
 
 // メンバー一覧を取得
 const loadMembers = async () => {
@@ -515,10 +577,8 @@ function openChat() {
 }
 
 function goBack() {
-  // ブラウザの履歴を使用して前のページに戻る
-  // 履歴がない場合はグループ一覧に戻る
   if (window.history.length > 1) {
-    router.go(-1);
+    window.history.back();
   } else {
     router.push("/user/groups");
   }
