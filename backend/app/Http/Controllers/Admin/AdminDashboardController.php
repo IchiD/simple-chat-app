@@ -1152,6 +1152,60 @@ class AdminDashboardController extends Controller
   }
 
   /**
+   * グループ一覧表示
+   */
+  public function groups(Request $request)
+  {
+    $admin = Auth::guard('admin')->user();
+
+    if (!$admin->isAdmin()) {
+      abort(403, 'アクセス権限がありません。');
+    }
+
+    $query = Group::with(['owner' => function ($q) {
+      $q->select('id', 'name', 'email');
+    }])->withCount('groupMembers');
+
+    if ($search = $request->get('search')) {
+      $query->where('name', 'LIKE', "%{$search}%")
+        ->orWhereHas('owner', function ($q) use ($search) {
+          $q->where('name', 'LIKE', "%{$search}%")
+            ->orWhere('email', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $groups = $query->orderBy('created_at', 'desc')->paginate(20);
+    $groups->appends($request->query());
+
+    \App\Services\OperationLogService::log('backend', 'view_groups', 'admin:' . $admin->id);
+
+    return view('admin.groups.index', compact('admin', 'groups'));
+  }
+
+  /**
+   * グループ詳細表示
+   */
+  public function showGroup($id)
+  {
+    $admin = Auth::guard('admin')->user();
+
+    if (!$admin->isAdmin()) {
+      abort(403, 'アクセス権限がありません。');
+    }
+
+    try {
+      $group = Group::with(['owner', 'groupMembers.user'])->findOrFail($id);
+
+      \App\Services\OperationLogService::log('backend', 'view_group_detail', 'admin:' . $admin->id . ' group:' . $id);
+
+      return view('admin.groups.show', compact('admin', 'group'));
+    } catch (\Exception $e) {
+      return redirect()->route('admin.groups')
+        ->with('error', 'グループが見つかりません。');
+    }
+  }
+
+  /**
    * サポート会話一覧を表示
    */
   public function supportConversations(Request $request)
