@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <!-- 共通ヘッダー (chat/[room_token] ページでは非表示) -->
+    <!-- 共通ヘッダー (chat/[room_token] ページとルートページでは非表示) -->
     <nav
-      v-if="!isChatRoomPage"
+      v-if="!shouldHideNavFooter"
       class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,9 +81,9 @@
       <slot />
     </main>
 
-    <!-- 共通フッター (chat/[room_token] ページでは非表示) -->
+    <!-- 共通フッター (chat/[room_token] ページとルートページでは非表示) -->
     <footer
-      v-if="!isChatRoomPage"
+      v-if="!shouldHideNavFooter"
       class="bg-white py-4 border-t border-gray-200 flex-shrink-0"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -134,9 +134,10 @@ const currentPage = computed(() => {
   return null;
 });
 
-// chat/[room_token] ページかどうかを判断
-const isChatRoomPage = computed(() => {
-  return route.path.match(/^\/chat\/[^/]+\/?$/);
+// ヘッダーとフッターを非表示にするページかどうかを判断
+const shouldHideNavFooter = computed(() => {
+  // chat/[room_token] ページ または ルートページ
+  return route.path.match(/^\/chat\/[^/]+\/?$/) || route.path === "/";
 });
 
 // サポートチャットを開く関数
@@ -160,7 +161,7 @@ const openSupportChat = async () => {
           Accept: "application/json",
           Authorization: `Bearer ${authStore.token}`,
         },
-      }
+      } as any
     );
 
     if (conversation && conversation.room_token) {
