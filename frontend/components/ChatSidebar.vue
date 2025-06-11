@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="static flex w-full h-full flex-col bg-gradient-to-b from-white to-gray-50/50 backdrop-blur-sm pb-8 pt-4 pl-4 pr-4 border-r border-gray-200/50"
-  >
+  <div class="static flex w-full h-full flex-col pb-8 pt-4 pl-4 pr-4">
     <div class="flex h-10 w-full flex-row items-center justify-center">
       <div
         class="flex h-9 w-9 items-center justify-center rounded-2xl text-white"

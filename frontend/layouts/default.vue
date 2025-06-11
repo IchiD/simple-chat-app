@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="min-h-screen flex flex-col">
     <!-- 共通ヘッダー (chat/[room_token] ページでは非表示) -->
     <nav
       v-if="!isChatRoomPage"
-      class="bg-white shadow-sm border-b border-gray-200"
+      class="bg-white shadow-sm border-b border-gray-200 flex-shrink-0"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
@@ -77,14 +77,14 @@
       </div>
     </nav>
 
-    <main class="">
+    <main class="flex-grow">
       <slot />
     </main>
 
     <!-- 共通フッター (chat/[room_token] ページでは非表示) -->
     <footer
       v-if="!isChatRoomPage"
-      class="bg-white py-4 border-t border-gray-200"
+      class="bg-white py-4 border-t border-gray-200 flex-shrink-0"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">

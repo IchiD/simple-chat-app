@@ -1,12 +1,12 @@
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100">
-    <div
-      class="relative flex antialiased text-gray-800"
-      style="height: calc(100vh - 7.5rem)"
-    >
-      <div class="flex h-full w-full">
+  <div class="bg-gradient-to-br min-h-full">
+    <div class="relative flex antialiased text-gray-800 min-h-full">
+      <div class="flex min-h-full w-full">
         <!-- ゲストユーザー制限メッセージ -->
-        <div v-if="!authStore.isAuthenticated" class="w-full overflow-y-auto">
+        <div
+          v-if="!authStore.isAuthenticated"
+          class="w-full min-h-full overflow-y-auto"
+        >
           <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-xl shadow-sm p-8 text-center">
               <div
@@ -92,7 +92,7 @@
         </div>
 
         <!-- メインコンテンツ (認証済みユーザーのみ) -->
-        <div v-else class="w-full overflow-y-auto">
+        <div v-else class="w-full min-h-full overflow-y-auto">
           <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div v-if="isLoading" class="py-16 text-center">
               <!-- ローディングスピナー -->

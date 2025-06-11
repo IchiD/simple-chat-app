@@ -1,13 +1,13 @@
 <template>
-  <div class="bg-gradient-to-br from-gray-50 to-gray-100">
-    <div
-      class="relative flex antialiased text-gray-800"
-      style="height: calc(100vh - 7.5rem)"
-    >
-      <div class="flex h-full w-full">
+  <div class="bg-gradient-to-br min-h-full">
+    <div class="relative flex antialiased text-gray-800 min-h-full">
+      <div class="flex min-h-full w-full">
         <!-- ゲストユーザー向けメッセージ -->
-        <div v-if="!authStore.isAuthenticated" class="max-w-4xl mx-auto w-full">
-          <div class="h-full flex items-center justify-center p-8">
+        <div
+          v-if="!authStore.isAuthenticated"
+          class="max-w-4xl mx-auto w-full min-h-full"
+        >
+          <div class="min-h-full flex items-center justify-center p-8">
             <div class="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
               <div
                 class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
@@ -48,7 +48,7 @@
         </div>
 
         <!-- 認証済みユーザー向け通常のチャット一覧 -->
-        <div v-else class="max-w-4xl mx-auto w-full">
+        <div v-else class="max-w-4xl mx-auto w-full min-h-full">
           <ChatSidebar
             :conversations="conversations"
             :pending="pending"
