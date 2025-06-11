@@ -70,6 +70,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('friendships/{id}', [AdminDashboardController::class, 'deleteFriendship'])->name('friendships.delete');
     Route::post('friendships/{id}/restore', [AdminDashboardController::class, 'restoreFriendship'])->name('friendships.restore');
 
+    // Group Management Routes
+    Route::get('groups', [AdminDashboardController::class, 'groups'])->name('groups');
+    Route::get('groups/{id}', [AdminDashboardController::class, 'showGroup'])->name('groups.show');
+
     // Super Admin Only Routes
     Route::get('admins', [AdminDashboardController::class, 'admins'])->name('admins');
     Route::post('admins', [AdminDashboardController::class, 'createAdmin'])->name('admins.create')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
