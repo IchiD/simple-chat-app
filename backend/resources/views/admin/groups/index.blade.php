@@ -65,7 +65,7 @@
                 <td class="id-badge">#{{ $group->id }}</td>
                 <td>{{ $group->name }}</td>
                 <td>{{ $group->owner->name ?? '-' }}</td>
-                <td>{{ $group->group_members_count }}</td>
+                <td>{{ $group->members_count }}</td>
                 <td>{{ $group->created_at->format('Y/m/d') }}</td>
                 <td>
                   <a class="btn btn-sm btn-outline-primary" href="{{ route('admin.groups.show', $group->id) }}">
