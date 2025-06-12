@@ -18,6 +18,8 @@ interface User {
     | "incomplete_expired"
     | "trialing"
     | "unpaid";
+  should_suggest_name_change?: boolean; // 名前変更提案が必要かどうか
+  previous_name?: string; // 以前の名前
 }
 
 // 認証状態の型定義
@@ -310,10 +312,17 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     // 認証情報をクリア
+    clearAuthState();
+  }
+
+  // ローカル認証状態のみをクリア（APIを呼び出さない）
+  function clearAuthState() {
     token.value = null;
     user.value = null;
     isAuthenticated.value = false;
-    sessionStorage.removeItem("auth_token");
+    if (import.meta.client) {
+      sessionStorage.removeItem("auth_token");
+    }
   }
 
   return {
@@ -327,6 +336,7 @@ export const useAuthStore = defineStore("auth", () => {
     login,
     checkAuth,
     logout,
+    clearAuthState,
     getStoredToken,
     startGoogleLogin,
     handleGoogleCallback,

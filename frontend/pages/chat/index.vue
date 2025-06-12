@@ -2,53 +2,8 @@
   <div class="bg-gradient-to-br min-h-full">
     <div class="relative flex antialiased text-gray-800 min-h-full">
       <div class="flex min-h-full w-full">
-        <!-- ゲストユーザー向けメッセージ -->
-        <div
-          v-if="!authStore.isAuthenticated"
-          class="max-w-4xl mx-auto w-full min-h-full"
-        >
-          <div class="min-h-full flex items-center justify-center p-8">
-            <div class="bg-white rounded-xl shadow-sm p-8 text-center max-w-md">
-              <div
-                class="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-8 w-8 text-green-600"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-                  />
-                  <path
-                    d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                  />
-                </svg>
-              </div>
-              <h2 class="text-xl font-bold text-gray-900 mb-4">
-                ゲストユーザー
-              </h2>
-              <p class="text-gray-600 mb-6">
-                ゲストユーザーとしてチャット機能をご利用いただけます。<br />
-                参加済みのグループチャットがある場合は、直接チャットルームにアクセスしてください。
-              </p>
-              <div
-                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800"
-              >
-                <p class="font-medium mb-1">制限事項</p>
-                <ul class="text-left space-y-1">
-                  <li>• 友達とのプライベートチャットは利用できません</li>
-                  <li>• チャット一覧機能は利用できません</li>
-                  <li>• 参加済みのグループチャットのみ利用可能です</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- 認証済みユーザー向け通常のチャット一覧 -->
-        <div v-else class="max-w-4xl mx-auto w-full min-h-full">
+        <div class="max-w-4xl mx-auto w-full min-h-full">
           <ChatSidebar
             :conversations="conversations"
             :pending="pending"
@@ -165,19 +120,22 @@ const fetchConversations = async () => {
   }
 };
 
-// 認証チェック（ゲストユーザーも許可）
+// 認証チェック（認証必須）
 onMounted(async () => {
   try {
-    // 認証状態をチェック（失敗してもエラーを投げない）
+    // 認証状態をチェック
     await authStore.checkAuth();
 
-    // 認証済みの場合は会話データを取得
+    // 認証済みの場合のみ会話データを取得
     if (authStore.isAuthenticated) {
       await fetchConversations();
+    } else {
+      // 未認証の場合はログインページにリダイレクト
+      router.push("/auth/login");
     }
   } catch (error) {
-    console.log("認証チェック失敗 - ゲストユーザーとして続行:", error);
-    // ゲストユーザーとして継続
+    console.error("認証チェック失敗:", error);
+    router.push("/auth/login");
   }
 });
 
@@ -188,18 +146,13 @@ watch(
     if (isAuthenticated) {
       await fetchConversations();
     } else {
-      // 認証されていない場合はデータをクリア
-      apiResponse.value = null;
-      error.value = null;
+      // 認証されていない場合はログインページにリダイレクト
+      router.push("/auth/login");
     }
   }
 );
 
 const conversations = computed(() => {
-  if (!authStore.isAuthenticated) {
-    return [];
-  }
-
   const conversationList = apiResponse.value?.data || [];
 
   // サポート会話を識別して表示名を調整

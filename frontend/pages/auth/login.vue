@@ -8,9 +8,6 @@
               <h2 class="text-center text-3xl font-extrabold text-gray-900">
                 ログイン
               </h2>
-              <p class="mt-2 text-center text-sm text-gray-600">
-                アカウント情報でログインしてください
-              </p>
             </div>
 
             <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

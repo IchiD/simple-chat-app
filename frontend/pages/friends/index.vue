@@ -2,59 +2,8 @@
   <div class="bg-gradient-to-br min-h-full">
     <div class="relative flex antialiased text-gray-800 min-h-full">
       <div class="flex min-h-full w-full">
-        <!-- ゲストユーザー制限メッセージ -->
-        <div
-          v-if="!authStore.isAuthenticated"
-          class="w-full min-h-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
-        >
-          <div class="max-w-2xl mx-auto">
-            <div class="bg-white rounded-xl shadow-sm p-8 text-center">
-              <div
-                class="h-16 w-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-8 w-8 text-yellow-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                  />
-                </svg>
-              </div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                友達機能はご利用いただけません
-              </h2>
-              <p class="text-gray-600 mb-6">
-                ゲストユーザーは友達機能をご利用いただけません。<br />
-                友達機能をご利用いただくには、アカウント登録またはログインが必要です。
-              </p>
-              <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <NuxtLink
-                  to="/auth/register"
-                  class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                >
-                  アカウント登録
-                </NuxtLink>
-                <NuxtLink
-                  to="/auth/login"
-                  class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  ログイン
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- メインコンテンツ (認証済みユーザーのみ) -->
         <div
-          v-else
           class="w-full min-h-full overflow-y-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8"
         >
           <div v-if="loading" class="flex justify-center items-center py-20">
@@ -600,12 +549,11 @@ import { ref, onMounted, watch } from "vue";
 import { useApi } from "../../composables/useApi";
 import { useToast } from "../../composables/useToast";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "../../stores/auth";
+
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 
 // 認証ストア
-const authStore = useAuthStore();
 
 // 型定義
 interface User {

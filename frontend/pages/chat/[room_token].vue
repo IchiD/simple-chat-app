@@ -396,6 +396,8 @@ type Message = {
   sent_at: string;
   sender: MessageSender | null;
   adminSender?: AdminSender | null;
+  sender_has_left?: boolean;
+  sender_left_at?: string | null;
 };
 
 type PaginatedMessagesResponse = {
@@ -613,7 +615,7 @@ const _isSupportConversation = computed(() => {
 });
 
 // チャットタイプに応じた表示名を取得
-const conversationDisplayName = computed(() => {
+const _conversationDisplayName = computed(() => {
   const conversation = currentConversation.value;
   if (!conversation) return "チャット";
 
@@ -683,6 +685,10 @@ const getMessageSenderName = (message: Message): string => {
     return "サポート";
   }
   if (message.sender) {
+    // 退室済みの場合は（退室済み）を追加
+    if (message.sender_has_left) {
+      return `${message.sender.name}（退室済み）`;
+    }
     return message.sender.name;
   }
   return "不明なユーザー";

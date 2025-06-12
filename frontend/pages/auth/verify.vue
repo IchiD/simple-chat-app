@@ -60,7 +60,7 @@
             </svg>
             <p class="mb-4">{{ message }}</p>
             <p class="text-sm text-gray-500">
-              ホーム画面に自動的に移動します...
+              ユーザーページに自動的に移動します...
             </p>
           </template>
         </div>
@@ -90,9 +90,9 @@ const verifyToken = async (token: string) => {
       success.value = true;
       message.value = result.message || "メールアドレスの認証が完了しました";
 
-      // 成功したら3秒後にホームページへリダイレクト
+      // 成功したら3秒後にユーザーページへリダイレクト
       setTimeout(() => {
-        router.push("/");
+        router.push("/user");
       }, 3000);
     } else {
       error.value = result.message || "認証に失敗しました";

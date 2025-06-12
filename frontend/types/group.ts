@@ -38,6 +38,8 @@ export interface GroupMessage {
     id: number;
     name: string;
   } | null;
+  sender_has_left?: boolean;
+  sender_left_at?: string | null;
 }
 
 export interface Paginated<T> {

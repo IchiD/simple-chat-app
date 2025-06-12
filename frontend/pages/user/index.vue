@@ -2,97 +2,8 @@
   <div class="bg-gradient-to-br min-h-full">
     <div class="relative flex antialiased text-gray-800 min-h-full">
       <div class="flex min-h-full w-full">
-        <!-- ゲストユーザー制限メッセージ -->
-        <div
-          v-if="!authStore.isAuthenticated"
-          class="w-full min-h-full overflow-y-auto"
-        >
-          <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-xl shadow-sm p-8 text-center">
-              <div
-                class="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-8 w-8 text-blue-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                ユーザー設定は制限されています
-              </h2>
-              <p class="text-gray-600 mb-6">
-                ゲストユーザーはユーザー設定の一部機能が制限されています。<br />
-                すべての機能をご利用いただくには、アカウント登録またはログインが必要です。
-              </p>
-
-              <!-- ゲスト向け限定メニュー -->
-              <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                  ご利用可能な機能
-                </h3>
-                <div class="grid gap-4">
-                  <NuxtLink to="/chat" class="block">
-                    <div
-                      class="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors"
-                    >
-                      <div class="flex items-center justify-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-6 w-6 text-green-600 mr-3"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-                          />
-                          <path
-                            d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                          />
-                        </svg>
-                        <div>
-                          <h4 class="font-semibold text-green-800">
-                            チャット機能
-                          </h4>
-                          <p class="text-sm text-green-700">
-                            参加済みのグループチャットを利用できます
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </NuxtLink>
-                </div>
-              </div>
-
-              <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <NuxtLink
-                  to="/auth/register"
-                  class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-                >
-                  アカウント登録
-                </NuxtLink>
-                <NuxtLink
-                  to="/auth/login"
-                  class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                >
-                  ログイン
-                </NuxtLink>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- メインコンテンツ (認証済みユーザーのみ) -->
-        <div v-else class="w-full min-h-full overflow-y-auto">
+        <div class="w-full min-h-full overflow-y-auto">
           <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div v-if="isLoading" class="py-16 text-center">
               <!-- ローディングスピナー -->
@@ -826,86 +737,341 @@
                     </button>
                   </div>
 
-                  <!-- アプリ使い方ガイド -->
-                  <!-- <div
-                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
+                  <!-- アカウント削除セクション -->
+                  <div
+                    class="bg-red-50 border border-red-200 rounded-lg shadow-md p-6"
                   >
                     <h3
-                      class="text-md font-semibold text-gray-800 mb-4 flex items-center"
+                      class="text-md font-semibold text-red-800 mb-4 flex items-center"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                        style="color: var(--primary)"
+                        class="h-5 w-5 mr-2"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
                         <path
                           fill-rule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"
+                          clip-rule="evenodd"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"
                           clip-rule="evenodd"
                         />
                       </svg>
-                      アプリの使い方
+                      アカウント削除
                     </h3>
-                    <ul class="space-y-3">
-                      <li class="flex items-start">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                          style="color: var(--primary)"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        <span
-                          >フレンドIDを友達に教えて友達申請を受けることができます</span
-                        >
+                    <p class="text-sm text-red-700 mb-4">
+                      アカウントを削除すると、以下の状態になります：
+                    </p>
+                    <ul
+                      class="text-sm text-red-700 mb-4 space-y-1 list-disc list-inside"
+                    >
+                      <li>
+                        他のユーザーから見て友達リストやチャットルームが表示されなくなります
                       </li>
-                      <li class="flex items-start">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                          style="color: var(--primary)"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        <span>フレンドIDを使って友達を追加できます</span>
+                      <li>
+                        グループチャットでは「（退室済み）」と表示されます
                       </li>
-                      <li class="flex items-start">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
-                          style="color: var(--primary)"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        <span
-                          >友達とトークルームでメッセージを交換できます</span
-                        >
+                      <li>
+                        同じメールアドレスで再登録すると、データが復元されます
                       </li>
                     </ul>
-                  </div> -->
+                    <button
+                      class="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2 flex items-center transition transform hover:scale-105 cursor-pointer shadow-md hover:shadow-lg"
+                      @click="openDeleteAccountModal"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 mr-2"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"
+                          clip-rule="evenodd"
+                        />
+                        <path
+                          fill-rule="evenodd"
+                          d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      アカウントを削除
+                    </button>
+                  </div>
                 </div>
               </div>
             </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- アカウント削除確認モーダル -->
+    <div
+      v-if="showDeleteAccountModal"
+      class="fixed inset-0 z-50 overflow-y-auto"
+    >
+      <div
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div class="absolute inset-0 bg-gray-500 opacity-75" />
+        </div>
+
+        <!-- モーダルコンテンツ -->
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+        >
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div
+                class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+              >
+                <svg
+                  class="h-6 w-6 text-red-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.734-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3
+                  id="modal-title"
+                  class="text-lg leading-6 font-medium text-gray-900"
+                >
+                  アカウント削除の確認
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 mb-4">
+                    本当にアカウントを削除しますか？この操作により：
+                  </p>
+                  <ul
+                    class="text-sm text-gray-500 space-y-1 list-disc list-inside mb-4"
+                  >
+                    <li>他のユーザーから見えなくなります</li>
+                    <li>グループチャットでは「（退室済み）」と表示されます</li>
+                    <li>同じメールアドレスで再登録すれば復元できます</li>
+                  </ul>
+                  <form @submit.prevent="handleDeleteAccount">
+                    <!-- Google認証ユーザー以外はパスワード入力が必要 -->
+                    <div
+                      v-if="authStore.user?.social_type !== 'google'"
+                      class="mb-4"
+                    >
+                      <label
+                        for="deletePassword"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        確認のためパスワードを入力してください
+                      </label>
+                      <input
+                        id="deletePassword"
+                        v-model="deleteAccountPassword"
+                        type="password"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                        placeholder="現在のパスワード"
+                      />
+                    </div>
+                    <!-- Google認証ユーザー向けの説明 -->
+                    <div v-else class="mb-4">
+                      <div
+                        class="bg-blue-50 border border-blue-200 rounded-md p-3"
+                      >
+                        <div class="flex items-center">
+                          <svg
+                            class="h-5 w-5 text-blue-400 mr-2"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                          <span class="text-sm text-blue-800">
+                            Google認証のため、パスワード入力は不要です
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label
+                        for="deleteReason"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        削除理由（任意）
+                      </label>
+                      <textarea
+                        id="deleteReason"
+                        v-model="deleteAccountReason"
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                        placeholder="削除理由があれば入力してください（任意）"
+                      />
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+              :disabled="deleteAccountLoading"
+              @click="handleDeleteAccount"
+            >
+              <span v-if="deleteAccountLoading">
+                <svg
+                  class="animate-spin h-4 w-4 mr-2 inline"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                削除中...
+              </span>
+              <span v-else>アカウントを削除</span>
+            </button>
+            <button
+              type="button"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              @click="closeDeleteAccountModal"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 名前変更提案モーダル -->
+    <div
+      v-if="showNameChangeSuggestionModal"
+      class="fixed inset-0 z-50 overflow-y-auto"
+    >
+      <div
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+          <div class="absolute inset-0 bg-gray-500 opacity-75" />
+        </div>
+
+        <!-- モーダルコンテンツ -->
+        <div
+          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+        >
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div
+                class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10"
+              >
+                <svg
+                  class="h-6 w-6 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3
+                  id="modal-title"
+                  class="text-lg leading-6 font-medium text-gray-900"
+                >
+                  名前の変更提案
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 mb-4">
+                    以前の名前：<span class="font-medium text-gray-900">{{
+                      authStore.user?.previous_name
+                    }}</span>
+                  </p>
+                  <p class="text-sm text-gray-500 mb-4">
+                    で使われていましたが「{{
+                      authStore.user?.previous_name
+                    }}」に名前を変更しますか？
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+              style="background-color: var(--primary)"
+              :disabled="nameChangeSuggestionLoading"
+              @click="handleNameChangeSuggestion('accept')"
+            >
+              <span v-if="nameChangeSuggestionLoading">
+                <svg
+                  class="animate-spin h-4 w-4 mr-2 inline"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                変更中...
+              </span>
+              <span v-else>変更する</span>
+            </button>
+            <button
+              type="button"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              @click="handleNameChangeSuggestion('decline')"
+            >
+              現在の名前を維持
+            </button>
           </div>
         </div>
       </div>
@@ -923,7 +1089,7 @@ import { FetchError } from "ofetch";
 
 definePageMeta({
   layout: "default",
-  title: "ホーム",
+  title: "ユーザーページ",
 });
 
 const authStore = useAuthStore();
@@ -944,6 +1110,12 @@ const newPassword = ref("");
 const newPasswordConfirmation = ref("");
 const passwordChangeLoading = ref(false);
 const isDevelopment = ref(process.env.NODE_ENV === "development");
+const showDeleteAccountModal = ref(false);
+const deleteAccountPassword = ref("");
+const deleteAccountReason = ref("");
+const deleteAccountLoading = ref(false);
+const showNameChangeSuggestionModal = ref(false);
+const nameChangeSuggestionLoading = ref(false);
 
 // editingName を監視してリアルタイムバリデーション
 watch(editingName, (newName) => {
@@ -967,6 +1139,11 @@ onMounted(async () => {
         color: "error",
       });
       return router.push("/auth/login");
+    }
+
+    // 名前変更提案が必要かチェック
+    if (authStore.user?.should_suggest_name_change) {
+      showNameChangeSuggestionModal.value = true;
     }
   } catch (error) {
     console.error("Auth check error:", error);
@@ -1245,6 +1422,114 @@ const getPlanLabelText = (plan: string | undefined) => {
     return "Premium";
   } else {
     return "Free";
+  }
+};
+
+const handleDeleteAccount = async () => {
+  // Google認証ユーザー以外はパスワード確認が必要
+  if (
+    authStore.user?.social_type !== "google" &&
+    !deleteAccountPassword.value
+  ) {
+    toast.add({
+      title: "エラー",
+      description: "パスワードを入力してください",
+      color: "error",
+    });
+    return;
+  }
+
+  try {
+    deleteAccountLoading.value = true;
+
+    // リクエストボディを動的に構築
+    const requestBody: { password?: string; reason?: string } = {};
+
+    // Google認証ユーザー以外はパスワードを送信
+    if (authStore.user?.social_type !== "google") {
+      requestBody.password = deleteAccountPassword.value;
+    }
+
+    // 削除理由があれば追加
+    if (deleteAccountReason.value) {
+      requestBody.reason = deleteAccountReason.value;
+    }
+
+    await api("/user/delete-account", {
+      method: "DELETE",
+      body: requestBody,
+    });
+
+    toast.add({
+      title: "成功",
+      description: "アカウントを削除しました",
+      color: "success",
+    });
+    showDeleteAccountModal.value = false;
+    // アカウント削除後はサーバー側で既にトークンが削除されているため、
+    // ローカルの認証状態のみをクリア
+    authStore.clearAuthState();
+    router.push("/auth/login");
+  } catch (error) {
+    console.error("アカウント削除に失敗しました:", error);
+    const errorMessage = "アカウント削除に失敗しました。";
+    toast.add({
+      title: "エラー",
+      description: errorMessage,
+      color: "error",
+    });
+  } finally {
+    deleteAccountLoading.value = false;
+  }
+};
+
+const openDeleteAccountModal = () => {
+  // フォームをリセット
+  deleteAccountPassword.value = "";
+  deleteAccountReason.value = "";
+  showDeleteAccountModal.value = true;
+};
+
+const closeDeleteAccountModal = () => {
+  showDeleteAccountModal.value = false;
+  // フォームをリセット
+  deleteAccountPassword.value = "";
+  deleteAccountReason.value = "";
+};
+
+// 名前変更提案のハンドラー
+const handleNameChangeSuggestion = async (action: "accept" | "decline") => {
+  try {
+    nameChangeSuggestionLoading.value = true;
+
+    const response = await api("/user/handle-name-suggestion", {
+      method: "POST",
+      body: { action },
+    });
+
+    // ユーザー情報を更新
+    if (authStore.user && response.user) {
+      authStore.user.name = response.user.name;
+      authStore.user.should_suggest_name_change = false;
+      authStore.user.previous_name = null;
+    }
+
+    toast.add({
+      title: "成功",
+      description: response.message,
+      color: "success",
+    });
+
+    showNameChangeSuggestionModal.value = false;
+  } catch (error) {
+    console.error("名前変更提案処理に失敗しました:", error);
+    toast.add({
+      title: "エラー",
+      description: "名前変更提案処理に失敗しました",
+      color: "error",
+    });
+  } finally {
+    nameChangeSuggestionLoading.value = false;
   }
 };
 </script>

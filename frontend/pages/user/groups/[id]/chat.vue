@@ -181,7 +181,7 @@
                                   v-if="!isMyMessage(message.sender_id)"
                                   class="text-xs text-gray-500 mb-1"
                                 >
-                                  {{ message.sender?.name || "不明なユーザー" }}
+                                  {{ getMessageSenderName(message) }}
                                 </div>
                                 <div
                                   class="whitespace-pre-line leading-relaxed break-all"
@@ -478,9 +478,7 @@
                                       v-if="!isMyMessage(message.sender_id)"
                                       class="text-xs text-gray-500 mb-1"
                                     >
-                                      {{
-                                        message.sender?.name || "不明なユーザー"
-                                      }}
+                                      {{ getMessageSenderName(message) }}
                                     </div>
                                     <div
                                       class="whitespace-pre-line leading-relaxed break-all"
@@ -1724,6 +1722,18 @@ const shouldShowDateSeparator = (
 // 自分のメッセージかどうか
 const isMyMessage = (senderId: number | null): boolean => {
   return senderId === authStore.user?.id;
+};
+
+// メッセージの発言者名を取得
+const getMessageSenderName = (message: GroupMessage): string => {
+  if (message.sender) {
+    // 退室済みの場合は（退室済み）を追加
+    if (message.sender_has_left) {
+      return `${message.sender.name}（退室済み）`;
+    }
+    return message.sender.name;
+  }
+  return "不明なユーザー";
 };
 
 // キーボード入力処理
