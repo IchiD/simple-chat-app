@@ -23,6 +23,20 @@ interface GroupMember extends Record<string, unknown> {
   group_member_label: string;
 }
 
+interface ExtendedGroupMember extends GroupMember {
+  member_id: number; // GroupMemberのID
+  role: string;
+  joined_at: string;
+  left_at: string | null;
+  can_rejoin: boolean;
+  removal_type: string | null;
+  removed_by_user: {
+    id: number;
+    name: string;
+  } | null;
+  is_active: boolean;
+}
+
 interface BulkMessageRequest extends Record<string, unknown> {
   target_user_ids: number[];
   text_content: string;
@@ -103,12 +117,14 @@ export const useGroupConversations = () => {
   // メンバーを削除
   const removeMember = async (
     conversationId: number,
-    participantId: number
-  ): Promise<void> => {
-    await api(
+    participantId: number,
+    canRejoin: boolean = true
+  ): Promise<{ message: string; can_rejoin: boolean }> => {
+    return await api<{ message: string; can_rejoin: boolean }>(
       `/conversations/groups/${conversationId}/members/${participantId}`,
       {
         method: "DELETE",
+        body: { can_rejoin: canRejoin },
       }
     );
   };
@@ -161,12 +177,21 @@ export const useGroupConversations = () => {
     });
   };
 
-  // グループメンバー一覧を取得
+  // グループメンバー一覧を取得（アクティブメンバーのみ）
   const getGroupMembers = async (
     conversationId: number
   ): Promise<GroupMember[]> => {
     return await api<GroupMember[]>(
       `/conversations/groups/${conversationId}/members`
+    );
+  };
+
+  // 全メンバー一覧を取得（削除済み含む）- オーナー専用
+  const getAllGroupMembers = async (
+    conversationId: number
+  ): Promise<ExtendedGroupMember[]> => {
+    return await api<ExtendedGroupMember[]>(
+      `/conversations/groups/${conversationId}/members/all`
     );
   };
 
@@ -180,6 +205,34 @@ export const useGroupConversations = () => {
       {
         method: "POST",
         body: data,
+      }
+    );
+  };
+
+  // 再参加可否を切り替え
+  const toggleMemberRejoin = async (
+    conversationId: number,
+    memberId: number,
+    canRejoin: boolean
+  ): Promise<{ message: string; can_rejoin: boolean }> => {
+    return await api<{ message: string; can_rejoin: boolean }>(
+      `/conversations/groups/${conversationId}/members/${memberId}/rejoin`,
+      {
+        method: "PATCH",
+        body: { can_rejoin: canRejoin },
+      }
+    );
+  };
+
+  // メンバーを復活
+  const restoreMember = async (
+    conversationId: number,
+    memberId: number
+  ): Promise<{ message: string }> => {
+    return await api<{ message: string }>(
+      `/conversations/groups/${conversationId}/members/${memberId}/restore`,
+      {
+        method: "POST",
       }
     );
   };
@@ -198,6 +251,9 @@ export const useGroupConversations = () => {
     getMessages,
     sendMessage,
     getGroupMembers,
+    getAllGroupMembers,
     sendBulkMessage,
+    toggleMemberRejoin,
+    restoreMember,
   };
 };

@@ -152,7 +152,7 @@ const openSupportChat = async () => {
       return;
     }
 
-    // サポート会話を作成または取得
+    // サポートチャットを作成または取得
     const conversation = await $fetch<{ room_token: string }>(
       `${config.public.apiBase}/support/conversation`,
       {

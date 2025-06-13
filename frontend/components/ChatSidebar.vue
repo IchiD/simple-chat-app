@@ -72,7 +72,7 @@
             />
           </svg>
         </div>
-        <p class="text-gray-500 font-medium mb-2">会話はありません</p>
+        <p class="text-gray-500 font-medium mb-2">チャットはありません</p>
         <p class="text-xs text-gray-400">
           友達を追加してチャットを始めましょう
         </p>
@@ -239,9 +239,9 @@ const { user: authUser } = storeToRefs(useAuthStore());
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
-// 会話の表示名を取得する関数
+// チャットの表示名を取得する関数
 const getConversationDisplayName = (conversation: Conversation): string => {
-  // サポート会話の場合
+  // サポートチャットの場合
   if (conversation.type === "support_chat") {
     return "サポート";
   }
@@ -264,18 +264,18 @@ const getConversationDisplayName = (conversation: Conversation): string => {
     return conversation.other_participant.name;
   }
 
-  // ダイレクト会話の場合は participants を使用（旧構造との互換性）
+  // ダイレクトチャットの場合は participants を使用（旧構造との互換性）
   if (conversation.participants && conversation.participants.length > 0) {
     return (
       conversation.participants.find((p) => p.id !== currentUserId.value)
-        ?.name || "会話"
+        ?.name || "チャット"
     );
   }
 
-  return "会話";
+  return "チャット";
 };
 
-// 送信者名を取得する関数（サポート会話の場合は「サポート」を表示）
+// 送信者名を取得する関数（サポートチャットの場合は「サポート」を表示）
 const getSenderDisplayName = (
   conversation: Conversation,
   senderId: number | null
@@ -289,7 +289,7 @@ const getSenderDisplayName = (
     return "あなた";
   }
 
-  // 通常の会話の場合は送信者名を表示
+  // 通常のチャットの場合は送信者名を表示
   return conversation.latest_message?.sender?.name || "不明";
 };
 

@@ -95,7 +95,7 @@ const apiResponse = ref<PaginatedConversationsResponse | null>(null);
 const pending = ref(false);
 const error = ref<Error | null>(null);
 
-// 会話データを取得する関数
+// チャットデータを取得する関数
 const fetchConversations = async () => {
   if (!authStore.isAuthenticated || !authStore.token) {
     return;
@@ -126,7 +126,7 @@ onMounted(async () => {
     // 認証状態をチェック
     await authStore.checkAuth();
 
-    // 認証済みの場合のみ会話データを取得
+    // 認証済みの場合のみチャットデータを取得
     if (authStore.isAuthenticated) {
       await fetchConversations();
     } else {
@@ -155,7 +155,7 @@ watch(
 const conversations = computed(() => {
   const conversationList = apiResponse.value?.data || [];
 
-  // サポート会話を識別して表示名を調整
+  // サポートチャットを識別して表示名を調整
   return conversationList.map((conversation: Conversation) => {
     if (conversation.type === "support") {
       return {

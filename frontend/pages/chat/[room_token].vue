@@ -110,10 +110,10 @@
                       </svg>
                     </div>
                     <p class="text-gray-600 font-medium">
-                      会話が見つかりません
+                      チャットが見つかりません
                     </p>
                     <p class="text-gray-500 text-sm mt-1">
-                      会話一覧から選択してください
+                      チャット一覧から選択してください
                     </p>
                   </div>
                 </div>
@@ -580,7 +580,7 @@ const isLoadingInitialData = computed(
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
-// サポート会話かどうかを判定（将来の利用のため）
+// サポートチャットかどうかを判定（将来の利用のため）
 const _isSupportConversation = computed(() => {
   const result = currentConversation.value?.type === "support";
   return result;
@@ -842,7 +842,8 @@ const sendMessage = async () => {
           errorData.message.includes("削除されています") ||
           errorData.message.includes("deleted")
         ) {
-          errorMessage = "この会話は削除されています。チャット一覧に戻ります。";
+          errorMessage =
+            "このチャットは削除されています。チャット一覧に戻ります。";
           shouldRedirect = true;
         } else if (
           errorData.message.includes("アカウントが削除") ||
@@ -929,7 +930,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 };
 
 const getConversationErrorMessage = () => {
-  if (!conversationError.value) return "会話情報の読み込みに失敗しました。";
+  if (!conversationError.value) return "チャット情報の読み込みに失敗しました。";
 
   const errorMessage = conversationError.value.message || "";
   const error = conversationError.value as ApiError;
@@ -941,13 +942,13 @@ const getConversationErrorMessage = () => {
       errorData.message.includes("削除されています") ||
       errorData.message.includes("deleted")
     ) {
-      return "この会話は削除されています";
+      return "このチャットは削除されています";
     }
     if (
       errorData.message.includes("アクセス権") ||
       errorData.message.includes("権限")
     ) {
-      return "この会話にアクセスする権限がありません";
+      return "このチャットルームにアクセスする権限がありません";
     }
     if (
       errorData.message.includes("友達関係") ||
@@ -966,13 +967,13 @@ const getConversationErrorMessage = () => {
 
   // HTTPステータスコードに基づく判定
   if (errorMessage.includes("404") || error.statusCode === 404) {
-    return "会話が見つかりません";
+    return "チャットが見つかりません";
   }
   if (errorMessage.includes("403") || error.statusCode === 403) {
-    return "この会話にアクセスする権限がありません";
+    return "このチャットルームにアクセスする権限がありません";
   }
 
-  return "会話情報の読み込みに失敗しました";
+  return "チャット情報の読み込みに失敗しました";
 };
 
 const getConversationErrorDescription = () => {
@@ -999,23 +1000,23 @@ const getConversationErrorDescription = () => {
       errorData.message.includes("アカウントが削除") ||
       errorData.message.includes("user_deleted")
     ) {
-      return "チャット一覧に戻って他の会話を確認してください。";
+      return "チャット一覧に戻って他のチャットを確認してください。";
     }
     if (
       errorData.message.includes("アクセス権") ||
       errorData.message.includes("権限")
     ) {
-      return "チャット一覧に戻ってアクセス可能な会話を確認してください。";
+      return "チャット一覧に戻ってアクセス可能なチャットを確認してください。";
     }
   }
 
   // HTTPステータスコードに基づく判定
   const errorMessage = conversationError.value.message || "";
   if (errorMessage.includes("404")) {
-    return "会話が存在しないか、削除された可能性があります。";
+    return "チャットが存在しないか、削除された可能性があります。";
   }
   if (errorMessage.includes("403")) {
-    return "この会話にアクセスする権限がありません。";
+    return "このチャットルームにアクセスする権限がありません。";
   }
 
   return "ネットワーク接続を確認するか、ページを再読み込みしてください。";
