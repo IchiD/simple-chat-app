@@ -30,6 +30,14 @@
       </div>
 
       <h1 class="text-xl font-bold mb-4">{{ group?.name }} 詳細</h1>
+      <div class="mb-4">
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          @click="() => router.push(`/user/groups/${id}/edit`)"
+        >
+          編集
+        </button>
+      </div>
       <div
         v-if="successMessage"
         class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
@@ -294,31 +302,6 @@
           </div>
         </div>
 
-        <!-- メンバー追加セクション -->
-        <div>
-          <h2 class="font-semibold mb-2">メンバー追加</h2>
-          <div class="mb-2 flex space-x-2 items-end">
-            <div class="flex-1">
-              <label for="member-user" class="block text-sm font-medium"
-                >フレンドID</label
-              >
-              <input
-                id="member-user"
-                v-model="newMemberFriendId"
-                type="text"
-                placeholder="フレンドID"
-                class="border rounded px-2 py-1 w-full"
-              />
-            </div>
-            <button
-              class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
-              :disabled="adding"
-              @click="addMember"
-            >
-              {{ adding ? "追加中..." : "追加" }}
-            </button>
-          </div>
-        </div>
         <button
           class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded"
           @click="openChat"
@@ -419,7 +402,6 @@ await loadGroup();
 
 const successMessage = ref("");
 const errorMessage = ref("");
-const adding = ref(false);
 
 // メンバー一覧データ
 const groupMembers = ref<GroupMember[]>([]);
@@ -584,29 +566,4 @@ function goBack() {
   }
 }
 
-const newMemberFriendId = ref("");
-
-async function addMember() {
-  errorMessage.value = "";
-  successMessage.value = "";
-  if (!newMemberFriendId.value.trim()) {
-    errorMessage.value = "フレンドIDを入力してください";
-    return;
-  }
-  adding.value = true;
-  try {
-    await groupConversations.addMember(id, {
-      friend_id: newMemberFriendId.value.trim(),
-    });
-    newMemberFriendId.value = "";
-    await refresh();
-    await loadMembers(); // メンバー一覧も再読み込み
-    successMessage.value = "メンバーを追加しました";
-  } catch (e) {
-    console.error(e);
-    errorMessage.value = "メンバー追加に失敗しました";
-  } finally {
-    adding.value = false;
-  }
-}
 </script>
