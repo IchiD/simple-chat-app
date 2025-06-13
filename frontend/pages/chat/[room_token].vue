@@ -72,22 +72,6 @@
                   class="flex items-center justify-center h-full"
                 >
                   <div class="text-center">
-                    <div
-                      class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-8 w-8 text-red-600"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                    </div>
                     <p class="text-red-600 font-medium mb-2">
                       {{ getConversationErrorMessage() }}
                     </p>
@@ -98,18 +82,6 @@
                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-200"
                       @click="handleConversationError"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
                       チャット一覧に戻る
                     </button>
                   </div>
