@@ -517,6 +517,138 @@
       </div>
     </div>
 
+    <!-- 決済前確認モーダル -->
+    <div
+      v-if="confirmationState.isVisible"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4">
+        <div class="text-center mb-6">
+          <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4"
+          >
+            <svg
+              class="h-6 w-6 text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">
+            プラン選択の確認
+          </h3>
+          <p class="text-sm text-gray-600">以下の内容で決済を進めますか？</p>
+        </div>
+
+        <!-- プラン詳細 -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-medium text-gray-900">選択プラン</span>
+            <span class="text-lg font-bold text-blue-600 uppercase">
+              {{ confirmationState.selectedPlan }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-gray-600">月額料金</span>
+            <span class="font-semibold text-gray-900">
+              {{ getPlanPrice(confirmationState.selectedPlan) }}
+            </span>
+          </div>
+
+          <!-- 現在のプランからの変更の場合 -->
+          <div
+            v-if="authStore.user?.plan && authStore.user.plan !== 'free'"
+            class="border-t pt-3 mt-3"
+          >
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">現在のプラン</span>
+              <span class="text-gray-900 uppercase">{{
+                authStore.user.plan
+              }}</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">現在の料金</span>
+              <span class="text-gray-900">{{
+                getPlanPrice(authStore.user.plan)
+              }}</span>
+            </div>
+            <div class="flex justify-between items-center font-semibold">
+              <span class="text-gray-900">差額</span>
+              <span class="text-green-600">
+                +{{
+                  calculatePriceDifference(
+                    authStore.user.plan,
+                    confirmationState.selectedPlan
+                  )
+                }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 初回決済の場合 -->
+          <div v-else class="border-t pt-3 mt-3">
+            <div class="flex justify-between items-center font-semibold">
+              <span class="text-gray-900">初回決済額</span>
+              <span class="text-blue-600">
+                {{ getPlanPrice(confirmationState.selectedPlan) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 重要事項 -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
+          <div class="flex items-start">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <div class="text-xs text-yellow-800">
+              <p class="font-medium mb-1">決済に関する重要事項</p>
+              <ul class="space-y-1">
+                <li>• 決済はStripeの安全なシステムで処理されます</li>
+                <li>• 月額料金は毎月自動で請求されます</li>
+                <li>• プランはいつでも変更・キャンセル可能です</li>
+                <li>• 決済完了後、即座にプラン機能が利用可能になります</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex space-x-3">
+          <button
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            @click="cancelConfirmation"
+          >
+            キャンセル
+          </button>
+          <button
+            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            @click="proceedWithPayment"
+          >
+            決済を進める
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ローディング状態表示 -->
     <div
       v-if="loadingState.isLoading"
@@ -944,6 +1076,62 @@ const elapsedTime = computed(() => {
   return Math.floor((Date.now() - loadingState.value.startTime) / 1000);
 });
 
+// 決済前確認状態管理
+const confirmationState = ref<{
+  isVisible: boolean;
+  selectedPlan: string | null;
+}>({
+  isVisible: false,
+  selectedPlan: null,
+});
+
+// プラン料金の定義
+const PLAN_PRICES: Record<string, { price: number; display: string }> = {
+  free: { price: 0, display: "¥0" },
+  standard: { price: 2980, display: "¥2,980" },
+  premium: { price: 5980, display: "¥5,980" },
+};
+
+// プラン料金取得関数
+const getPlanPrice = (plan: string | null): string => {
+  if (!plan) return "¥0";
+  return PLAN_PRICES[plan]?.display || "¥0";
+};
+
+// 差額計算関数
+const calculatePriceDifference = (
+  currentPlan: string | null,
+  newPlan: string | null
+): string => {
+  if (!currentPlan || !newPlan) return "¥0";
+
+  const currentPrice = PLAN_PRICES[currentPlan]?.price || 0;
+  const newPrice = PLAN_PRICES[newPlan]?.price || 0;
+  const difference = newPrice - currentPrice;
+
+  if (difference > 0) {
+    return `¥${difference.toLocaleString()}`;
+  }
+  return "¥0";
+};
+
+// 確認モーダルキャンセル関数
+const cancelConfirmation = () => {
+  confirmationState.value = {
+    isVisible: false,
+    selectedPlan: null,
+  };
+};
+
+// 決済実行関数
+const proceedWithPayment = () => {
+  if (confirmationState.value.selectedPlan) {
+    const plan = confirmationState.value.selectedPlan as "standard" | "premium";
+    confirmationState.value.isVisible = false;
+    executeCheckout(plan);
+  }
+};
+
 // プラン比較データ
 const comparisonFeatures = ref([
   {
@@ -1289,7 +1477,17 @@ const TextIcon = ({ value }: { value: string }) =>
     value
   );
 
-const checkout = async (plan: "standard" | "premium") => {
+// 確認モーダル表示関数
+const checkout = (plan: "standard" | "premium") => {
+  // まず確認モーダルを表示
+  confirmationState.value = {
+    isVisible: true,
+    selectedPlan: plan,
+  };
+};
+
+// 実際の決済処理関数
+const executeCheckout = async (plan: "standard" | "premium") => {
   startLoading(plan);
   resetErrorState();
 
@@ -1390,8 +1588,12 @@ const checkout = async (plan: "standard" | "premium") => {
       // 8. リダイレクト実行
       await setLoadingStage(LOADING_STAGES.REDIRECTING);
 
+      // プラン情報をURLパラメータとして追加
+      const urlWithParams = new URL(res.url);
+      urlWithParams.searchParams.set("plan", plan);
+
       setTimeout(() => {
-        window.location.href = res.url;
+        window.location.href = urlWithParams.toString();
       }, 2000);
     } else {
       throw new Error("決済URLが取得できませんでした");
