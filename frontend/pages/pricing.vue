@@ -475,6 +475,58 @@
       </div>
     </div>
 
+    <!-- エラー状態表示 -->
+    <div
+      v-if="errorState.hasError"
+      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+    >
+      <div class="flex items-start">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-red-600 mr-2 mt-0.5 flex-shrink-0"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-red-800 font-medium">
+            {{
+              errorState.errorType
+                ? ERROR_MESSAGES[errorState.errorType as ErrorType]?.title
+                : "エラーが発生しました"
+            }}
+          </h3>
+          <p class="text-red-700 mt-1 text-sm">
+            {{
+              errorState.errorType
+                ? ERROR_MESSAGES[errorState.errorType as ErrorType]?.description
+                : "予期しないエラーが発生しました。"
+            }}
+          </p>
+          <div class="mt-3 flex items-center space-x-3">
+            <button
+              v-if="errorState.canRetry"
+              class="text-sm bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-md transition-colors"
+              @click="_retryCheckout(selectedPlan as 'standard' | 'premium')"
+            >
+              再試行 ({{ 3 - errorState.retryCount }}/3)
+            </button>
+            <button
+              class="text-sm text-red-600 hover:text-red-800 underline"
+              @click="resetErrorState"
+            >
+              エラーを閉じる
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- よくある質問 -->
     <div class="mt-16">
       <h2 class="text-2xl font-bold text-center mb-8">よくある質問</h2>
@@ -507,6 +559,101 @@ const authStore = useAuthStore();
 // ローディング状態を管理
 const isLoading = ref(false);
 const selectedPlan = ref<string | null>(null);
+
+// エラー状態管理
+const errorState = ref<{
+  hasError: boolean;
+  errorType: string | null;
+  retryCount: number;
+  canRetry: boolean;
+}>({
+  hasError: false,
+  errorType: null,
+  retryCount: 0,
+  canRetry: false,
+});
+
+// エラータイプの定義
+const ERROR_TYPES = {
+  NETWORK: "network",
+  AUTH: "auth",
+  SUBSCRIPTION: "subscription",
+  STRIPE: "stripe",
+  SERVER: "server",
+  VALIDATION: "validation",
+  TIMEOUT: "timeout",
+  UNKNOWN: "unknown",
+} as const;
+
+type ErrorType = (typeof ERROR_TYPES)[keyof typeof ERROR_TYPES];
+
+// エラーメッセージの定義
+const ERROR_MESSAGES: Record<
+  ErrorType,
+  {
+    title: string;
+    description: string;
+    action?: string;
+    canRetry: boolean;
+  }
+> = {
+  [ERROR_TYPES.NETWORK]: {
+    title: "ネットワークエラー",
+    description:
+      "インターネット接続を確認してください。接続が安定してから再度お試しください。",
+    action: "再試行",
+    canRetry: true,
+  },
+  [ERROR_TYPES.AUTH]: {
+    title: "認証エラー",
+    description:
+      "認証の有効期限が切れている可能性があります。再度ログインしてください。",
+    action: "ログインページへ",
+    canRetry: false,
+  },
+  [ERROR_TYPES.SUBSCRIPTION]: {
+    title: "サブスクリプションエラー",
+    description:
+      "既にアクティブなサブスクリプションがあります。プラン変更については、サポートまでお問い合わせください。",
+    action: "サポートに連絡",
+    canRetry: false,
+  },
+  [ERROR_TYPES.STRIPE]: {
+    title: "決済システムエラー",
+    description:
+      "決済システムで一時的な問題が発生しています。しばらく時間をおいてから再度お試しください。",
+    action: "再試行",
+    canRetry: true,
+  },
+  [ERROR_TYPES.SERVER]: {
+    title: "サーバーエラー",
+    description:
+      "サーバーで一時的な問題が発生しています。しばらく時間をおいてから再度お試しください。",
+    action: "再試行",
+    canRetry: true,
+  },
+  [ERROR_TYPES.VALIDATION]: {
+    title: "入力エラー",
+    description:
+      "入力内容に問題があります。内容を確認してから再度お試しください。",
+    action: "内容を確認",
+    canRetry: false,
+  },
+  [ERROR_TYPES.TIMEOUT]: {
+    title: "タイムアウトエラー",
+    description:
+      "処理に時間がかかりすぎています。ネットワーク接続を確認してから再度お試しください。",
+    action: "再試行",
+    canRetry: true,
+  },
+  [ERROR_TYPES.UNKNOWN]: {
+    title: "予期しないエラー",
+    description:
+      "予期しないエラーが発生しました。問題が続く場合は、サポートまでお問い合わせください。",
+    action: "再試行",
+    canRetry: true,
+  },
+};
 
 // プラン比較データ
 const comparisonFeatures = ref([
@@ -597,6 +744,175 @@ const faqs = ref([
   },
 ]);
 
+// エラー分析関数
+const analyzeError = (error: unknown): ErrorType => {
+  if (!error) return ERROR_TYPES.UNKNOWN;
+
+  // ネットワークエラーの検出
+  if (error instanceof TypeError && error.message.includes("fetch")) {
+    return ERROR_TYPES.NETWORK;
+  }
+
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+
+    // 認証エラー
+    if (
+      message.includes("auth") ||
+      message.includes("unauthorized") ||
+      message.includes("401")
+    ) {
+      return ERROR_TYPES.AUTH;
+    }
+
+    // サブスクリプションエラー
+    if (
+      message.includes("subscription") ||
+      message.includes("already active") ||
+      message.includes("duplicate")
+    ) {
+      return ERROR_TYPES.SUBSCRIPTION;
+    }
+
+    // Stripeエラー
+    if (
+      message.includes("stripe") ||
+      message.includes("payment") ||
+      message.includes("checkout")
+    ) {
+      return ERROR_TYPES.STRIPE;
+    }
+
+    // サーバーエラー
+    if (
+      message.includes("500") ||
+      message.includes("server") ||
+      message.includes("internal")
+    ) {
+      return ERROR_TYPES.SERVER;
+    }
+
+    // バリデーションエラー
+    if (
+      message.includes("validation") ||
+      message.includes("invalid") ||
+      message.includes("422")
+    ) {
+      return ERROR_TYPES.VALIDATION;
+    }
+
+    // タイムアウトエラー
+    if (message.includes("timeout") || message.includes("aborted")) {
+      return ERROR_TYPES.TIMEOUT;
+    }
+
+    // ネットワークエラー
+    if (
+      message.includes("network") ||
+      message.includes("fetch") ||
+      message.includes("connection")
+    ) {
+      return ERROR_TYPES.NETWORK;
+    }
+  }
+
+  return ERROR_TYPES.UNKNOWN;
+};
+
+// エラーハンドリング関数
+const handleCheckoutError = (error: unknown, plan: string) => {
+  const errorType = analyzeError(error);
+  const errorConfig = ERROR_MESSAGES[errorType];
+
+  errorState.value = {
+    hasError: true,
+    errorType,
+    retryCount: errorState.value.retryCount + 1,
+    canRetry: errorConfig.canRetry && errorState.value.retryCount < 3,
+  };
+
+  console.error(`Checkout error (${errorType}):`, error);
+
+  // エラーログの詳細記録
+  const errorDetails = {
+    type: errorType,
+    plan,
+    retryCount: errorState.value.retryCount,
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    error: error instanceof Error ? error.message : String(error),
+  };
+
+  console.error("Detailed error info:", errorDetails);
+
+  // ユーザーへのエラー表示
+  toast.add({
+    title: errorConfig.title,
+    description: errorConfig.description,
+    color: "error",
+    timeout: errorType === ERROR_TYPES.NETWORK ? 8000 : 5000, // ネットワークエラーは長めに表示
+  });
+
+  // 特定のエラータイプに対する追加アクション
+  switch (errorType) {
+    case ERROR_TYPES.AUTH:
+      setTimeout(() => {
+        navigateTo("/auth/login");
+      }, 3000);
+      break;
+
+    case ERROR_TYPES.NETWORK:
+      // ネットワークエラーの場合、自動リトライを提案
+      if (errorState.value.canRetry) {
+        setTimeout(() => {
+          toast.add({
+            title: "自動再試行",
+            description: "ネットワーク接続が回復したら自動的に再試行します",
+            color: "info",
+          });
+        }, 2000);
+      }
+      break;
+  }
+};
+
+// リトライ機能
+const _retryCheckout = async (plan: "standard" | "premium") => {
+  if (!errorState.value.canRetry) {
+    toast.add({
+      title: "再試行できません",
+      description:
+        "このエラーは再試行できません。サポートまでお問い合わせください。",
+      color: "warning",
+    });
+    return;
+  }
+
+  toast.add({
+    title: "再試行中",
+    description: "決済処理を再試行しています...",
+    color: "info",
+  });
+
+  // エラー状態をリセット
+  errorState.value.hasError = false;
+
+  // 少し待ってから再試行
+  setTimeout(() => {
+    checkout(plan);
+  }, 1000);
+};
+
+// エラー状態のリセット
+const resetErrorState = () => {
+  errorState.value = {
+    hasError: false,
+    errorType: null,
+    retryCount: 0,
+    canRetry: false,
+  };
+};
+
 // メソッド
 const getCurrentPlanDisplay = () => {
   if (!authStore.user?.plan || authStore.user.plan === "free") {
@@ -685,6 +1001,7 @@ const TextIcon = ({ value }: { value: string }) =>
 
 const checkout = async (plan: "standard" | "premium") => {
   selectedPlan.value = plan;
+  resetErrorState(); // エラー状態をリセット
 
   // 1. 認証チェック
   if (!authStore.isAuthenticated) {
@@ -714,13 +1031,8 @@ const checkout = async (plan: "standard" | "premium") => {
       if (!authStore.user) {
         throw new Error("ユーザー情報の取得に失敗しました");
       }
-    } catch {
-      toast.add({
-        title: "エラー",
-        description:
-          "ユーザー情報の取得に失敗しました。再度ログインしてください",
-        color: "error",
-      });
+    } catch (error) {
+      handleCheckoutError(error, plan);
       await navigateTo("/auth/login");
       return;
     }
@@ -764,10 +1076,17 @@ const checkout = async (plan: "standard" | "premium") => {
       color: "info",
     });
 
+    // タイムアウト設定付きでAPI呼び出し
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒でタイムアウト
+
     const res = await api<{ url: string }>("/stripe/create-checkout-session", {
       method: "POST",
       body: { plan },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (res.url) {
       toast.add({
@@ -783,36 +1102,7 @@ const checkout = async (plan: "standard" | "premium") => {
       throw new Error("決済URLが取得できませんでした");
     }
   } catch (error) {
-    console.error("checkout error", error);
-
-    let errorMessage = "決済処理でエラーが発生しました";
-    let errorTitle = "エラー";
-
-    if (error instanceof Error) {
-      if (error.message.includes("subscription")) {
-        errorTitle = "サブスクリプションエラー";
-        errorMessage =
-          "既にアクティブなサブスクリプションがあります。プラン変更については、サポートまでお問い合わせください";
-      } else if (
-        error.message.includes("network") ||
-        error.message.includes("fetch")
-      ) {
-        errorTitle = "ネットワークエラー";
-        errorMessage =
-          "ネットワークエラーが発生しました。インターネット接続を確認してもう一度お試しください";
-      } else if (error.message.includes("auth")) {
-        errorTitle = "認証エラー";
-        errorMessage = "認証に問題があります。再度ログインしてお試しください";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-    }
-
-    toast.add({
-      title: errorTitle,
-      description: errorMessage,
-      color: "error",
-    });
+    handleCheckoutError(error, plan);
   } finally {
     isLoading.value = false;
     selectedPlan.value = null;
@@ -826,6 +1116,7 @@ onMounted(async () => {
       await authStore.checkAuth();
     } catch (error) {
       console.error("認証チェックエラー:", error);
+      // 認証チェックエラーは致命的ではないので、ユーザーには表示しない
     }
   }
 });
