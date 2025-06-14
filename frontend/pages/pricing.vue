@@ -204,7 +204,18 @@
             </li>
           </ul>
           <button
-            class="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
+            :class="{
+              'bg-blue-500 hover:bg-blue-600 text-white':
+                !isLoading && !isCurrentPlan('standard'),
+              'bg-blue-300 text-white cursor-not-allowed':
+                isLoading && selectedPlan !== 'standard',
+              'bg-blue-600 text-white cursor-wait':
+                isLoading && selectedPlan === 'standard',
+              'bg-gray-400 text-white cursor-not-allowed':
+                isCurrentPlan('standard'),
+              'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
+            }"
             :disabled="
               isLoading ||
               !authStore.isAuthenticated ||
@@ -213,30 +224,40 @@
             @click="checkout('standard')"
           >
             <template v-if="isLoading && selectedPlan === 'standard'">
-              <svg
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              処理中...
+              <div class="flex items-center justify-center">
+                <svg
+                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span class="text-sm">{{
+                  loadingState.message || "処理中..."
+                }}</span>
+              </div>
+            </template>
+            <template v-else-if="isLoading">
+              <span class="opacity-70 text-sm">他のプラン処理中...</span>
             </template>
             <template v-else-if="isCurrentPlan('standard')">
               現在のプラン
+            </template>
+            <template v-else-if="!authStore.isAuthenticated">
+              ログインが必要です
             </template>
             <template v-else> このプランを選択 </template>
           </button>
@@ -317,7 +338,18 @@
             </li>
           </ul>
           <button
-            class="w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+            class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
+            :class="{
+              'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white':
+                !isLoading && !isCurrentPlan('premium'),
+              'bg-gradient-to-r from-purple-300 to-pink-300 text-white cursor-not-allowed':
+                isLoading && selectedPlan !== 'premium',
+              'bg-gradient-to-r from-purple-600 to-pink-600 text-white cursor-wait':
+                isLoading && selectedPlan === 'premium',
+              'bg-gray-400 text-white cursor-not-allowed':
+                isCurrentPlan('premium'),
+              'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
+            }"
             :disabled="
               isLoading ||
               !authStore.isAuthenticated ||
@@ -326,30 +358,40 @@
             @click="checkout('premium')"
           >
             <template v-if="isLoading && selectedPlan === 'premium'">
-              <svg
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              処理中...
+              <div class="flex items-center justify-center">
+                <svg
+                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span class="text-sm">{{
+                  loadingState.message || "処理中..."
+                }}</span>
+              </div>
+            </template>
+            <template v-else-if="isLoading">
+              <span class="opacity-70 text-sm">他のプラン処理中...</span>
             </template>
             <template v-else-if="isCurrentPlan('premium')">
               現在のプラン
+            </template>
+            <template v-else-if="!authStore.isAuthenticated">
+              ログインが必要です
             </template>
             <template v-else> このプランを選択 </template>
           </button>
@@ -475,6 +517,107 @@
       </div>
     </div>
 
+    <!-- ローディング状態表示 -->
+    <div
+      v-if="loadingState.isLoading"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+          <!-- ローディングアイコン -->
+          <div class="mb-6">
+            <div class="relative">
+              <svg
+                class="animate-spin h-16 w-16 text-blue-600 mx-auto"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              <!-- プラン表示 -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-xs font-bold text-blue-600 uppercase">
+                  {{ loadingState.selectedPlan }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- プログレスバー -->
+          <div class="mb-6">
+            <div class="flex justify-between text-sm text-gray-600 mb-2">
+              <span>進行状況</span>
+              <span>{{ Math.round(loadingState.progress) }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div
+                class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out"
+                :style="{ width: `${loadingState.progress}%` }"
+              />
+            </div>
+          </div>
+
+          <!-- ローディングメッセージ -->
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              決済処理中...
+            </h3>
+            <p class="text-sm text-gray-600 mb-3">
+              {{ loadingState.message }}
+            </p>
+
+            <!-- ステージ表示 -->
+            <div class="text-xs text-gray-500">
+              <span v-if="loadingState.stage">
+                ステージ: {{ loadingState.stage }}
+              </span>
+              <span v-if="elapsedTime > 0" class="ml-2">
+                経過時間: {{ elapsedTime }}秒
+              </span>
+            </div>
+          </div>
+
+          <!-- 注意事項 -->
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div class="flex items-start">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <div class="text-xs text-yellow-800">
+                <p class="font-medium">重要な注意事項</p>
+                <p class="mt-1">
+                  このページを閉じたり、ブラウザの戻るボタンを押さないでください。
+                  決済処理が中断される可能性があります。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- エラー状態表示 -->
     <div
       v-if="errorState.hasError"
@@ -547,7 +690,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, h } from "vue";
+import { ref, onMounted, h, computed } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useApi } from "@/composables/useApi";
 import { useAuthStore } from "~/stores/auth";
@@ -556,9 +699,91 @@ const toast = useToast();
 const { api } = useApi();
 const authStore = useAuthStore();
 
-// ローディング状態を管理
-const isLoading = ref(false);
-const selectedPlan = ref<string | null>(null);
+// ローディング状態を詳細管理
+const loadingState = ref<{
+  isLoading: boolean;
+  selectedPlan: string | null;
+  stage: string | null;
+  progress: number;
+  message: string;
+  startTime: number | null;
+}>({
+  isLoading: false,
+  selectedPlan: null,
+  stage: null,
+  progress: 0,
+  message: "",
+  startTime: null,
+});
+
+// ローディングステージの定義
+const LOADING_STAGES = {
+  INIT: "init",
+  AUTH_CHECK: "auth_check",
+  USER_VALIDATION: "user_validation",
+  PLAN_VALIDATION: "plan_validation",
+  PAYMENT_PREPARATION: "payment_preparation",
+  STRIPE_SESSION: "stripe_session",
+  REDIRECT_PREPARATION: "redirect_preparation",
+  REDIRECTING: "redirecting",
+} as const;
+
+type LoadingStage = (typeof LOADING_STAGES)[keyof typeof LOADING_STAGES];
+
+// ローディングステージ別の設定
+const LOADING_STAGE_CONFIG: Record<
+  LoadingStage,
+  {
+    message: string;
+    progress: number;
+    duration: number; // 推定時間（ミリ秒）
+  }
+> = {
+  [LOADING_STAGES.INIT]: {
+    message: "決済処理を開始しています...",
+    progress: 10,
+    duration: 500,
+  },
+  [LOADING_STAGES.AUTH_CHECK]: {
+    message: "認証状態を確認しています...",
+    progress: 20,
+    duration: 800,
+  },
+  [LOADING_STAGES.USER_VALIDATION]: {
+    message: "ユーザー情報を検証しています...",
+    progress: 35,
+    duration: 1000,
+  },
+  [LOADING_STAGES.PLAN_VALIDATION]: {
+    message: "プラン情報を確認しています...",
+    progress: 50,
+    duration: 700,
+  },
+  [LOADING_STAGES.PAYMENT_PREPARATION]: {
+    message: "決済情報を準備しています...",
+    progress: 65,
+    duration: 1200,
+  },
+  [LOADING_STAGES.STRIPE_SESSION]: {
+    message: "Stripe決済セッションを作成しています...",
+    progress: 80,
+    duration: 2000,
+  },
+  [LOADING_STAGES.REDIRECT_PREPARATION]: {
+    message: "決済ページを準備しています...",
+    progress: 90,
+    duration: 800,
+  },
+  [LOADING_STAGES.REDIRECTING]: {
+    message: "決済ページに移動しています...",
+    progress: 100,
+    duration: 2000,
+  },
+};
+
+// 従来の状態管理（後方互換性のため）
+const isLoading = computed(() => loadingState.value.isLoading);
+const selectedPlan = computed(() => loadingState.value.selectedPlan);
 
 // エラー状態管理
 const errorState = ref<{
@@ -654,6 +879,70 @@ const ERROR_MESSAGES: Record<
     canRetry: true,
   },
 };
+
+// ローディング状態管理関数
+const setLoadingStage = async (stage: LoadingStage) => {
+  const config = LOADING_STAGE_CONFIG[stage];
+
+  loadingState.value.stage = stage;
+  loadingState.value.message = config.message;
+  loadingState.value.progress = config.progress;
+
+  // プログレスバーのアニメーション
+  await new Promise((resolve) => {
+    const startProgress = loadingState.value.progress;
+    const targetProgress = config.progress;
+    const duration = 300; // アニメーション時間
+    const steps = 20;
+    const increment = (targetProgress - startProgress) / steps;
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep++;
+      loadingState.value.progress = Math.min(
+        startProgress + increment * currentStep,
+        targetProgress
+      );
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        resolve(void 0);
+      }
+    }, duration / steps);
+  });
+
+  // ステージ固有の最小待機時間
+  const minWaitTime = Math.max(config.duration - 300, 200);
+  await new Promise((resolve) => setTimeout(resolve, minWaitTime));
+};
+
+const startLoading = (plan: string) => {
+  loadingState.value = {
+    isLoading: true,
+    selectedPlan: plan,
+    stage: LOADING_STAGES.INIT,
+    progress: 0,
+    message: "処理を開始しています...",
+    startTime: Date.now(),
+  };
+};
+
+const stopLoading = () => {
+  loadingState.value = {
+    isLoading: false,
+    selectedPlan: null,
+    stage: null,
+    progress: 0,
+    message: "",
+    startTime: null,
+  };
+};
+
+// 経過時間の計算
+const elapsedTime = computed(() => {
+  if (!loadingState.value.startTime) return 0;
+  return Math.floor((Date.now() - loadingState.value.startTime) / 1000);
+});
 
 // プラン比較データ
 const comparisonFeatures = ref([
@@ -841,6 +1130,8 @@ const handleCheckoutError = (error: unknown, plan: string) => {
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
     error: error instanceof Error ? error.message : String(error),
+    loadingStage: loadingState.value.stage,
+    elapsedTime: elapsedTime.value,
   };
 
   console.error("Detailed error info:", errorDetails);
@@ -850,7 +1141,7 @@ const handleCheckoutError = (error: unknown, plan: string) => {
     title: errorConfig.title,
     description: errorConfig.description,
     color: "error",
-    timeout: errorType === ERROR_TYPES.NETWORK ? 8000 : 5000, // ネットワークエラーは長めに表示
+    timeout: errorType === ERROR_TYPES.NETWORK ? 8000 : 5000,
   });
 
   // 特定のエラータイプに対する追加アクション
@@ -862,7 +1153,6 @@ const handleCheckoutError = (error: unknown, plan: string) => {
       break;
 
     case ERROR_TYPES.NETWORK:
-      // ネットワークエラーの場合、自動リトライを提案
       if (errorState.value.canRetry) {
         setTimeout(() => {
           toast.add({
@@ -1000,85 +1290,84 @@ const TextIcon = ({ value }: { value: string }) =>
   );
 
 const checkout = async (plan: "standard" | "premium") => {
-  selectedPlan.value = plan;
-  resetErrorState(); // エラー状態をリセット
-
-  // 1. 認証チェック
-  if (!authStore.isAuthenticated) {
-    toast.add({
-      title: "認証が必要です",
-      description: "プランを選択するには、まずログインしてください",
-      color: "warning",
-    });
-
-    await navigateTo({
-      path: "/auth/login",
-      query: { return_url: "/pricing" },
-    });
-    return;
-  }
-
-  // 2. ユーザー情報が取得できていない場合の処理
-  if (!authStore.user) {
-    toast.add({
-      title: "ユーザー情報を確認中",
-      description: "ユーザー情報を取得しています。しばらくお待ちください",
-      color: "info",
-    });
-
-    try {
-      await authStore.checkAuth();
-      if (!authStore.user) {
-        throw new Error("ユーザー情報の取得に失敗しました");
-      }
-    } catch (error) {
-      handleCheckoutError(error, plan);
-      await navigateTo("/auth/login");
-      return;
-    }
-  }
-
-  // 3. 既に有料プランの場合の確認
-  if (authStore.user.plan && authStore.user.plan !== "free") {
-    const currentPlan = authStore.user.plan;
-    const isUpgrade = currentPlan === "standard" && plan === "premium";
-    const isSamePlan = currentPlan === plan;
-
-    if (isSamePlan) {
-      toast.add({
-        title: "既に同じプラン",
-        description: `既に${plan.toUpperCase()}プランをご利用中です`,
-        color: "info",
-      });
-      selectedPlan.value = null;
-      return;
-    }
-
-    if (!isUpgrade) {
-      toast.add({
-        title: "プラン変更について",
-        description:
-          "プランの変更・ダウングレードについては、サポートまでお問い合わせください",
-        color: "warning",
-      });
-      selectedPlan.value = null;
-      return;
-    }
-  }
-
-  // 4. 決済処理開始
-  isLoading.value = true;
+  startLoading(plan);
+  resetErrorState();
 
   try {
-    toast.add({
-      title: "決済ページを準備中",
-      description: "Stripeの安全な決済ページに移動しています...",
-      color: "info",
-    });
+    // 1. 初期化
+    await setLoadingStage(LOADING_STAGES.INIT);
+
+    // 2. 認証チェック
+    await setLoadingStage(LOADING_STAGES.AUTH_CHECK);
+    if (!authStore.isAuthenticated) {
+      stopLoading();
+      toast.add({
+        title: "認証が必要です",
+        description: "プランを選択するには、まずログインしてください",
+        color: "warning",
+      });
+
+      await navigateTo({
+        path: "/auth/login",
+        query: { return_url: "/pricing" },
+      });
+      return;
+    }
+
+    // 3. ユーザー情報検証
+    await setLoadingStage(LOADING_STAGES.USER_VALIDATION);
+    if (!authStore.user) {
+      try {
+        await authStore.checkAuth();
+        if (!authStore.user) {
+          throw new Error("ユーザー情報の取得に失敗しました");
+        }
+      } catch (error) {
+        stopLoading();
+        handleCheckoutError(error, plan);
+        await navigateTo("/auth/login");
+        return;
+      }
+    }
+
+    // 4. プラン検証
+    await setLoadingStage(LOADING_STAGES.PLAN_VALIDATION);
+    if (authStore.user.plan && authStore.user.plan !== "free") {
+      const currentPlan = authStore.user.plan;
+      const isUpgrade = currentPlan === "standard" && plan === "premium";
+      const isSamePlan = currentPlan === plan;
+
+      if (isSamePlan) {
+        stopLoading();
+        toast.add({
+          title: "既に同じプラン",
+          description: `既に${plan.toUpperCase()}プランをご利用中です`,
+          color: "info",
+        });
+        return;
+      }
+
+      if (!isUpgrade) {
+        stopLoading();
+        toast.add({
+          title: "プラン変更について",
+          description:
+            "プランの変更・ダウングレードについては、サポートまでお問い合わせください",
+          color: "warning",
+        });
+        return;
+      }
+    }
+
+    // 5. 決済準備
+    await setLoadingStage(LOADING_STAGES.PAYMENT_PREPARATION);
+
+    // 6. Stripeセッション作成
+    await setLoadingStage(LOADING_STAGES.STRIPE_SESSION);
 
     // タイムアウト設定付きでAPI呼び出し
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒でタイムアウト
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const res = await api<{ url: string }>("/stripe/create-checkout-session", {
       method: "POST",
@@ -1089,11 +1378,17 @@ const checkout = async (plan: "standard" | "premium") => {
     clearTimeout(timeoutId);
 
     if (res.url) {
+      // 7. リダイレクト準備
+      await setLoadingStage(LOADING_STAGES.REDIRECT_PREPARATION);
+
       toast.add({
         title: "決済ページに移動します",
         description: "数秒後に決済ページに移動します",
         color: "success",
       });
+
+      // 8. リダイレクト実行
+      await setLoadingStage(LOADING_STAGES.REDIRECTING);
 
       setTimeout(() => {
         window.location.href = res.url;
@@ -1102,10 +1397,8 @@ const checkout = async (plan: "standard" | "premium") => {
       throw new Error("決済URLが取得できませんでした");
     }
   } catch (error) {
+    stopLoading();
     handleCheckoutError(error, plan);
-  } finally {
-    isLoading.value = false;
-    selectedPlan.value = null;
   }
 };
 
@@ -1116,7 +1409,6 @@ onMounted(async () => {
       await authStore.checkAuth();
     } catch (error) {
       console.error("認証チェックエラー:", error);
-      // 認証チェックエラーは致命的ではないので、ユーザーには表示しない
     }
   }
 });
