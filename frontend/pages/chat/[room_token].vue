@@ -865,6 +865,13 @@ const sendMessage = async () => {
           errorMessage =
             "友達関係が解除されたため、メッセージを送信できません。";
           shouldRedirect = true;
+        } else if (
+          errorData.message.includes("削除またはバンされた") ||
+          errorData.message.includes("deleted_or_banned")
+        ) {
+          errorMessage =
+            "相手のアカウントが削除またはバンされたため、メッセージを送信できません。";
+          shouldRedirect = true;
         } else if (errorData.message.includes("権限") || statusCode === 403) {
           errorMessage = "メッセージを送信する権限がありません。";
           shouldRedirect = true;
@@ -962,6 +969,12 @@ const getConversationErrorMessage = () => {
     ) {
       return "相手のアカウントが削除されています";
     }
+    if (
+      errorData.message.includes("削除またはバンされた") ||
+      errorData.message.includes("deleted_or_banned")
+    ) {
+      return "相手のアカウントが削除またはバンされています";
+    }
     return errorData.message;
   }
 
@@ -999,6 +1012,12 @@ const getConversationErrorDescription = () => {
     if (
       errorData.message.includes("アカウントが削除") ||
       errorData.message.includes("user_deleted")
+    ) {
+      return "チャット一覧に戻って他のチャットを確認してください。";
+    }
+    if (
+      errorData.message.includes("削除またはバンされた") ||
+      errorData.message.includes("deleted_or_banned")
     ) {
       return "チャット一覧に戻って他のチャットを確認してください。";
     }
