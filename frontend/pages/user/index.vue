@@ -194,6 +194,63 @@
                       </div>
                     </NuxtLink>
                   </div>
+
+                  <!-- プラン管理エリア（テスト用：常に表示） -->
+                  <div
+                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <NuxtLink to="/user/subscription" class="block p-6">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                          <div
+                            class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"
+                          >
+                            <svg
+                              class="w-6 h-6 text-purple-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                          <h3 class="text-lg font-semibold text-gray-900">
+                            プラン管理
+                          </h3>
+                          <p class="text-sm text-gray-600">
+                            現在のプラン:
+                            {{ getPlanDisplayName(authStore.user.plan) }}
+                          </p>
+                          <p class="text-xs text-gray-500 mt-1">
+                            プラン詳細・履歴・キャンセル
+                          </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                          <svg
+                            class="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </NuxtLink>
+                  </div>
+
                   <!-- フレンドID表示エリア（カラフルでモダンな表示） -->
                   <div
                     class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -1422,6 +1479,16 @@ const getPlanLabelText = (plan: string | undefined) => {
     return "Premium";
   } else {
     return "Free";
+  }
+};
+
+const getPlanDisplayName = (plan: string | undefined) => {
+  if (plan === "standard") {
+    return "STANDARD";
+  } else if (plan === "premium") {
+    return "PREMIUM";
+  } else {
+    return "FREE";
   }
 };
 

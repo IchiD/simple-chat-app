@@ -1,5 +1,24 @@
 <template>
   <div class="max-w-6xl mx-auto p-4 space-y-8">
+    <!-- テスト環境バナー -->
+    <div
+      class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg"
+    >
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <span class="font-medium">テスト環境</span>
+      </div>
+      <p class="mt-1 text-sm">
+        現在はStripeテストモードです。実際の決済は行われず、テストカードでプランの変更をテストできます。
+      </p>
+    </div>
+
     <!-- ヘッダーセクション -->
     <div class="text-center space-y-4">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900">プランを選択</h1>
@@ -259,7 +278,15 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else> このプランを選択 </template>
+            <template v-else>
+              <span v-if="authStore.user?.plan === 'free'">
+                このプランを選択
+              </span>
+              <span v-else-if="authStore.user?.plan === 'premium'">
+                ダウングレード
+              </span>
+              <span v-else> このプランを選択 </span>
+            </template>
           </button>
         </div>
       </div>
@@ -393,7 +420,15 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else> このプランを選択 </template>
+            <template v-else>
+              <span v-if="authStore.user?.plan === 'free'">
+                このプランを選択
+              </span>
+              <span v-else-if="authStore.user?.plan === 'standard'">
+                アップグレード
+              </span>
+              <span v-else> このプランを選択 </span>
+            </template>
           </button>
         </div>
       </div>
@@ -976,11 +1011,11 @@ const ERROR_MESSAGES: Record<
     canRetry: false,
   },
   [ERROR_TYPES.STRIPE]: {
-    title: "決済システムエラー",
+    title: "決済システム未設定",
     description:
-      "決済システムで一時的な問題が発生しています。しばらく時間をおいてから再度お試しください。",
-    action: "再試行",
-    canRetry: true,
+      "現在、決済システムが設定されていません。開発環境では決済機能をご利用いただけません。",
+    action: "了解",
+    canRetry: false,
   },
   [ERROR_TYPES.SERVER]: {
     title: "サーバーエラー",
@@ -1230,6 +1265,31 @@ const analyzeError = (error: unknown): ErrorType => {
     return ERROR_TYPES.NETWORK;
   }
 
+  // APIエラーレスポンスの場合
+  if (error && typeof error === "object") {
+    // FetchErrorのdataプロパティをチェック
+    if ("data" in error) {
+      const errorData = (error as { data?: { error_type?: string } }).data;
+      if (errorData?.error_type === "stripe_not_configured") {
+        return ERROR_TYPES.STRIPE;
+      }
+      if (errorData?.error_type === "invalid_plan") {
+        return ERROR_TYPES.VALIDATION;
+      }
+    }
+
+    // 直接のエラーオブジェクトをチェック
+    if ("error_type" in error) {
+      const errorObj = error as { error_type?: string };
+      if (errorObj.error_type === "stripe_not_configured") {
+        return ERROR_TYPES.STRIPE;
+      }
+      if (errorObj.error_type === "invalid_plan") {
+        return ERROR_TYPES.VALIDATION;
+      }
+    }
+  }
+
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
 
@@ -1255,7 +1315,9 @@ const analyzeError = (error: unknown): ErrorType => {
     if (
       message.includes("stripe") ||
       message.includes("payment") ||
-      message.includes("checkout")
+      message.includes("checkout") ||
+      message.includes("stripe設定が必要です") ||
+      message.includes("本番環境でのみ利用可能です")
     ) {
       return ERROR_TYPES.STRIPE;
     }
@@ -1532,7 +1594,6 @@ const executeCheckout = async (plan: "standard" | "premium") => {
     await setLoadingStage(LOADING_STAGES.PLAN_VALIDATION);
     if (authStore.user.plan && authStore.user.plan !== "free") {
       const currentPlan = authStore.user.plan;
-      const isUpgrade = currentPlan === "standard" && plan === "premium";
       const isSamePlan = currentPlan === plan;
 
       if (isSamePlan) {
@@ -1545,15 +1606,22 @@ const executeCheckout = async (plan: "standard" | "premium") => {
         return;
       }
 
-      if (!isUpgrade) {
-        stopLoading();
+      // 開発環境ではアップグレード・ダウングレード両方を許可
+      const isUpgrade = currentPlan === "standard" && plan === "premium";
+      const isDowngrade = currentPlan === "premium" && plan === "standard";
+
+      if (isUpgrade) {
         toast.add({
-          title: "プラン変更について",
-          description:
-            "プランの変更・ダウングレードについては、サポートまでお問い合わせください",
+          title: "プランアップグレード",
+          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランにアップグレードします`,
+          color: "info",
+        });
+      } else if (isDowngrade) {
+        toast.add({
+          title: "プランダウングレード",
+          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランにダウングレードします（開発環境）`,
           color: "warning",
         });
-        return;
       }
     }
 
@@ -1567,13 +1635,23 @@ const executeCheckout = async (plan: "standard" | "premium") => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    const res = await api<{ url: string }>("/stripe/create-checkout-session", {
+    const res = await api<{
+      url?: string;
+      status?: string;
+      error_type?: string;
+      message?: string;
+    }>("/stripe/create-checkout-session", {
       method: "POST",
       body: { plan },
       signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
+
+    // エラーレスポンスの場合
+    if (res.status === "error") {
+      throw new Error(res.message || "決済セッションの作成に失敗しました");
+    }
 
     if (res.url) {
       // 7. リダイレクト準備

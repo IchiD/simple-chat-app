@@ -1,5 +1,3 @@
-import { useAuthStore } from "~/stores/auth";
-
 export default defineNuxtRouteMiddleware(async (to) => {
   // このミドルウェアは `/` (ホームページ) にアクセスした時のみ動作させる
   if (to.path === "/") {
