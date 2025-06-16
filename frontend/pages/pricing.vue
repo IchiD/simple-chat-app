@@ -106,7 +106,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              基本チャット機能
+              友達チャット機能
             </li>
             <li class="flex items-center">
               <svg
@@ -120,9 +120,9 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              1対1チャット
+              グループへの加入
             </li>
-            <li class="flex items-center">
+            <!-- <li class="flex items-center">
               <svg
                 class="w-4 h-4 text-gray-400 mr-2"
                 fill="currentColor"
@@ -135,7 +135,7 @@
                 />
               </svg>
               グループチャット
-            </li>
+            </li> -->
           </ul>
           <button
             disabled
@@ -188,7 +188,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              グループチャット（最大50名）
+              グループ作成（最大50名）
             </li>
             <li class="flex items-center">
               <svg
@@ -202,7 +202,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              一括配信（月10回）
+              グループ内個別チャット（1対1）
             </li>
             <li class="flex items-center">
               <svg
@@ -216,7 +216,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              QRコード参加機能
+              グループ内全体チャット
             </li>
           </ul>
           <button
