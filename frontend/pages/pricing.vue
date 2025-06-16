@@ -483,25 +483,31 @@
                 </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <component
-                  :is="getFeatureIcon(feature.free)"
-                  :class="getFeatureClass(feature.free)"
-                  :value="feature.free"
-                />
+                <div class="flex justify-center">
+                  <component
+                    :is="getFeatureIcon(feature.free)"
+                    :class="getFeatureClass(feature.free)"
+                    :value="feature.free"
+                  />
+                </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <component
-                  :is="getFeatureIcon(feature.standard)"
-                  :class="getFeatureClass(feature.standard)"
-                  :value="feature.standard"
-                />
+                <div class="flex justify-center">
+                  <component
+                    :is="getFeatureIcon(feature.standard)"
+                    :class="getFeatureClass(feature.standard)"
+                    :value="feature.standard"
+                  />
+                </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <component
-                  :is="getFeatureIcon(feature.premium)"
-                  :class="getFeatureClass(feature.premium)"
-                  :value="feature.premium"
-                />
+                <div class="flex justify-center">
+                  <component
+                    :is="getFeatureIcon(feature.premium)"
+                    :class="getFeatureClass(feature.premium)"
+                    :value="feature.premium"
+                  />
+                </div>
               </td>
             </tr>
           </tbody>
@@ -522,27 +528,33 @@
           <div class="grid grid-cols-3 gap-4 text-center">
             <div>
               <div class="text-xs text-gray-500 mb-1">FREE</div>
-              <component
-                :is="getFeatureIcon(feature.free)"
-                :class="getFeatureClass(feature.free)"
-                :value="feature.free"
-              />
+              <div class="flex justify-center">
+                <component
+                  :is="getFeatureIcon(feature.free)"
+                  :class="getFeatureClass(feature.free)"
+                  :value="feature.free"
+                />
+              </div>
             </div>
             <div>
               <div class="text-xs text-gray-500 mb-1">STANDARD</div>
-              <component
-                :is="getFeatureIcon(feature.standard)"
-                :class="getFeatureClass(feature.standard)"
-                :value="feature.standard"
-              />
+              <div class="flex justify-center">
+                <component
+                  :is="getFeatureIcon(feature.standard)"
+                  :class="getFeatureClass(feature.standard)"
+                  :value="feature.standard"
+                />
+              </div>
             </div>
             <div>
               <div class="text-xs text-gray-500 mb-1">PREMIUM</div>
-              <component
-                :is="getFeatureIcon(feature.premium)"
-                :class="getFeatureClass(feature.premium)"
-                :value="feature.premium"
-              />
+              <div class="flex justify-center">
+                <component
+                  :is="getFeatureIcon(feature.premium)"
+                  :class="getFeatureClass(feature.premium)"
+                  :value="feature.premium"
+                />
+              </div>
             </div>
           </div>
         </div>
