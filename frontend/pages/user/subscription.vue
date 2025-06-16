@@ -10,7 +10,7 @@
       <!-- ローディング状態 -->
       <div v-if="loading" class="flex justify-center items-center py-12">
         <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+          class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"
         />
       </div>
 
@@ -52,7 +52,18 @@
       <div v-else class="space-y-8">
         <!-- 現在のプラン情報 -->
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">現在のプラン</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">現在のプラン</h2>
+            <!-- リフレッシュボタン -->
+            <button
+              :disabled="loading"
+              class="text-sm bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 text-gray-700 px-3 py-1 rounded transition-colors"
+              @click="loadSubscriptionData"
+            >
+              <span v-if="loading">更新中...</span>
+              <span v-else>最新情報に更新</span>
+            </button>
+          </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- プラン詳細 -->
@@ -60,10 +71,24 @@
               <div class="flex items-center">
                 <div class="flex-shrink-0">
                   <div
-                    class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+                    class="w-12 h-12 rounded-lg flex items-center justify-center"
+                    :class="
+                      subscriptionData.has_subscription
+                        ? subscriptionData.subscription_status === 'active'
+                          ? 'bg-green-100'
+                          : 'bg-yellow-100'
+                        : 'bg-blue-100'
+                    "
                   >
                     <svg
-                      class="w-6 h-6 text-blue-600"
+                      class="w-6 h-6"
+                      :class="
+                        subscriptionData.has_subscription
+                          ? subscriptionData.subscription_status === 'active'
+                            ? 'text-green-600'
+                            : 'text-yellow-600'
+                          : 'text-blue-600'
+                      "
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -81,7 +106,16 @@
                   <h3 class="text-lg font-medium text-gray-900">
                     {{ getPlanDisplayName(subscriptionData.plan) }}プラン
                   </h3>
-                  <p class="text-sm text-gray-500">
+                  <p
+                    class="text-sm"
+                    :class="
+                      subscriptionData.subscription_status === 'active'
+                        ? 'text-green-600'
+                        : subscriptionData.subscription_status === 'canceled'
+                        ? 'text-orange-600'
+                        : 'text-gray-500'
+                    "
+                  >
                     {{
                       subscriptionData.subscription_status
                         ? getStatusDisplayName(
@@ -115,40 +149,16 @@
 
             <!-- アクションボタン -->
             <div class="space-y-4">
-              <div
-                v-if="
-                  subscriptionData.has_subscription &&
-                  subscriptionData.can_cancel
-                "
-              >
-                <button
-                  :disabled="cancelLoading"
-                  class="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  @click="showCancelModal = true"
-                >
-                  <span v-if="cancelLoading">キャンセル中...</span>
-                  <span v-else>プランをキャンセル</span>
-                </button>
-                <p class="mt-2 text-xs text-gray-500">
-                  キャンセル後も現在の期間終了まで利用可能です
-                </p>
-              </div>
-
-              <div v-else-if="!subscriptionData.has_subscription">
+              <div>
                 <NuxtLink
                   to="/pricing"
                   class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-block text-center"
                 >
-                  プランを選択
+                  プランの変更・キャンセル
                 </NuxtLink>
-              </div>
-
-              <div v-else>
-                <div class="bg-gray-50 rounded-lg p-4">
-                  <p class="text-sm text-gray-600">
-                    このプランはキャンセルできません。詳細はサポートまでお問い合わせください。
-                  </p>
-                </div>
+                <p class="mt-2 text-xs text-gray-500">
+                  プランの変更やキャンセルはこちらで行えます
+                </p>
               </div>
             </div>
           </div>
@@ -162,7 +172,7 @@
 
           <div v-if="historyLoading" class="flex justify-center py-8">
             <div
-              class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+              class="h-8 w-8 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"
             />
           </div>
 
@@ -293,74 +303,6 @@
         </div>
       </div>
     </div>
-
-    <!-- キャンセル確認モーダル -->
-    <div
-      v-if="showCancelModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      @click.self="showCancelModal = false"
-    >
-      <div class="bg-white rounded-lg max-w-md w-full p-6">
-        <div class="flex items-center mb-4">
-          <div class="flex-shrink-0">
-            <div
-              class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center"
-            >
-              <svg
-                class="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="ml-4">
-            <h3 class="text-lg font-medium text-gray-900">
-              プランのキャンセル
-            </h3>
-          </div>
-        </div>
-
-        <div class="mb-6">
-          <p class="text-sm text-gray-600 mb-4">
-            プランをキャンセルしますか？キャンセル後も現在の期間終了（{{
-              formatDate(subscriptionData.current_period_end)
-            }}）まで利用可能です。
-          </p>
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <p class="text-sm text-yellow-800">
-              <strong>注意:</strong>
-              キャンセル後の再開には新たな決済が必要になります。
-            </p>
-          </div>
-        </div>
-
-        <div class="flex space-x-3">
-          <button
-            :disabled="cancelLoading"
-            class="flex-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
-            @click="showCancelModal = false"
-          >
-            戻る
-          </button>
-          <button
-            :disabled="cancelLoading"
-            class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            @click="cancelSubscription"
-          >
-            <span v-if="cancelLoading">キャンセル中...</span>
-            <span v-else>キャンセル実行</span>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -402,7 +344,6 @@ interface Pagination {
 
 // Composables
 const { api } = useApi();
-const toast = useToast();
 
 // デバッグログ
 console.log("[subscription] ページスクリプトが実行されました");
@@ -429,9 +370,6 @@ const pagination = ref<Pagination>({
   total: 0,
 });
 
-const showCancelModal = ref(false);
-const cancelLoading = ref(false);
-
 // プラン料金マッピング
 const PLAN_PRICES = {
   free: "¥0",
@@ -445,15 +383,50 @@ const loadSubscriptionData = async () => {
     loading.value = true;
     error.value = null;
 
-    const response = await api<{ data: SubscriptionData; message?: string }>(
-      "/stripe/subscription"
-    );
+    const response = await api<{
+      data?: SubscriptionData;
+      message?: string;
+      status?: string;
+      plan?: string;
+      subscription_status?: string;
+      has_subscription?: boolean;
+      current_period_end?: string;
+      next_billing_date?: string;
+      can_cancel?: boolean;
+      stripe_subscription_id?: string;
+      stripe_customer_id?: string;
+    }>("/stripe/subscription");
 
-    // レスポンスの構造を確認してデータを適切に設定
-    if (response.data) {
+    // 新しいAPI形式（直接データが返される場合）
+    if (response.status === "success" && response.plan) {
+      subscriptionData.value = {
+        has_subscription: response.has_subscription || false,
+        plan: response.plan,
+        subscription_status: response.subscription_status || null,
+        current_period_end: response.current_period_end || null,
+        next_billing_date: response.next_billing_date || null,
+        can_cancel: response.can_cancel || false,
+        stripe_subscription_id: response.stripe_subscription_id,
+        stripe_customer_id: response.stripe_customer_id,
+      };
+    }
+    // 従来のAPI形式（dataプロパティ内にある場合）
+    else if (response.data) {
       subscriptionData.value = response.data;
-    } else if (response.message === "no_subscription") {
-      // サブスクリプションがない場合のデフォルト値を設定
+    }
+    // サブスクリプションがない場合
+    else if (response.message === "no_subscription") {
+      subscriptionData.value = {
+        has_subscription: false,
+        plan: "free",
+        subscription_status: null,
+        current_period_end: null,
+        next_billing_date: null,
+        can_cancel: false,
+      };
+    }
+    // フォールバック
+    else {
       subscriptionData.value = {
         has_subscription: false,
         plan: "free",
@@ -465,12 +438,10 @@ const loadSubscriptionData = async () => {
     }
   } catch (err: unknown) {
     console.error("Subscription data load error:", err);
-
-    // エラーレスポンスにデータが含まれている場合は使用
-    const errorResponse = err as any;
+    const errorResponse = err as { data?: { data?: SubscriptionData } };
     if (errorResponse?.data?.data) {
       subscriptionData.value = errorResponse.data.data;
-      error.value = null; // エラーをクリア
+      error.value = null;
     } else {
       error.value =
         (err as Error).message || "サブスクリプション情報の取得に失敗しました";
@@ -499,39 +470,6 @@ const loadHistory = async (page: number = 1) => {
     historyError.value = (err as Error).message || "履歴の取得に失敗しました";
   } finally {
     historyLoading.value = false;
-  }
-};
-
-const cancelSubscription = async () => {
-  try {
-    cancelLoading.value = true;
-
-    const response = await api<{ message: string }>(
-      "/stripe/subscription/cancel",
-      {
-        method: "POST",
-      }
-    );
-
-    toast.add({
-      title: "キャンセル完了",
-      description: response.message,
-      color: "success",
-    });
-
-    showCancelModal.value = false;
-
-    // データを再読み込み
-    await Promise.all([loadSubscriptionData(), loadHistory()]);
-  } catch (err: unknown) {
-    console.error("Cancel subscription error:", err);
-    toast.add({
-      title: "キャンセル失敗",
-      description: (err as Error).message || "キャンセルに失敗しました",
-      color: "error",
-    });
-  } finally {
-    cancelLoading.value = false;
   }
 };
 

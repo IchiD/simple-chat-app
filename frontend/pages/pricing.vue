@@ -21,10 +21,7 @@
 
     <!-- ヘッダーセクション -->
     <div class="text-center space-y-4">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-900">プランを選択</h1>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        あなたのニーズに最適なプランをお選びください。いつでもプランの変更が可能です。
-      </p>
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900">料金プラン</h1>
     </div>
 
     <!-- 認証状態の表示 -->
