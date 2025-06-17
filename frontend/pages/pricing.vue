@@ -1464,9 +1464,8 @@ const cancelSubscription = async () => {
 
       // 成功メッセージを表示
       toast.add({
-        title: "キャンセル予約完了",
-        description:
-          "プランのキャンセルを予約しました。期間終了まではご利用いただけます。",
+        title: "プラン解約",
+        description: "プランを解約しました。期間終了まではご利用いただけます。",
         color: "success",
       });
 
