@@ -128,10 +128,46 @@
               </div>
 
               <div v-if="subscriptionData.has_subscription" class="space-y-3">
+                <!-- キャンセル予定の警告表示 -->
+                <div
+                  v-if="subscriptionData.will_cancel_at_period_end"
+                  class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4"
+                >
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg
+                        class="h-5 w-5 text-orange-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-orange-800">
+                        解約予定
+                      </h3>
+                      <p class="mt-1 text-sm text-orange-700">
+                        {{
+                          getPlanDisplayName(subscriptionData.plan)
+                        }}プランは解約済みですが、{{
+                          formatDate(subscriptionData.current_period_end)
+                        }}まではプランの機能をご利用いただけます。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-500"
-                    >次回請求日</span
-                  >
+                  <span class="text-sm font-medium text-gray-500">{{
+                    subscriptionData.will_cancel_at_period_end
+                      ? "サービス終了日"
+                      : "次回請求日"
+                  }}</span>
                   <span class="text-sm text-gray-900">
                     {{ formatDate(subscriptionData.next_billing_date) }}
                   </span>
@@ -293,7 +329,7 @@
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   "
-                  @click="() => loadHistory(page)"
+                  @click="loadHistory(page)"
                 >
                   {{ page }}
                 </button>
@@ -320,6 +356,7 @@ interface SubscriptionData {
   current_period_end: string | null;
   next_billing_date: string | null;
   can_cancel: boolean;
+  will_cancel_at_period_end?: boolean;
   stripe_subscription_id?: string;
   stripe_customer_id?: string;
 }
@@ -394,6 +431,7 @@ const loadSubscriptionData = async () => {
       current_period_end?: string;
       next_billing_date?: string;
       can_cancel?: boolean;
+      will_cancel_at_period_end?: boolean;
       stripe_subscription_id?: string;
       stripe_customer_id?: string;
     }>("/stripe/subscription");
@@ -407,6 +445,7 @@ const loadSubscriptionData = async () => {
         current_period_end: response.current_period_end || null,
         next_billing_date: response.next_billing_date || null,
         can_cancel: response.can_cancel || false,
+        will_cancel_at_period_end: response.will_cancel_at_period_end || false,
         stripe_subscription_id: response.stripe_subscription_id,
         stripe_customer_id: response.stripe_customer_id,
       };

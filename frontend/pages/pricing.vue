@@ -56,30 +56,64 @@
     </div>
 
     <!-- 現在のプラン表示 -->
-    <div
-      v-if="authStore.isAuthenticated && authStore.user"
-      class="bg-blue-50 border border-blue-200 rounded-lg p-4"
-    >
-      <div class="flex items-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-blue-600 mr-2"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <p class="text-blue-800">
-          現在のプラン:
-          <span class="font-semibold">{{ getCurrentPlanDisplay() }}</span>
-          <span v-if="authStore.user.subscription_status" class="ml-2 text-sm">
-            ({{ getStatusDisplay(authStore.user.subscription_status) }})
-          </span>
-        </p>
+    <div v-if="authStore.isAuthenticated && authStore.user" class="space-y-4">
+      <!-- キャンセル予定の警告表示 -->
+      <div
+        v-if="
+          authStore.user && authStore.user.subscription_status === 'will_cancel'
+        "
+        class="bg-orange-50 border border-orange-200 rounded-lg p-4"
+      >
+        <div class="flex items-start">
+          <svg
+            class="h-5 w-5 text-orange-400 mr-2 mt-0.5 flex-shrink-0"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <div>
+            <h3 class="text-orange-800 font-medium">プラン解約予定</h3>
+            <p class="mt-1 text-orange-700 text-sm">
+              {{
+                getCurrentPlanDisplay()
+              }}プランは解約済みですが、現在の期間終了まではプランの機能をご利用いただけます。
+              期間終了後は自動的にFREEプランに変更されます。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通常のプラン表示 -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-blue-600 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <p class="text-blue-800">
+            現在のプラン:
+            <span class="font-semibold">{{ getCurrentPlanDisplay() }}</span>
+            <span
+              v-if="authStore.user.subscription_status"
+              class="ml-2 text-sm"
+            >
+              ({{ getStatusDisplay(authStore.user.subscription_status) }})
+            </span>
+          </p>
+        </div>
       </div>
     </div>
 
@@ -138,10 +172,22 @@
             </li> -->
           </ul>
           <button
-            disabled
-            class="w-full py-2 px-4 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+            class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
+            :class="{
+              'bg-gray-200 text-gray-500 cursor-not-allowed':
+                isCurrentPlan('free'),
+              'bg-blue-500 hover:bg-blue-600 text-white':
+                !isCurrentPlan('free') && authStore.isAuthenticated,
+              'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
+            }"
+            :disabled="isCurrentPlan('free') || !authStore.isAuthenticated"
+            @click="() => handleFreePlanClick()"
           >
-            現在のプラン
+            <template v-if="isCurrentPlan('free')"> 現在のプラン </template>
+            <template v-else-if="!authStore.isAuthenticated">
+              ログインが必要です
+            </template>
+            <template v-else> FREEに変更（キャンセル） </template>
           </button>
         </div>
       </div>
@@ -813,6 +859,71 @@
       </div>
     </div>
 
+    <!-- キャンセル確認モーダル -->
+    <div
+      v-if="cancelConfirmationState.isVisible"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+          <!-- アイコン -->
+          <div class="mb-6">
+            <div
+              class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-8 h-8 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- タイトル -->
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">
+            プランキャンセルの確認
+          </h3>
+
+          <!-- 説明 -->
+          <div class="text-gray-600 mb-6 space-y-3">
+            <p>現在のプランをキャンセルします。</p>
+            <div
+              class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
+            >
+              <p class="text-sm text-blue-800">
+                キャンセル後も契約期間が終了するまでは、現在の有料プランの機能をすべてご利用いただけます。
+                契約期間終了後に自動的にFREEプランに変更されます。
+              </p>
+            </div>
+          </div>
+
+          <!-- ボタン -->
+          <div class="flex space-x-3">
+            <button
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              @click="cancelCancelConfirmation"
+            >
+              やめる
+            </button>
+            <button
+              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              @click="cancelSubscription"
+            >
+              キャンセルする
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- エラー状態表示 -->
     <div
       v-if="errorState.hasError"
@@ -1287,6 +1398,13 @@ const confirmationState = ref<{
   selectedPlan: null,
 });
 
+// キャンセル確認モーダル状態
+const cancelConfirmationState = ref<{
+  isVisible: boolean;
+}>({
+  isVisible: false,
+});
+
 // プラン料金の定義
 const PLAN_PRICES: Record<string, { price: number; display: string }> = {
   free: { price: 0, display: "¥0" },
@@ -1323,6 +1441,53 @@ const cancelConfirmation = () => {
     isVisible: false,
     selectedPlan: null,
   };
+};
+
+// キャンセル確認モーダル閉じる関数
+const cancelCancelConfirmation = () => {
+  cancelConfirmationState.value = {
+    isVisible: false,
+  };
+};
+
+// サブスクリプションキャンセル処理
+const cancelSubscription = async () => {
+  try {
+    const response = await api("/stripe/subscription/cancel", {
+      method: "POST",
+    });
+
+    // 成功時のレスポンス処理
+    if (response.status === "success") {
+      // モーダルを閉じる
+      cancelConfirmationState.value.isVisible = false;
+
+      // 成功メッセージを表示
+      toast.add({
+        title: "キャンセル予約完了",
+        description:
+          "プランのキャンセルを予約しました。期間終了まではご利用いただけます。",
+        color: "success",
+      });
+
+      // ユーザー情報を更新
+      await authStore.checkAuth();
+    } else {
+      throw new Error(response.message || "キャンセル処理に失敗しました");
+    }
+  } catch (error) {
+    console.error("Subscription cancellation error:", error);
+
+    // エラーメッセージを表示
+    toast.add({
+      title: "キャンセル失敗",
+      description:
+        error instanceof Error
+          ? error.message
+          : "サブスクリプションのキャンセルに失敗しました",
+      color: "error",
+    });
+  }
 };
 
 // 決済実行関数
@@ -1642,6 +1807,7 @@ const getStatusDisplay = (status: string) => {
   const statusMap: Record<string, string> = {
     active: "アクティブ",
     canceled: "キャンセル済み",
+    will_cancel: "解約予定",
     past_due: "支払い期限超過",
     incomplete: "不完全",
     trialing: "トライアル中",
@@ -1722,6 +1888,18 @@ const checkout = (plan: "standard" | "premium") => {
   confirmationState.value = {
     isVisible: true,
     selectedPlan: plan,
+  };
+};
+
+// FREEプランクリック処理
+const handleFreePlanClick = () => {
+  if (isCurrentPlan("free") || !authStore.isAuthenticated) {
+    return;
+  }
+
+  // キャンセル確認モーダルを表示
+  cancelConfirmationState.value = {
+    isVisible: true,
   };
 };
 
@@ -1883,12 +2061,10 @@ const executeCheckout = async (plan: "standard" | "premium") => {
 
 // ページ読み込み時に認証状態をチェック
 onMounted(async () => {
-  if (!authStore.user && authStore.isAuthenticated) {
-    try {
-      await authStore.checkAuth();
-    } catch (error) {
-      console.error("認証チェックエラー:", error);
-    }
+  try {
+    await authStore.checkAuth();
+  } catch (error) {
+    console.error("認証チェックエラー:", error);
   }
 });
 </script>

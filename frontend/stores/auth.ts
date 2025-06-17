@@ -13,6 +13,7 @@ interface User {
   subscription_status?:
     | "active"
     | "canceled"
+    | "will_cancel"
     | "past_due"
     | "incomplete"
     | "incomplete_expired"
