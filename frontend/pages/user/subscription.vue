@@ -271,7 +271,7 @@
                     v-if="item.amount"
                     class="text-sm font-medium text-gray-900"
                   >
-                    {{ formatAmount(item.amount) }}
+                    {{ item.formatted_amount || formatAmount(item.amount) }}
                   </p>
                 </div>
               </div>
@@ -293,7 +293,7 @@
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   "
-                  @click="loadHistory(page)"
+                  @click="() => loadHistory(page)"
                 >
                   {{ page }}
                 </button>
@@ -333,6 +333,7 @@ interface HistoryItem {
   currency: string;
   notes: string | null;
   created_at: string;
+  formatted_amount?: string;
 }
 
 interface Pagination {
