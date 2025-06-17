@@ -507,8 +507,8 @@ const getActionDisplayName = (action: string): string => {
   return (
     {
       created: "プラン開始",
-      upgraded: "アップグレード",
-      downgraded: "ダウングレード",
+      upgraded: "変更",
+      downgraded: "変更",
       canceled: "キャンセル",
       renewed: "更新",
       reactivated: "再開",
@@ -537,9 +537,9 @@ const getHistoryDescription = (item: HistoryItem): string => {
     case "created":
       return `${toPlan}プランを開始しました`;
     case "upgraded":
-      return `${fromPlan}プランから${toPlan}プランにアップグレードしました`;
+      return `${fromPlan}プランから${toPlan}プランに変更しました`;
     case "downgraded":
-      return `${fromPlan}プランから${toPlan}プランにダウングレードしました`;
+      return `${fromPlan}プランから${toPlan}プランに変更しました`;
     case "canceled":
       return `${fromPlan}プランをキャンセルしました`;
     case "renewed":

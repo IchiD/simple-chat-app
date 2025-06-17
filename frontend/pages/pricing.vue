@@ -683,6 +683,11 @@
                 <li>• 決済はStripeの安全なシステムで処理されます</li>
                 <li>• 月額料金は毎月自動で請求されます</li>
                 <li>• プランはいつでも変更・キャンセル可能です</li>
+                <li
+                  v-if="authStore.user?.plan && authStore.user.plan !== 'free'"
+                >
+                  • プラン変更時は残り期間に応じて日割り計算されます
+                </li>
                 <li>• 決済完了後、即座にプラン機能が利用可能になります</li>
               </ul>
             </div>
@@ -855,6 +860,145 @@
             >
               エラーを閉じる
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- プラン変更時の料金について -->
+    <div
+      class="mt-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8"
+    >
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">
+            プラン変更時の料金について
+          </h2>
+          <p class="text-gray-600">
+            月途中でプランを変更された場合の料金計算について、わかりやすくご説明します。
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- 日割り計算の仕組み -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                <svg
+                  class="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900">
+                日割り計算で公平な料金
+              </h3>
+            </div>
+            <div class="space-y-3 text-sm text-gray-600">
+              <p>
+                プラン変更時は、<strong class="text-gray-900"
+                  >残り期間に応じて料金を日割り計算</strong
+                >いたします。
+              </p>
+              <ul class="space-y-2 ml-4">
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2">•</span>
+                  <span
+                    >アップグレード時：未使用分を差し引いて、新プランの残り期間分をお支払い</span
+                  >
+                </li>
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2">•</span>
+                  <span>ダウングレード時：未使用分は次回の請求で相殺</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 具体例 -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 p-2 rounded-lg mr-3">
+                <svg
+                  class="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900">計算例</h3>
+            </div>
+            <div class="space-y-4 text-sm">
+              <div class="bg-gray-50 rounded-lg p-4">
+                <p class="font-medium text-gray-900 mb-2">
+                  STANDARD → PREMIUM にアップグレード
+                </p>
+                <div class="space-y-1 text-gray-600">
+                  <div class="flex justify-between">
+                    <span>STANDARD未使用分</span>
+                    <span class="text-red-600">-¥30</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>PREMIUM残り期間分</span>
+                    <span class="text-blue-600">+¥60</span>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="flex justify-between font-semibold text-gray-900">
+                    <span>実際の請求額</span>
+                    <span>¥30</span>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500">
+                ※実際の金額は残り日数により異なります
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 重要なポイント -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div class="flex items-start">
+            <svg
+              class="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <div>
+              <h4 class="font-medium text-yellow-800 mb-1">ご利用時の注意点</h4>
+              <ul class="text-sm text-yellow-700 space-y-1">
+                <li>• アップグレード時は即座に決済が行われます</li>
+                <li>
+                  •
+                  短時間での頻繁なプラン変更は、小額の請求が複数発生する場合があります
+                </li>
+                <li>
+                  • 決済履歴は「マイページ >
+                  サブスクリプション管理」で確認できます
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -1258,6 +1402,16 @@ const faqs = ref([
       "はい、いつでもプランの変更・キャンセルが可能です。アップグレードは即座に反映され、ダウングレードは次の請求サイクルから適用されます。",
   },
   {
+    question: "月途中でプランを変更した場合、料金はどうなりますか？",
+    answer:
+      "月途中でプランを変更された場合は、日割り計算により公平に料金を調整いたします。アップグレード時は現在のプランの未使用分を差し引いて、新しいプランの残り期間分をお支払いいただきます。ダウングレード時は未使用分を次回の請求で相殺いたします。",
+  },
+  {
+    question: "頻繁にプランを変更すると追加料金がかかりますか？",
+    answer:
+      "プラン変更自体に手数料はかかりませんが、短時間での頻繁なプラン変更は小額の請求が複数発生する場合があります。変更前に十分ご検討いただくことをお勧めします。決済履歴は「マイページ > サブスクリプション管理」で詳細を確認できます。",
+  },
+  {
     question: "支払い方法は何が利用できますか？",
     answer:
       "クレジットカード（Visa、Mastercard、American Express、JCB）をご利用いただけます。安全なStripe決済システムを使用しています。",
@@ -1629,20 +1783,20 @@ const executeCheckout = async (plan: "standard" | "premium") => {
         return;
       }
 
-      // 開発環境ではアップグレード・ダウングレード両方を許可
+      // アップグレード・ダウングレード両方を許可
       const isUpgrade = currentPlan === "standard" && plan === "premium";
       const isDowngrade = currentPlan === "premium" && plan === "standard";
 
       if (isUpgrade) {
         toast.add({
-          title: "プランアップグレード",
-          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランにアップグレードします`,
+          title: "プラン変更",
+          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランに変更します`,
           color: "info",
         });
       } else if (isDowngrade) {
         toast.add({
-          title: "プランダウングレード",
-          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランにダウングレードします（開発環境）`,
+          title: "プラン変更",
+          description: `${currentPlan.toUpperCase()}から${plan.toUpperCase()}プランに変更します`,
           color: "warning",
         });
       }
@@ -1676,28 +1830,50 @@ const executeCheckout = async (plan: "standard" | "premium") => {
       throw new Error(res.message || "決済セッションの作成に失敗しました");
     }
 
-    if (res.url) {
-      // 7. リダイレクト準備
-      await setLoadingStage(LOADING_STAGES.REDIRECT_PREPARATION);
+    // 成功レスポンスの場合
+    if (res.status === "success") {
+      if (res.url) {
+        // 新規サブスクリプション作成の場合 - Stripeリダイレクト
+        // 7. リダイレクト準備
+        await setLoadingStage(LOADING_STAGES.REDIRECT_PREPARATION);
 
-      toast.add({
-        title: "決済ページに移動します",
-        description: "数秒後に決済ページに移動します",
-        color: "success",
-      });
+        toast.add({
+          title: "決済ページに移動します",
+          description: "数秒後に決済ページに移動します",
+          color: "success",
+        });
 
-      // 8. リダイレクト実行
-      await setLoadingStage(LOADING_STAGES.REDIRECTING);
+        // 8. リダイレクト実行
+        await setLoadingStage(LOADING_STAGES.REDIRECTING);
 
-      // プラン情報をURLパラメータとして追加
-      const urlWithParams = new URL(res.url);
-      urlWithParams.searchParams.set("plan", plan);
+        // プラン情報をURLパラメータとして追加
+        const urlWithParams = new URL(res.url);
+        urlWithParams.searchParams.set("plan", plan);
 
-      setTimeout(() => {
-        window.location.href = urlWithParams.toString();
-      }, 2000);
+        setTimeout(() => {
+          window.location.href = urlWithParams.toString();
+        }, 2000);
+      } else {
+        // アップグレード成功の場合 - リダイレクト不要
+        stopLoading();
+
+        // ユーザー情報を最新化
+        await authStore.checkAuth();
+
+        toast.add({
+          title: "プラン変更完了",
+          description:
+            res.message || `${plan.toUpperCase()}プランに変更しました`,
+          color: "success",
+        });
+
+        // プラン管理ページにリダイレクト
+        setTimeout(() => {
+          navigateTo("/user/subscription");
+        }, 2000);
+      }
     } else {
-      throw new Error("決済URLが取得できませんでした");
+      throw new Error("予期しないレスポンスです");
     }
   } catch (error) {
     stopLoading();

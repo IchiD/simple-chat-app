@@ -22,10 +22,8 @@
             />
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">決済完了！</h1>
-        <p class="text-lg text-gray-600">
-          有料プランへのアップグレードが完了しました
-        </p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">決済完了</h1>
+        <p class="text-lg text-gray-600">プランの変更が完了しました</p>
       </div>
 
       <!-- 決済詳細カード -->
@@ -280,7 +278,7 @@ onMounted(() => {
     const toast = useToast();
     toast.add({
       title: "決済完了",
-      description: "有料プランへのアップグレードが完了しました！",
+      description: "有料プランへの変更が完了しました！",
       color: "success",
       timeout: 5000,
     });
