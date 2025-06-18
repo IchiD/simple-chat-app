@@ -12,7 +12,12 @@ export interface PaginatedResult<T> {
 }
 
 export function useSortableMembers<
-  T extends { name: string; friend_id: string }
+  T extends {
+    name: string;
+    friend_id: string;
+    owner_nickname?: string | null;
+    pivot?: { owner_nickname?: string };
+  }
 >(members: Ref<T[]>, perPage = 50) {
   const keyword = ref("");
   const sortKey = ref<SortKey>("name");
@@ -22,11 +27,32 @@ export function useSortableMembers<
   const filtered = computed(() => {
     if (!keyword.value.trim()) return members.value;
     const kw = keyword.value.toLowerCase();
-    return members.value.filter(
-      (m) =>
-        m.name.toLowerCase().includes(kw) ||
-        m.friend_id.toLowerCase().includes(kw)
-    );
+    console.log("Debug: Filtering members with keyword:", kw);
+    console.log("Debug: Members data:", members.value);
+
+    const result = members.value.filter((m) => {
+      const nameMatch = m.name.toLowerCase().includes(kw);
+      const friendIdMatch = m.friend_id.toLowerCase().includes(kw);
+      const nicknameMatch =
+        (m.owner_nickname?.toLowerCase().includes(kw) ?? false) ||
+        (m.pivot?.owner_nickname?.toLowerCase().includes(kw) ?? false);
+
+      console.log(`Debug: Member ${m.name}:`, {
+        name: m.name,
+        friend_id: m.friend_id,
+        owner_nickname: m.owner_nickname,
+        pivot: m.pivot,
+        nameMatch,
+        friendIdMatch,
+        nicknameMatch,
+        overallMatch: nameMatch || friendIdMatch || nicknameMatch,
+      });
+
+      return nameMatch || friendIdMatch || nicknameMatch;
+    });
+
+    console.log("Debug: Filtered result:", result);
+    return result;
   });
 
   const sorted = computed(() => {

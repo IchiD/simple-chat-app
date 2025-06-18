@@ -26,6 +26,7 @@ interface GroupMember extends Record<string, unknown> {
 interface ExtendedGroupMember extends GroupMember {
   member_id: number; // GroupMemberのID
   role: string;
+  owner_nickname: string | null; // オーナー専用ニックネーム
   joined_at: string;
   left_at: string | null;
   can_rejoin: boolean;
@@ -262,6 +263,21 @@ export const useGroupConversations = () => {
     );
   };
 
+  // メンバーのニックネームを更新
+  const updateMemberNickname = async (
+    conversationId: number,
+    memberId: number,
+    nickname: string | null
+  ): Promise<{ message: string; owner_nickname: string | null }> => {
+    return await api<{ message: string; owner_nickname: string | null }>(
+      `/conversations/groups/${conversationId}/members/${memberId}/nickname`,
+      {
+        method: "PATCH",
+        body: { owner_nickname: nickname },
+      }
+    );
+  };
+
   return {
     getGroups,
     createGroup,
@@ -281,5 +297,6 @@ export const useGroupConversations = () => {
     sendBulkMessage,
     toggleMemberRejoin,
     restoreMember,
+    updateMemberNickname,
   };
 };

@@ -213,6 +213,53 @@
                     <div class="text-sm text-gray-600">
                       フレンドID: {{ member.friend_id }}
                     </div>
+                    <div class="text-sm text-blue-600 mt-1">
+                      <div v-if="!editingNickname[member.member_id]">
+                        <span class="text-gray-500">ニックネーム:</span>
+                        <span class="ml-1">
+                          {{ member.owner_nickname || "未設定" }}
+                        </span>
+                        <button
+                          class="ml-2 text-blue-500 hover:text-blue-700 text-xs underline"
+                          @click="startEditNickname(member)"
+                        >
+                          編集
+                        </button>
+                      </div>
+                      <div v-else class="flex gap-2 items-center mt-1">
+                        <input
+                          v-model="nicknameInputs[member.member_id]"
+                          type="text"
+                          placeholder="ニックネームを入力"
+                          class="border rounded px-2 py-1 text-xs flex-1 max-w-32"
+                          maxlength="100"
+                          @keydown="handleNicknameKeydown($event, member)"
+                          @compositionstart="
+                            handleCompositionStart(member.member_id)
+                          "
+                          @compositionend="
+                            handleCompositionEnd(member.member_id)
+                          "
+                        />
+                        <button
+                          class="text-green-600 hover:text-green-800 text-xs px-1"
+                          :disabled="savingNickname[member.member_id]"
+                          @click="saveNickname(member)"
+                        >
+                          {{
+                            savingNickname[member.member_id]
+                              ? "保存中..."
+                              : "保存"
+                          }}
+                        </button>
+                        <button
+                          class="text-gray-600 hover:text-gray-800 text-xs px-1"
+                          @click="cancelEditNickname(member.member_id)"
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    </div>
                     <div
                       v-if="!member.is_active"
                       class="text-xs text-gray-500 mt-1"
@@ -302,6 +349,7 @@ interface GroupMember {
 interface ExtendedGroupMember extends GroupMember {
   member_id: number; // GroupMemberのID
   role: string;
+  owner_nickname: string | null; // オーナー専用ニックネーム
   joined_at: string;
   left_at: string | null;
   can_rejoin: boolean;
@@ -596,6 +644,75 @@ const restoreMember = async (member: ExtendedGroupMember) => {
     console.error(e);
     errorMessage.value = "メンバー復活に失敗しました";
   }
+};
+
+// ニックネーム編集関連
+const editingNickname = ref<Record<number, boolean>>({});
+const nicknameInputs = ref<Record<number, string>>({});
+const savingNickname = ref<Record<number, boolean>>({});
+const isComposing = ref<Record<number, boolean>>({});
+
+const startEditNickname = (member: ExtendedGroupMember) => {
+  editingNickname.value[member.member_id] = true;
+  nicknameInputs.value[member.member_id] = member.owner_nickname || "";
+};
+
+const cancelEditNickname = (memberId: number) => {
+  editingNickname.value[memberId] = false;
+  nicknameInputs.value[memberId] = "";
+};
+
+const saveNickname = async (member: ExtendedGroupMember) => {
+  const nickname = nicknameInputs.value[member.member_id]?.trim() || null;
+
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  try {
+    savingNickname.value[member.member_id] = true;
+    await groupConversations.updateMemberNickname(
+      id,
+      member.member_id,
+      nickname
+    );
+
+    // ローカルデータを更新
+    const memberIndex = extendedMembers.value.findIndex(
+      (m) => m.member_id === member.member_id
+    );
+    if (memberIndex !== -1) {
+      extendedMembers.value[memberIndex].owner_nickname = nickname;
+    }
+
+    editingNickname.value[member.member_id] = false;
+    nicknameInputs.value[member.member_id] = "";
+    successMessage.value = "ニックネームを更新しました";
+  } catch (e) {
+    console.error(e);
+    errorMessage.value = "ニックネーム更新に失敗しました";
+  } finally {
+    savingNickname.value[member.member_id] = false;
+  }
+};
+
+// IME入力対応のイベントハンドラー
+const handleNicknameKeydown = (
+  event: KeyboardEvent,
+  member: ExtendedGroupMember
+) => {
+  if (event.key === "Enter" && !isComposing.value[member.member_id]) {
+    saveNickname(member);
+  } else if (event.key === "Escape") {
+    cancelEditNickname(member.member_id);
+  }
+};
+
+const handleCompositionStart = (memberId: number) => {
+  isComposing.value[memberId] = true;
+};
+
+const handleCompositionEnd = (memberId: number) => {
+  isComposing.value[memberId] = false;
 };
 
 function goBack() {

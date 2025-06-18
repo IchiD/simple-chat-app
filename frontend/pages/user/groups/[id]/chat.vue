@@ -636,7 +636,7 @@
                     id="member-search"
                     v-model="keyword"
                     type="text"
-                    placeholder="名前またはユーザーIDで検索..."
+                    placeholder="名前・ニックネームまたはユーザーIDで検索"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -754,11 +754,14 @@
               </div> -->
                   <div>
                     <div class="text-sm font-medium text-gray-900">
+                      {{ member.owner_nickname || member.name }}
+                    </div>
+                    <div
+                      v-if="member.owner_nickname"
+                      class="text-xs text-gray-400"
+                    >
                       {{ member.name }}
                     </div>
-                    <!-- <div class="text-xs text-gray-500">
-                  {{ member.group_member_label }}
-                </div> -->
                     <div class="text-xs text-gray-400">
                       ID: {{ member.friend_id }}
                     </div>
@@ -854,7 +857,11 @@
                 送信先: {{ selectedMemberIds.length }}人
               </p>
               <div class="text-xs text-green-600">
-                {{ selectedMembers.map((m) => m.name).join(", ") }}
+                {{
+                  selectedMembers
+                    .map((m) => m.owner_nickname || m.name)
+                    .join(", ")
+                }}
               </div>
             </div>
 
@@ -953,8 +960,17 @@
                         </button>
                         <div>
                           <h2 class="text-base font-semibold text-gray-900">
-                            {{ currentChatMember.name }}とのチャット
+                            {{
+                              currentChatMember.owner_nickname ||
+                              currentChatMember.name
+                            }}とのチャット
                           </h2>
+                          <p
+                            v-if="currentChatMember.owner_nickname"
+                            class="text-xs text-gray-500"
+                          >
+                            {{ currentChatMember.name }}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1206,6 +1222,7 @@ interface GroupMember {
   name: string;
   friend_id: string;
   group_member_label: string;
+  owner_nickname?: string | null; // オーナー専用ニックネーム
 }
 
 interface MemberConversation {
@@ -1472,13 +1489,41 @@ const loadGroup = async () => {
   }
 };
 
+// グループオーナーかどうかを判定
+const isGroupOwner = computed(() => {
+  return (
+    group.value &&
+    authStore.user &&
+    group.value.owner_user_id === authStore.user.id
+  );
+});
+
 // メンバー一覧を取得
 const loadMembers = async () => {
   membersPending.value = true;
   membersError.value = "";
 
   try {
-    members.value = await groupConversations.getGroupMembers(id);
+    if (isGroupOwner.value) {
+      // オーナーの場合はニックネーム情報を含む全メンバー情報を取得
+      const allMembers = await groupConversations.getAllGroupMembers(id);
+      console.log("Debug: getAllGroupMembers response:", allMembers);
+      // アクティブなメンバーのみをフィルタリング
+      members.value = allMembers
+        .filter((member) => member.is_active)
+        .map((member) => ({
+          id: member.id,
+          name: member.name,
+          friend_id: member.friend_id,
+          group_member_label: member.group_member_label,
+          owner_nickname: member.owner_nickname,
+        }));
+      console.log("Debug: Processed members with nicknames:", members.value);
+    } else {
+      // 一般メンバーの場合は通常のメンバー情報を取得
+      members.value = await groupConversations.getGroupMembers(id);
+      console.log("Debug: getGroupMembers response:", members.value);
+    }
   } catch (error) {
     console.error("メンバー取得エラー:", error);
     membersError.value = "メンバーの取得に失敗しました";
@@ -1764,11 +1809,22 @@ const isMyMessage = (senderId: number | null): boolean => {
 // メッセージの発言者名を取得
 const getMessageSenderName = (message: GroupMessage): string => {
   if (message.sender) {
+    // オーナーの場合はニックネームがあればニックネームを、なければ通常の名前を表示
+    let displayName = message.sender.name;
+    if (isGroupOwner.value) {
+      const memberWithNickname = members.value.find(
+        (m) => m.id === message.sender.id
+      );
+      if (memberWithNickname?.owner_nickname) {
+        displayName = memberWithNickname.owner_nickname;
+      }
+    }
+
     // 退室済みの場合は（退室済み）を追加
     if (message.sender_has_left) {
-      return `${message.sender.name}（退室済み）`;
+      return `${displayName}（退室済み）`;
     }
-    return message.sender.name;
+    return displayName;
   }
   return "不明なユーザー";
 };
