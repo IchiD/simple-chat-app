@@ -157,6 +157,31 @@ export const useGroupConversations = () => {
     });
   };
 
+  // QRコードトークンでグループ情報を取得（認証不要）
+  const getGroupInfoByToken = async (
+    token: string
+  ): Promise<{
+    id: number;
+    name: string;
+    description?: string;
+    member_count: number;
+    max_members: number;
+    owner_name: string;
+    can_join: boolean;
+  }> => {
+    return await api<{
+      id: number;
+      name: string;
+      description?: string;
+      member_count: number;
+      max_members: number;
+      owner_name: string;
+      can_join: boolean;
+    }>(`/conversations/groups/info/${token}`, {
+      auth: false, // 認証不要
+    });
+  };
+
   // グループメッセージを取得
   const getMessages = async (
     roomToken: string
@@ -248,6 +273,7 @@ export const useGroupConversations = () => {
     getQrCode,
     regenerateQrCode,
     joinByToken,
+    getGroupInfoByToken,
     getMessages,
     sendMessage,
     getGroupMembers,
