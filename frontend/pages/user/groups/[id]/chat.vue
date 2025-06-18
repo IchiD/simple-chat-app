@@ -823,7 +823,7 @@
                   </button>
                   <button
                     class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    @click="showBulkMessageForm = true"
+                    @click="openBulkMessageForm"
                   >
                     選択メンバーに一斉送信
                   </button>
@@ -834,7 +834,7 @@
 
           <!-- 一斉送信フォーム -->
           <div
-            v-if="showBulkMessageForm"
+            v-if="showBulkMessageForm && !currentChatMember"
             class="mb-6 bg-green-50 p-4 rounded-lg border border-green-200"
           >
             <div class="flex items-center justify-between mb-3">
@@ -1488,7 +1488,7 @@ const loadMembers = async () => {
 };
 
 // 全選択/全解除（現在のページのメンバーのみ）
-const toggleSelectAll = () => {
+const toggleSelectAll = async () => {
   if (selectAll.value) {
     // 現在のページのメンバーを選択状態に追加
     const currentPageIds = paginatedItems.value.map((m) => m.id);
@@ -1496,6 +1496,13 @@ const toggleSelectAll = () => {
       ...new Set([...selectedMemberIds.value, ...currentPageIds]),
     ];
     selectedMemberIds.value = newSelected;
+
+    // 「全員を選択」にチェックが入った場合、画面最下部にスクロール
+    await nextTick();
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth",
+    });
   } else {
     // 現在のページのメンバーを選択状態から除去
     const currentPageIds = paginatedItems.value.map((m) => m.id);
@@ -1543,9 +1550,33 @@ const startChatWithSelectedMember = () => {
   }
 };
 
+// 一斉送信フォームを開く
+const openBulkMessageForm = async () => {
+  // 個別チャットが開いている場合は閉じる
+  if (currentChatMember.value) {
+    currentChatMember.value = null;
+    currentConversation.value = null;
+    messages.value = [];
+  }
+
+  showBulkMessageForm.value = true;
+
+  // 画面最下部にスクロール
+  await nextTick();
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth",
+  });
+};
+
 // メンバーとのチャットを開始
 const startChatWithMember = async (member: GroupMember) => {
   currentChatMember.value = member;
+
+  // 一斉送信フォームが表示中の場合は閉じる
+  if (showBulkMessageForm.value) {
+    showBulkMessageForm.value = false;
+  }
 
   // メッセージとエラー状態をリセット
   messages.value = [];
@@ -1567,8 +1598,14 @@ const startChatWithMember = async (member: GroupMember) => {
     currentConversation.value = conversation;
     await loadMessages();
 
-    // チャット画面表示後に確実にスクロール
+    // 個別チャット開始時に画面最下部にスクロール
     await nextTick();
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth",
+    });
+
+    // チャット画面表示後に確実にスクロール
     setTimeout(() => {
       scrollToBottom("auto");
     }, 100);
@@ -1822,6 +1859,17 @@ watch(
 watch(currentView, async (view) => {
   if (view === "group" && hasBothStyles.value) {
     await loadGroupMessages();
+  }
+});
+
+// 一斉送信フォームが表示された時に画面最下部にスクロール
+watch(showBulkMessageForm, async (isVisible) => {
+  if (isVisible) {
+    await nextTick();
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth",
+    });
   }
 });
 
