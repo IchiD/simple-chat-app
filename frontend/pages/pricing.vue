@@ -1217,7 +1217,7 @@
             <div class="border border-gray-200 rounded-lg p-4">
               <div class="text-center mb-3">
                 <span
-                  class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
+                  class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium"
                 >
                   アップグレード例
                 </span>
@@ -1259,7 +1259,7 @@
             <div class="border border-gray-200 rounded-lg p-4">
               <div class="text-center mb-3">
                 <span
-                  class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                  class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium"
                 >
                   ダウングレード例
                 </span>

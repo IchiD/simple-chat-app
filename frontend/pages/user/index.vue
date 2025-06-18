@@ -36,7 +36,7 @@
                   >
                     <NuxtLink to="/friends" class="block">
                       <div
-                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
                         style="border-color: var(--primary-light)"
                       >
                         <div class="flex items-center">
@@ -46,7 +46,7 @@
                               color: var(--primary);
                               border: 1px solid var(--primary-light);
                             "
-                            class="p-3 rounded-full mr-4"
+                            class="w-12 h-12 flex items-center justify-center rounded-full mr-4 flex-shrink-0"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,9 @@
                               fill="currentColor"
                             >
                               <path
-                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                                fill-rule="evenodd"
+                                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                clip-rule="evenodd"
                               />
                             </svg>
                           </div>
@@ -71,7 +73,7 @@
 
                     <NuxtLink to="/chat" class="block">
                       <div
-                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
                         style="border-color: var(--primary-light)"
                       >
                         <div class="flex items-center">
@@ -81,7 +83,7 @@
                               color: var(--primary);
                               border: 1px solid var(--primary-light);
                             "
-                            class="p-3 rounded-full mr-4"
+                            class="w-12 h-12 flex items-center justify-center rounded-full mr-4 flex-shrink-0"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +118,7 @@
                       class="block"
                     >
                       <div
-                        class="bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
                         style="border-color: var(--primary-light)"
                       >
                         <div class="flex items-center">
@@ -126,7 +128,7 @@
                               color: var(--primary);
                               border: 1px solid var(--primary-light);
                             "
-                            class="p-3 rounded-full mr-4"
+                            class="w-12 h-12 flex items-center justify-center rounded-full mr-4 flex-shrink-0"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -135,12 +137,7 @@
                               fill="currentColor"
                             >
                               <path
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                              <path
-                                fill-rule="evenodd"
-                                d="M9 3a1 1 0 012 0v1.5a.5.5 0 001 0V3a2 2 0 10-4 0v1.5a.5.5 0 001 0V3z"
-                                clip-rule="evenodd"
+                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
                               />
                             </svg>
                           </div>
@@ -167,7 +164,7 @@
                       >
                         <div class="flex items-center">
                           <div
-                            class="p-3 rounded-full mr-4 bg-yellow-100 text-yellow-600"
+                            class="w-12 h-12 flex items-center justify-center rounded-full mr-4 bg-yellow-100 text-yellow-600 flex-shrink-0"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
