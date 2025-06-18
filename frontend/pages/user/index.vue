@@ -147,10 +147,10 @@
                           <div>
                             <h3 class="font-semibold">グループ管理</h3>
                             <p class="text-sm text-gray-600">
-                              1対多数のグループチャットを管理
+                              グループチャットを管理
                             </p>
                             <span
-                              class="inline-block text-xs px-2 py-1 rounded-full mt-1"
+                              class="inline-block text-xs px-2 py-1 mt-1"
                               :class="getPlanLabelClass(authStore.user?.plan)"
                             >
                               {{ getPlanLabelText(authStore.user?.plan) }}
@@ -195,7 +195,7 @@
                     </NuxtLink>
                   </div>
 
-                  <!-- プラン管理エリア（テスト用：常に表示） -->
+                  <!-- サブスクリプション管理エリア（テスト用：常に表示） -->
                   <div
                     class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                   >
@@ -222,7 +222,7 @@
                         </div>
                         <div class="ml-4 flex-1">
                           <h3 class="text-lg font-semibold text-gray-900">
-                            プラン管理
+                            サブスクリプション管理
                           </h3>
                           <p class="text-sm text-gray-600">
                             現在のプラン:
@@ -919,7 +919,9 @@
                     class="text-sm text-gray-500 space-y-1 list-disc list-inside mb-4"
                   >
                     <li>他のユーザーから見えなくなります</li>
-                    <li>グループチャットでは「（退室済み）」と表示されます</li>
+                    <li>
+                      グループチャットでは名前の横に「（退室済み）」と表示されます
+                    </li>
                     <li>同じメールアドレスで再登録すれば復元できます</li>
                   </ul>
                   <form @submit.prevent="handleDeleteAccount">

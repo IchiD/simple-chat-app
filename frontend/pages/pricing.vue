@@ -76,7 +76,7 @@
               clip-rule="evenodd"
             />
           </svg>
-          <div>
+          <div class="flex-1">
             <h3 class="text-orange-800 font-medium">プラン解約予定</h3>
             <p class="mt-1 text-orange-700 text-sm">
               {{
@@ -84,6 +84,14 @@
               }}プランは解約済みですが、現在の期間終了まではプランの機能をご利用いただけます。
               期間終了後は自動的にFREEプランに変更されます。
             </p>
+            <div class="mt-3">
+              <button
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                @click="resumeSubscriptionConfirm"
+              >
+                解約を取り消す
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -120,14 +128,16 @@
     <!-- プランカード -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       <!-- FREE プラン -->
-      <div class="border-2 rounded-xl p-6 relative bg-white shadow-sm">
-        <div class="text-center space-y-4">
+      <div
+        class="border-2 rounded-xl p-6 relative bg-white shadow-sm flex flex-col h-full"
+      >
+        <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">FREE</h2>
           <div class="space-y-1">
             <div class="text-3xl font-bold text-gray-900">¥0</div>
             <div class="text-sm text-gray-500">月額</div>
           </div>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-gray-600 flex-grow">
             <li class="flex items-center">
               <svg
                 class="w-4 h-4 text-green-500 mr-2"
@@ -171,43 +181,57 @@
               グループチャット
             </li> -->
           </ul>
+        </div>
+        <div class="mt-4">
           <button
             class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
             :class="{
               'bg-gray-200 text-gray-500 cursor-not-allowed':
-                isCurrentPlan('free'),
+                isCurrentPlan('free') ||
+                authStore.user?.subscription_status === 'will_cancel',
               'bg-blue-500 hover:bg-blue-600 text-white':
-                !isCurrentPlan('free') && authStore.isAuthenticated,
+                !isCurrentPlan('free') &&
+                authStore.isAuthenticated &&
+                authStore.user?.subscription_status !== 'will_cancel',
               'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
             }"
-            :disabled="isCurrentPlan('free') || !authStore.isAuthenticated"
+            :disabled="
+              isCurrentPlan('free') ||
+              !authStore.isAuthenticated ||
+              authStore.user?.subscription_status === 'will_cancel'
+            "
             @click="() => handleFreePlanClick()"
           >
             <template v-if="isCurrentPlan('free')"> 現在のプラン </template>
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else> FREEに変更（キャンセル） </template>
+            <template
+              v-else-if="authStore.user?.subscription_status === 'will_cancel'"
+            >
+              有料プラン解約済み
+            </template>
+            <template v-else> このプランを選択 </template>
           </button>
         </div>
       </div>
 
       <!-- STANDARD プラン -->
       <div
-        class="border-2 border-blue-500 rounded-xl p-6 relative bg-white shadow-lg"
+        class="border-2 border-blue-500 rounded-xl p-6 relative bg-white shadow-lg flex flex-col h-full"
       >
         <div
           class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium"
         >
           おすすめ
         </div>
-        <div class="text-center space-y-4">
+        <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">STANDARD</h2>
           <div class="space-y-1">
             <div class="text-3xl font-bold text-gray-900">¥2,980</div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-gray-600 flex-grow">
             <li class="flex items-center">
               <svg
                 class="w-4 h-4 text-green-500 mr-2"
@@ -279,6 +303,8 @@
               グループ内全体チャット
             </li>
           </ul>
+        </div>
+        <div class="mt-4">
           <button
             class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
             :class="{
@@ -335,35 +361,27 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else>
-              <span v-if="authStore.user?.plan === 'free'">
-                このプランを選択
-              </span>
-              <span v-else-if="authStore.user?.plan === 'premium'">
-                ダウングレード
-              </span>
-              <span v-else> このプランを選択 </span>
-            </template>
+            <template v-else> このプランを選択 </template>
           </button>
         </div>
       </div>
 
       <!-- PREMIUM プラン -->
       <div
-        class="border-2 border-purple-500 rounded-xl p-6 relative bg-white shadow-lg"
+        class="border-2 border-purple-500 rounded-xl p-6 relative bg-white shadow-lg flex flex-col h-full"
       >
         <div
           class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-medium"
         >
           最高機能
         </div>
-        <div class="text-center space-y-4">
+        <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">PREMIUM</h2>
           <div class="space-y-1">
             <div class="text-3xl font-bold text-gray-900">¥5,980</div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-gray-600 flex-grow">
             <li class="flex items-center">
               <svg
                 class="w-4 h-4 text-green-500 mr-2"
@@ -421,6 +439,8 @@
               優先サポート
             </li>
           </ul>
+        </div>
+        <div class="mt-4">
           <button
             class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200"
             :class="{
@@ -477,15 +497,7 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else>
-              <span v-if="authStore.user?.plan === 'free'">
-                このプランを選択
-              </span>
-              <span v-else-if="authStore.user?.plan === 'standard'">
-                アップグレード
-              </span>
-              <span v-else> このプランを選択 </span>
-            </template>
+            <template v-else> このプランを選択 </template>
           </button>
         </div>
       </div>
@@ -726,15 +738,15 @@
             <div class="text-xs text-yellow-800">
               <p class="font-medium mb-1">決済に関する重要事項</p>
               <ul class="space-y-1">
-                <li>• 決済はStripeの安全なシステムで処理されます</li>
-                <li>• 月額料金は毎月自動で請求されます</li>
-                <li>• プランはいつでも変更・キャンセル可能です</li>
-                <li
-                  v-if="authStore.user?.plan && authStore.user.plan !== 'free'"
-                >
-                  • プラン変更時は残り期間に応じて日割り計算されます
+                <li>
+                  • 料金はご契約の請求サイクルに従って自動的に請求されます
                 </li>
-                <li>• 決済完了後、即座にプラン機能が利用可能になります</li>
+                <li>• プラン変更は即座に反映され、日割り計算されます</li>
+                <li>• キャンセルはいつでも可能ですが、返金はありません</li>
+                <li>• サービス内容や料金は予告なく変更される場合があります</li>
+                <li>
+                  • データ保存期間は技術的制約により変更される可能性があります
+                </li>
               </ul>
             </div>
           </div>
@@ -889,18 +901,18 @@
 
           <!-- タイトル -->
           <h3 class="text-xl font-semibold text-gray-900 mb-4">
-            プランキャンセルの確認
+            有料プランキャンセルの確認
           </h3>
 
           <!-- 説明 -->
           <div class="text-gray-600 mb-6 space-y-3">
-            <p>現在のプランをキャンセルします。</p>
+            <p>有料プランをキャンセルし、無料プランに変更します。</p>
             <div
               class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
             >
               <p class="text-sm text-blue-800">
                 キャンセル後も契約期間が終了するまでは、現在の有料プランの機能をすべてご利用いただけます。
-                契約期間終了後に自動的にFREEプランに変更されます。
+                契約期間終了後に自動的に無料プランに変更されます。
               </p>
             </div>
           </div>
@@ -917,7 +929,71 @@
               class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
               @click="cancelSubscription"
             >
-              キャンセルする
+              変更する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 解約取り消し確認モーダル -->
+    <div
+      v-if="resumeConfirmationState.isVisible"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+          <!-- アイコン -->
+          <div class="mb-6">
+            <div
+              class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-8 h-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- タイトル -->
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">
+            解約取り消しの確認
+          </h3>
+
+          <!-- 説明 -->
+          <div class="text-gray-600 mb-6 space-y-3">
+            <p>解約を取り消してサブスクリプションを継続します。</p>
+            <div
+              class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
+            >
+              <p class="text-sm text-blue-800">
+                解約取り消し後は、通常通り請求サイクルに従って料金が請求され、サブスクリプションが継続されます。
+              </p>
+            </div>
+          </div>
+
+          <!-- ボタン -->
+          <div class="flex space-x-3">
+            <button
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              @click="cancelResumeConfirmation"
+            >
+              やめる
+            </button>
+            <button
+              class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              @click="resumeSubscription"
+            >
+              解約を取り消す
             </button>
           </div>
         </div>
@@ -985,59 +1061,21 @@
           <h2 class="text-2xl font-bold text-gray-900 mb-4">
             プラン変更時の料金について
           </h2>
-          <p class="text-gray-600">
-            月途中でプランを変更された場合の料金計算について、わかりやすくご説明します。
+          <p class="text-gray-600 text-lg">
+            契約期間の途中でプランを変更しても、<strong class="text-indigo-600"
+              >損をしない仕組み</strong
+            >になっています
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-          <!-- 日割り計算の仕組み -->
+        <!-- 3つのケース -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <!-- アップグレード -->
           <div class="bg-white rounded-lg p-6 shadow-sm">
-            <div class="flex items-center mb-4">
-              <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                <svg
-                  class="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 class="text-lg font-semibold text-gray-900">
-                日割り計算で公平な料金
-              </h3>
-            </div>
-            <div class="space-y-3 text-sm text-gray-600">
-              <p>
-                プラン変更時は、<strong class="text-gray-900"
-                  >残り期間に応じて料金を日割り計算</strong
-                >いたします。
-              </p>
-              <ul class="space-y-2 ml-4">
-                <li class="flex items-start">
-                  <span class="text-blue-500 mr-2">•</span>
-                  <span
-                    >アップグレード時：未使用分を差し引いて、新プランの残り期間分をお支払い</span
-                  >
-                </li>
-                <li class="flex items-start">
-                  <span class="text-blue-500 mr-2">•</span>
-                  <span>ダウングレード時：未使用分は次回の請求で相殺</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- 具体例 -->
-          <div class="bg-white rounded-lg p-6 shadow-sm">
-            <div class="flex items-center mb-4">
-              <div class="bg-green-100 p-2 rounded-lg mr-3">
+            <div class="text-center mb-4">
+              <div
+                class="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3"
+              >
                 <svg
                   class="w-6 h-6 text-green-600"
                   fill="none"
@@ -1048,68 +1086,226 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                    d="M7 11l5-5m0 0l5 5m-5-5v12"
                   />
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-gray-900">計算例</h3>
+              <h4 class="font-semibold text-gray-900">アップグレード</h4>
+              <p class="text-sm text-gray-500 mb-3">上位プランに変更</p>
             </div>
-            <div class="space-y-4 text-sm">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <p class="font-medium text-gray-900 mb-2">
-                  STANDARD → PREMIUM にアップグレード
+            <div class="space-y-2 text-sm">
+              <div class="bg-green-50 rounded-lg p-3">
+                <p class="text-green-800 font-medium">差額分のみお支払い</p>
+                <p class="text-green-600 text-xs mt-1">
+                  元プランの未使用分を差し引いた金額を請求
                 </p>
-                <div class="space-y-1 text-gray-600">
-                  <div class="flex justify-between">
-                    <span>STANDARD未使用分</span>
-                    <span class="text-red-600">-¥30</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span>PREMIUM残り期間分</span>
-                    <span class="text-blue-600">+¥60</span>
-                  </div>
-                  <hr class="my-2" />
-                  <div class="flex justify-between font-semibold text-gray-900">
-                    <span>実際の請求額</span>
-                    <span>¥30</span>
-                  </div>
-                </div>
               </div>
-              <p class="text-xs text-gray-500">
-                ※実際の金額は残り日数により異なります
-              </p>
+            </div>
+          </div>
+
+          <!-- ダウングレード -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center mb-4">
+              <div
+                class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3"
+              >
+                <svg
+                  class="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 13l-5 5m0 0l-5-5m5 5V6"
+                  />
+                </svg>
+              </div>
+              <h4 class="font-semibold text-gray-900">ダウングレード</h4>
+              <p class="text-sm text-gray-500 mb-3">下位プランに変更</p>
+            </div>
+            <div class="space-y-2 text-sm">
+              <div class="bg-blue-50 rounded-lg p-3">
+                <p class="text-blue-800 font-medium">次回請求日から料金減額</p>
+                <p class="text-blue-600 text-xs mt-1">
+                  未使用分は次回請求で相殺されます
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 解約 -->
+          <div class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="text-center mb-4">
+              <div
+                class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3"
+              >
+                <svg
+                  class="w-6 h-6 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <h4 class="font-semibold text-gray-900">解約</h4>
+              <p class="text-sm text-gray-500 mb-3">FREEプランに戻る</p>
+            </div>
+            <div class="space-y-2 text-sm">
+              <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-gray-800 font-medium">次回請求日まで利用可能</p>
+                <p class="text-gray-600 text-xs mt-1">
+                  解約後も請求期間満了まで機能使用可
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 重要なポイント -->
-        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div class="flex items-start">
-            <svg
-              class="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <div>
-              <h4 class="font-medium text-yellow-800 mb-1">ご利用時の注意点</h4>
-              <ul class="text-sm text-yellow-700 space-y-1">
-                <li>• アップグレード時は即座に決済が行われます</li>
-                <li>
-                  •
-                  短時間での頻繁なプラン変更は、小額の請求が複数発生する場合があります
-                </li>
-                <li>
-                  • 決済履歴は「マイページ >
-                  サブスクリプション管理」で確認できます
-                </li>
-              </ul>
+        <!-- 日割り計算の仕組み -->
+        <div class="bg-white rounded-lg p-6 shadow-sm mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">
+            日割り計算の仕組み
+          </h3>
+
+          <!-- 計算方式の説明 -->
+          <div class="bg-blue-50 rounded-lg p-4 mb-6">
+            <div class="flex items-center mb-3">
+              <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                <svg
+                  class="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h4 class="font-medium text-gray-900">
+                あなたの請求サイクルに基づく正確な計算
+              </h4>
             </div>
+            <div class="space-y-2 text-sm text-gray-700">
+              <p>
+                料金 =
+                <span class="font-mono bg-white px-2 py-1 rounded"
+                  >（残り日数 ÷ 請求サイクル日数）× 月額料金</span
+                >
+              </p>
+              <p class="text-xs text-gray-600">
+                ※ 請求サイクルは初回契約時に決まり、ユーザーごとに異なります
+              </p>
+            </div>
+          </div>
+
+          <!-- 計算例のパターン -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- パターン1: アップグレードの場合 -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="text-center mb-3">
+                <span
+                  class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
+                >
+                  アップグレード例
+                </span>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div class="text-center text-gray-600 mb-2">
+                  <strong>STANDARD → PREMIUM</strong>
+                </div>
+                <div class="bg-gray-50 rounded p-2">
+                  <div class="text-xs text-gray-600">
+                    2月15日にPREMIUMに変更
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    次回請求日：3月1日（変更されず）
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    残り：14日 / 実際の月の日数で計算
+                  </div>
+                </div>
+                <div class="space-y-1 text-xs">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">PREMIUM分（14日）</span>
+                    <span>¥2,990</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">STANDARD未使用分</span>
+                    <span class="text-red-600">-¥1,490</span>
+                  </div>
+                  <hr class="my-1" />
+                  <div class="flex justify-between font-medium">
+                    <span class="text-gray-900">差額請求</span>
+                    <span class="text-green-600">¥1,500</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- パターン2: ダウングレードの場合 -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="text-center mb-3">
+                <span
+                  class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                >
+                  ダウングレード例
+                </span>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div class="text-center text-gray-600 mb-2">
+                  <strong>PREMIUM → STANDARD</strong>
+                </div>
+                <div class="bg-gray-50 rounded p-2">
+                  <div class="text-xs text-gray-600">
+                    2月15日にSTANDARDに変更
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    次回請求日：3月1日（変更されず）
+                  </div>
+                  <div class="text-xs text-gray-600">
+                    残り：14日 / 実際の月の日数で計算
+                  </div>
+                </div>
+                <div class="space-y-1 text-xs">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">STANDARD分（14日）</span>
+                    <span>¥1,490</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">PREMIUM未使用分</span>
+                    <span class="text-red-600">-¥2,990</span>
+                  </div>
+                  <hr class="my-1" />
+                  <div class="flex justify-between font-medium">
+                    <span class="text-gray-900">次回請求で相殺</span>
+                    <span class="text-blue-600">-¥1,500</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200"
+          >
+            <p class="text-xs text-gray-600 text-center">
+              <strong>※</strong>
+              請求サイクルはカレンダー月に基づき、月によって日数が変動します（28-31日）。
+              実際の金額はStripeが正確に計算します。
+            </p>
           </div>
         </div>
       </div>
@@ -1135,7 +1331,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, h, computed } from "vue";
+import { ref, onMounted, h, computed, nextTick } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useApi } from "@/composables/useApi";
 import { useAuthStore } from "~/stores/auth";
@@ -1405,6 +1601,13 @@ const cancelConfirmationState = ref<{
   isVisible: false,
 });
 
+// 解約取り消し確認モーダル状態
+const resumeConfirmationState = ref<{
+  isVisible: boolean;
+}>({
+  isVisible: false,
+});
+
 // プラン料金の定義
 const PLAN_PRICES: Record<string, { price: number; display: string }> = {
   free: { price: 0, display: "¥0" },
@@ -1469,8 +1672,12 @@ const cancelSubscription = async () => {
         color: "success",
       });
 
-      // ユーザー情報を更新
+      // ユーザー情報を更新（キャッシュをクリアして強制更新）
+      authStore.user = null;
       await authStore.checkAuth();
+
+      // 強制的にページを再レンダリング
+      await nextTick();
     } else {
       throw new Error(response.message || "キャンセル処理に失敗しました");
     }
@@ -1498,6 +1705,59 @@ const proceedWithPayment = () => {
   }
 };
 
+// 解約取り消し確認モーダル表示
+const resumeSubscriptionConfirm = () => {
+  resumeConfirmationState.value.isVisible = true;
+};
+
+// 解約取り消し確認モーダル閉じる
+const cancelResumeConfirmation = () => {
+  resumeConfirmationState.value.isVisible = false;
+};
+
+// 解約取り消し処理
+const resumeSubscription = async () => {
+  try {
+    const response = await api("/stripe/subscription/resume", {
+      method: "POST",
+    });
+
+    // 成功時のレスポンス処理
+    if (response.status === "success") {
+      // モーダルを閉じる
+      resumeConfirmationState.value.isVisible = false;
+
+      // 成功メッセージを表示
+      toast.add({
+        title: "解約取り消し",
+        description: "解約を取り消しました。サブスクリプションは継続されます。",
+        color: "success",
+      });
+
+      // ユーザー情報を更新（キャッシュをクリアして強制更新）
+      authStore.user = null;
+      await authStore.checkAuth();
+
+      // 強制的にページを再レンダリング
+      await nextTick();
+    } else {
+      throw new Error(response.message || "解約取り消し処理に失敗しました");
+    }
+  } catch (error) {
+    console.error("Subscription resume error:", error);
+
+    // エラーメッセージを表示
+    toast.add({
+      title: "解約取り消し失敗",
+      description:
+        error instanceof Error
+          ? error.message
+          : "解約取り消し処理に失敗しました",
+      color: "error",
+    });
+  }
+};
+
 // プラン比較データ
 const comparisonFeatures = ref([
   {
@@ -1518,36 +1778,29 @@ const comparisonFeatures = ref([
     name: "一括配信",
     description: "グループメンバーへの一斉メッセージ送信",
     free: false,
-    standard: "月10回",
+    standard: "無制限",
     premium: "無制限",
   },
   {
     name: "QRコード参加",
     description: "QRコードでグループに簡単参加",
-    free: false,
+    free: true,
     standard: true,
     premium: true,
   },
   {
     name: "メッセージ履歴",
     description: "過去のメッセージの保存期間",
-    free: "30日間",
-    standard: "1年間",
-    premium: "無制限",
-  },
-  {
-    name: "ファイル共有",
-    description: "画像・ファイルの共有機能",
-    free: "5MB",
-    standard: "50MB",
-    premium: "200MB",
+    free: "2年間",
+    standard: "5年間",
+    premium: "5年間",
   },
   {
     name: "サポート",
     description: "カスタマーサポートの対応",
-    free: "コミュニティ",
-    standard: "メール",
-    premium: "優先対応",
+    free: "チャット",
+    standard: "チャット（優先対応）",
+    premium: "チャット（優先対応）",
   },
   {
     name: "API アクセス",
@@ -1566,14 +1819,14 @@ const faqs = ref([
       "はい、いつでもプランの変更・キャンセルが可能です。アップグレードは即座に反映され、ダウングレードは次の請求サイクルから適用されます。",
   },
   {
-    question: "月途中でプランを変更した場合、料金はどうなりますか？",
+    question: "契約期間途中でプランを変更した場合、料金はどうなりますか？",
     answer:
-      "月途中でプランを変更された場合は、日割り計算により公平に料金を調整いたします。アップグレード時は現在のプランの未使用分を差し引いて、新しいプランの残り期間分をお支払いいただきます。ダウングレード時は未使用分を次回の請求で相殺いたします。",
+      "契約期間途中でプランを変更された場合は、日割り計算により公平に料金を調整いたします。請求サイクル（請求日）は変更されません。アップグレード時は現在のプランの未使用分を差し引いた差額を即座にお支払いいただきます。ダウングレード時は未使用分を次回の請求で相殺いたします。",
   },
   {
     question: "頻繁にプランを変更すると追加料金がかかりますか？",
     answer:
-      "プラン変更自体に手数料はかかりませんが、短時間での頻繁なプラン変更は小額の請求が複数発生する場合があります。変更前に十分ご検討いただくことをお勧めします。決済履歴は「マイページ > サブスクリプション管理」で詳細を確認できます。",
+      "プラン変更自体に手数料はかかりませんが、短時間での頻繁なプラン変更は小額の請求が複数発生する場合があります。変更前に十分ご検討いただくことをお勧めします。決済履歴は「ホーム > サブスクリプション管理」で詳細を確認できます。",
   },
   {
     question: "支払い方法は何が利用できますか？",
@@ -2034,8 +2287,12 @@ const executeCheckout = async (plan: "standard" | "premium") => {
         // アップグレード成功の場合 - リダイレクト不要
         stopLoading();
 
-        // ユーザー情報を最新化
+        // ユーザー情報を最新化（キャッシュをクリアして強制更新）
+        authStore.user = null;
         await authStore.checkAuth();
+
+        // 強制的にページを再レンダリング
+        await nextTick();
 
         toast.add({
           title: "プラン変更完了",
@@ -2044,7 +2301,7 @@ const executeCheckout = async (plan: "standard" | "premium") => {
           color: "success",
         });
 
-        // プラン管理ページにリダイレクト
+        // サブスクリプション管理ページにリダイレクト
         setTimeout(() => {
           navigateTo("/user/subscription");
         }, 2000);

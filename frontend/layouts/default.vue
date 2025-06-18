@@ -51,6 +51,25 @@
               <span class="hidden sm:inline">友達</span>
             </NuxtLink>
 
+            <!-- グループボタン（有料プランユーザーのみ） -->
+            <NuxtLink
+              v-if="isPaidUser && currentPage !== 'groups'"
+              to="/user/groups"
+              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+            >
+              <svg
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+                />
+              </svg>
+              <span class="hidden sm:inline">グループ</span>
+            </NuxtLink>
+
             <!-- チャットボタン -->
             <NuxtLink
               v-if="currentPage !== 'chat'"
@@ -120,6 +139,9 @@
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
 
+// 認証ストアの初期化
+const authStore = useAuthStore();
+
 // ルートを取得して現在のページを判断
 const route = useRoute();
 const router = useRouter();
@@ -128,9 +150,12 @@ const config = useRuntimeConfig();
 // 現在のページを判断する関数
 const currentPage = computed(() => {
   const path = route.path;
-  if (path === "/user" || path.startsWith("/user/")) return "user";
+  // 完全一致でuserページかどうかを判定
+  if (path === "/user") return "user";
   if (path === "/friends" || path.startsWith("/friends/")) return "friends";
   if (path === "/chat" || path.startsWith("/chat/")) return "chat";
+  if (path === "/user/groups" || path.startsWith("/user/groups/"))
+    return "groups";
   return null;
 });
 
@@ -173,4 +198,10 @@ const openSupportChat = async () => {
     // エラーハンドリング（必要に応じてトーストメッセージを表示）
   }
 };
+
+// 有料プランユーザーかどうかを判定
+const isPaidUser = computed(() => {
+  const userPlan = authStore.user?.plan;
+  return userPlan && userPlan !== "free";
+});
 </script>

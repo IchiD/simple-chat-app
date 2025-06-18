@@ -231,15 +231,18 @@ export const useAuthStore = defineStore("auth", () => {
       if (savedToken) {
         token.value = savedToken;
 
-        const { api } = useApi();
+        // ユーザー情報がない場合、または初回認証の場合はAPIを呼び出し
+        if (!user.value || !isAuthenticated.value) {
+          const { api } = useApi();
 
-        // skipAuthRedirectを使ってリダイレクトを制御
-        const userData = await api<User>("/users/me", {
-          skipAuthRedirect: true,
-        });
+          // skipAuthRedirectを使ってリダイレクトを制御
+          const userData = await api<User>("/users/me", {
+            skipAuthRedirect: true,
+          });
 
-        user.value = userData;
-        isAuthenticated.value = true;
+          user.value = userData;
+          isAuthenticated.value = true;
+        }
       } else {
         // トークンがない場合は認証情報をクリア
         token.value = null;

@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- ページヘッダー -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">プラン管理</h1>
+        <h1 class="text-3xl font-bold text-gray-900">サブスクリプション管理</h1>
         <p class="mt-2 text-gray-600">現在のプラン状況と履歴を確認できます</p>
       </div>
 
