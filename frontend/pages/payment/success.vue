@@ -34,7 +34,7 @@
           <div class="flex justify-between items-center">
             <span class="text-gray-600">プラン</span>
             <span class="font-semibold text-gray-900 uppercase">
-              {{ selectedPlan || "PREMIUM" }}
+              {{ getPlanDisplayName(selectedPlan) }}
             </span>
           </div>
 
@@ -56,7 +56,7 @@
             <div class="flex justify-between items-center font-semibold">
               <span class="text-gray-900">月額料金</span>
               <span class="text-green-600">
-                {{ getPlanPrice(selectedPlan || "premium") }}
+                {{ getPlanPrice(selectedPlan) }}
               </span>
             </div>
           </div>
@@ -83,7 +83,11 @@
         </h2>
 
         <ul class="space-y-2">
-          <li class="flex items-center text-sm text-gray-700">
+          <li
+            v-for="feature in getPlanFeatures"
+            :key="feature"
+            class="flex items-center text-sm text-gray-700"
+          >
             <svg
               class="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
               fill="currentColor"
@@ -95,74 +99,9 @@
                 clip-rule="evenodd"
               />
             </svg>
-            グループチャット機能が利用可能になりました
-          </li>
-          <li class="flex items-center text-sm text-gray-700">
-            <svg
-              class="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            一括配信機能が利用可能になりました
-          </li>
-          <li class="flex items-center text-sm text-gray-700">
-            <svg
-              class="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            ファイル共有容量が拡張されました
-          </li>
-          <li class="flex items-center text-sm text-gray-700">
-            <svg
-              class="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            優先サポートが利用可能になりました
+            {{ feature }}
           </li>
         </ul>
-      </div>
-
-      <!-- 自動リダイレクト情報 -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div class="flex items-center">
-          <svg
-            class="h-5 w-5 text-blue-600 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div class="text-sm text-blue-800">
-            <p class="font-medium">自動リダイレクト</p>
-            <p>{{ countdown }}秒後にマイページに移動します</p>
-          </div>
-        </div>
       </div>
 
       <!-- アクションボタン -->
@@ -204,15 +143,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 
 // URLパラメータから選択されたプランを取得
 const route = useRoute();
 const selectedPlan = ref<string | null>(null);
-
-// カウントダウン用
-const countdown = ref(10);
-let countdownInterval: NodeJS.Timeout | null = null;
 
 // プラン料金の定義
 const PLAN_PRICES: Record<string, string> = {
@@ -221,11 +156,46 @@ const PLAN_PRICES: Record<string, string> = {
   premium: "¥5,980",
 };
 
+// プラン表示名の定義
+const PLAN_DISPLAY_NAMES: Record<string, string> = {
+  free: "フリー",
+  standard: "スタンダード",
+  premium: "プレミアム",
+};
+
 // プラン料金取得関数
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
   return PLAN_PRICES[plan] || "¥0";
 };
+
+// プラン表示名取得関数
+const getPlanDisplayName = (plan: string | null): string => {
+  if (!plan) return "フリー";
+  return PLAN_DISPLAY_NAMES[plan] || "フリー";
+};
+
+// プランごとの利用可能機能
+const getPlanFeatures = computed(() => {
+  const plan = selectedPlan.value;
+
+  if (plan === "standard") {
+    return [
+      "グループチャット機能（50人/グループ）が利用可能になりました",
+      "メンバー管理機能が利用可能になりました",
+      "優先サポートが利用可能になりました",
+    ];
+  } else if (plan === "premium") {
+    return [
+      "グループチャット機能（200人/グループ）が利用可能になりました",
+      "一括配信機能が利用可能になりました",
+      "優先サポートが利用可能になりました",
+    ];
+  } else {
+    // free プランまたは不明なプラン
+    return ["基本的なチャット機能が利用可能です", "友達追加機能が利用可能です"];
+  }
+});
 
 // 日付フォーマット関数
 const formatDate = (date: Date): string => {
@@ -245,16 +215,6 @@ const getNextBillingDate = (): Date => {
   return nextMonth;
 };
 
-// 自動リダイレクト
-const startCountdown = () => {
-  countdownInterval = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      navigateTo("/user");
-    }
-  }, 1000);
-};
-
 // ページタイトル設定
 useHead({
   title: "決済完了 - Chat App",
@@ -269,9 +229,6 @@ useHead({
 onMounted(() => {
   // URLパラメータからプラン情報を取得
   selectedPlan.value = (route.query.plan as string) || "premium";
-
-  // 自動リダイレクトを開始
-  startCountdown();
 
   // 成功メッセージをトーストで表示（もしtoastが利用可能な場合）
   try {
@@ -289,8 +246,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
+  // 自動リダイレクトの処理は削除
 });
 </script>

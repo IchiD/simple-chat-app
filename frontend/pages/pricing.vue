@@ -1802,13 +1802,13 @@ const comparisonFeatures = ref([
     standard: "チャット（優先対応）",
     premium: "チャット（優先対応）",
   },
-  {
-    name: "API アクセス",
-    description: "外部システムとの連携",
-    free: false,
-    standard: false,
-    premium: true,
-  },
+  // {
+  //   name: "API アクセス",
+  //   description: "外部システムとの連携",
+  //   free: false,
+  //   standard: false,
+  //   premium: true,
+  // },
 ]);
 
 // FAQ データ
