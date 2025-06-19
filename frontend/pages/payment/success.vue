@@ -114,13 +114,6 @@
         </NuxtLink>
 
         <NuxtLink
-          to="/chat"
-          class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors text-center block"
-        >
-          チャットを開始
-        </NuxtLink>
-
-        <NuxtLink
           to="/pricing"
           class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3 px-6 rounded-lg transition-colors text-center block"
         >
@@ -228,14 +221,24 @@ useHead({
 
 onMounted(() => {
   // URLパラメータからプラン情報を取得
-  selectedPlan.value = (route.query.plan as string) || "premium";
+  const planParam = route.query.plan as string;
+
+  // プランパラメータが存在し、有効なプランの場合のみ設定
+  if (planParam && (planParam === "standard" || planParam === "premium")) {
+    selectedPlan.value = planParam;
+  } else {
+    // 無効なプランまたはプランが指定されていない場合はstandard（決済完了ページはFREEでは使用しないため）
+    selectedPlan.value = "standard";
+  }
 
   // 成功メッセージをトーストで表示（もしtoastが利用可能な場合）
   try {
     const toast = useToast();
     toast.add({
       title: "決済完了",
-      description: "有料プランへの変更が完了しました！",
+      description: `${getPlanDisplayName(
+        selectedPlan.value
+      )}プランへの変更が完了しました！`,
       color: "success",
       timeout: 5000,
     });
