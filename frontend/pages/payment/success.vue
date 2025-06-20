@@ -26,8 +26,35 @@
         <p class="text-lg text-gray-600">プランの変更が完了しました</p>
       </div>
 
+      <!-- ローディング表示 -->
+      <div
+        v-if="isLoadingPlan"
+        class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6"
+      >
+        <h2 class="text-lg font-semibold text-blue-800 mb-2">
+          プラン情報を取得中...
+        </h2>
+        <p class="text-blue-600">
+          決済完了後の最新プラン情報を取得しています。しばらくお待ちください。
+        </p>
+      </div>
+
+      <!-- プラン情報が取得できない場合のエラー表示 -->
+      <div
+        v-else-if="!selectedPlan"
+        class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6"
+      >
+        <h2 class="text-lg font-semibold text-red-800 mb-2">
+          プラン情報エラー
+        </h2>
+        <p class="text-red-600">
+          プラン情報を正しく取得できませんでした。決済処理後にプラン情報の同期に時間がかかっている可能性があります。<br />
+          数分後にマイページで最新のプラン状況をご確認ください。
+        </p>
+      </div>
+
       <!-- 決済詳細カード -->
-      <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div v-else class="bg-white rounded-xl shadow-lg p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">決済詳細</h2>
 
         <div class="space-y-3">
@@ -129,6 +156,7 @@ const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
 const selectedPlan = ref<string | null>(null);
+const isLoadingPlan = ref(false);
 
 // プラン料金の定義
 const PLAN_PRICES: Record<string, string> = {
@@ -242,16 +270,52 @@ useHead({
   ],
 });
 
-onMounted(() => {
+onMounted(async () => {
   // URLパラメータからプラン情報を取得
   const planParam = route.query.plan as string;
+  const sessionId = route.query.session_id as string;
 
   // プランパラメータが存在し、有効なプランの場合のみ設定
   if (planParam && (planParam === "standard" || planParam === "premium")) {
     selectedPlan.value = planParam;
+    console.log("決済成功: プラン設定完了", planParam);
+  } else if (sessionId) {
+    // session_idがある場合はAPIからユーザーのプラン情報を取得
+    isLoadingPlan.value = true;
+    try {
+      const authStore = useAuthStore();
+
+      if (authStore.isAuthenticated && authStore.token) {
+        // ユーザー情報を再取得してプラン情報を更新
+        await authStore.checkAuth();
+
+        if (authStore.user?.plan && authStore.user.plan !== "free") {
+          selectedPlan.value = authStore.user.plan;
+          console.log("決済成功: APIからプラン情報を取得", authStore.user.plan);
+        } else {
+          selectedPlan.value = null;
+          console.warn(
+            "APIからプラン情報を取得できませんでした。プラン:",
+            authStore.user?.plan
+          );
+        }
+      } else {
+        selectedPlan.value = null;
+        console.warn("認証されていないか、トークンがありません");
+      }
+    } catch (error) {
+      console.error("ユーザー情報の取得に失敗しました:", error);
+      selectedPlan.value = null;
+    } finally {
+      isLoadingPlan.value = false;
+    }
   } else {
-    // 無効なプランまたはプランが指定されていない場合はstandard（決済完了ページはFREEでは使用しないため）
-    selectedPlan.value = "standard";
+    // URLパラメータにプラン情報もsession_idもない場合
+    selectedPlan.value = null;
+    console.warn(
+      "決済成功ページにプラン情報またはsession_idが含まれていません"
+    );
+    console.warn("planParam:", planParam, "sessionId:", sessionId);
   }
 
   // 成功メッセージをトーストで表示（もしtoastが利用可能な場合）
