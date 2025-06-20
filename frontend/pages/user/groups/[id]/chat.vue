@@ -240,7 +240,7 @@
                   <!-- Message Input Area -->
                   <div class="border-t border-gray-200 bg-white p-4">
                     <div class="flex items-center space-x-3">
-                      <div class="flex-grow">
+                      <div class="flex flex-grow">
                         <textarea
                           v-model="groupNewMessage"
                           :disabled="groupSending"
@@ -252,7 +252,7 @@
                       </div>
                       <button
                         type="submit"
-                        class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         :class="
                           groupSending || !groupNewMessage.trim()
                             ? 'bg-gray-400'
@@ -537,7 +537,7 @@
                       <!-- Message Input Area -->
                       <div class="border-t border-gray-200 bg-white p-4">
                         <div class="flex items-center space-x-3">
-                          <div class="flex-grow">
+                          <div class="flex flex-grow">
                             <textarea
                               v-model="groupNewMessage"
                               :disabled="groupSending"
@@ -549,7 +549,7 @@
                           </div>
                           <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
                               groupSending || !groupNewMessage.trim()
                                 ? 'bg-gray-400'
@@ -1137,7 +1137,7 @@
                       <!-- Message Input Area -->
                       <div class="border-t border-gray-200 bg-white p-4">
                         <div class="flex items-center space-x-3">
-                          <div class="flex-grow">
+                          <div class="flex flex-grow">
                             <textarea
                               v-model="newMessage"
                               :disabled="sending"
@@ -1149,7 +1149,7 @@
                           </div>
                           <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
                               sending || !newMessage.trim()
                                 ? 'bg-gray-400'
