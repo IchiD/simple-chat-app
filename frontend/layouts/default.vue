@@ -188,7 +188,7 @@ const openSupportChat = async () => {
           Accept: "application/json",
           Authorization: `Bearer ${authStore.token}`,
         },
-      } as any
+      }
     );
 
     if (conversation && conversation.room_token) {

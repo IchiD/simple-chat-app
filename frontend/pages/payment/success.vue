@@ -6,7 +6,7 @@
       <!-- 成功アイコンとアニメーション -->
       <div class="text-center mb-8">
         <div
-          class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6 animate-bounce"
+          class="mx-auto flex items-center justify-center h-20 animate-bounce"
         >
           <svg
             class="h-10 w-10 text-green-600"
@@ -109,12 +109,12 @@
       <!-- サポート情報 -->
       <div class="text-center mt-8 text-sm text-gray-500">
         <p>ご不明な点がございましたら、</p>
-        <NuxtLink
-          to="/support"
+        <button
           class="text-blue-600 hover:text-blue-800 underline"
+          @click="openSupportChat"
         >
           サポートまでお問い合わせください
-        </NuxtLink>
+        </button>
       </div>
     </div>
   </div>
@@ -122,9 +122,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
+import { useAuthStore } from "~/stores/auth";
 
 // URLパラメータから選択されたプランを取得
 const route = useRoute();
+const router = useRouter();
+const config = useRuntimeConfig();
 const selectedPlan = ref<string | null>(null);
 
 // プラン料金の定義
@@ -191,6 +194,41 @@ const getNextBillingDate = (): Date => {
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   return nextMonth;
+};
+
+// サポートチャットを開く関数
+const openSupportChat = async () => {
+  try {
+    const authStore = useAuthStore();
+
+    // 認証チェック
+    if (!authStore.isAuthenticated) {
+      // 認証されていない場合はログインページにリダイレクト
+      router.push("/auth/login");
+      return;
+    }
+
+    // サポートチャットを作成または取得
+    const response = await $fetch<{ room_token: string }>(
+      `${config.public.apiBase}/support/conversation`,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      }
+    );
+
+    if (response && response.room_token) {
+      // チャットページに遷移
+      router.push(`/chat/${response.room_token}/`);
+    }
+  } catch (error) {
+    console.error("サポートチャットの開始に失敗しました:", error);
+    // エラーが発生した場合はログインページに遷移
+    router.push("/auth/login");
+  }
 };
 
 // ページタイトル設定
