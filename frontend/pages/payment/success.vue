@@ -65,22 +65,7 @@
 
       <!-- 利用可能機能 -->
       <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">
-          <svg
-            class="inline h-5 w-5 text-blue-600 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-          今すぐ利用可能な機能
-        </h2>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">利用可能な機能</h2>
 
         <ul class="space-y-2">
           <li

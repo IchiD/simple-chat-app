@@ -505,13 +505,6 @@
 
     <!-- プラン比較テーブル -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 bg-gray-50 border-b">
-        <h2 class="text-xl font-semibold text-gray-900">詳細機能比較</h2>
-        <p class="text-sm text-gray-600 mt-1">
-          各プランの機能を詳しく比較できます
-        </p>
-      </div>
-
       <!-- デスクトップ版テーブル -->
       <div class="hidden md:block">
         <table class="w-full">
@@ -520,7 +513,7 @@
               <th
                 class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider"
               >
-                機能
+                プラン
               </th>
               <th
                 class="px-6 py-3 text-center text-sm font-medium text-gray-500 uppercase tracking-wider"
@@ -1061,11 +1054,6 @@
           <h2 class="text-2xl font-bold text-gray-900 mb-4">
             プラン変更時の料金について
           </h2>
-          <p class="text-gray-600 text-lg">
-            契約期間の途中でプランを変更しても、<strong class="text-indigo-600"
-              >損をしない仕組み</strong
-            >になっています
-          </p>
         </div>
 
         <!-- 3つのケース -->
@@ -1163,7 +1151,7 @@
               <div class="bg-gray-50 rounded-lg p-3">
                 <p class="text-gray-800 font-medium">次回請求日まで利用可能</p>
                 <p class="text-gray-600 text-xs mt-1">
-                  解約後も請求期間満了まで機能使用可
+                  解約後も契約期間満了まで機能使用可
                 </p>
               </div>
             </div>
