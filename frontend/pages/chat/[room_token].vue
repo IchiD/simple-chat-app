@@ -188,7 +188,7 @@
                           "
                         >
                           <div
-                            class="relative text-sm py-2 px-4 shadow-md rounded-2xl"
+                            class="relative text-sm py-2 px-4 shadow-sm rounded-2xl"
                             :class="[
                               isMyMessage(message.sender_id)
                                 ? 'bg-emerald-500 text-white max-w-sm lg:max-w-lg'

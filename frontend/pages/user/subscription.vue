@@ -106,24 +106,6 @@
                   <h3 class="text-lg font-medium text-gray-900">
                     {{ getPlanDisplayName(subscriptionData.plan) }}プラン
                   </h3>
-                  <p
-                    class="text-sm"
-                    :class="
-                      subscriptionData.subscription_status === 'active'
-                        ? 'text-green-600'
-                        : subscriptionData.subscription_status === 'canceled'
-                        ? 'text-orange-600'
-                        : 'text-gray-500'
-                    "
-                  >
-                    {{
-                      subscriptionData.subscription_status
-                        ? getStatusDisplayName(
-                            subscriptionData.subscription_status
-                          )
-                        : "未設定"
-                    }}
-                  </p>
                 </div>
               </div>
 
@@ -148,15 +130,14 @@
                       </svg>
                     </div>
                     <div class="ml-3">
-                      <h3 class="text-sm font-medium text-orange-800">
-                        解約予定
-                      </h3>
-                      <p class="mt-1 text-sm text-orange-700">
+                      <p class="text-sm text-orange-700">
                         {{
                           getPlanDisplayName(subscriptionData.plan)
                         }}プランは解約済みですが、{{
                           formatDate(subscriptionData.current_period_end)
-                        }}まではプランの機能をご利用いただけます。
+                        }}までは{{
+                          getPlanDisplayName(subscriptionData.plan)
+                        }}プランの機能をご利用いただけます。
                       </p>
                     </div>
                   </div>
