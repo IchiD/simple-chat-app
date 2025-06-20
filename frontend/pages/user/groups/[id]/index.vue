@@ -247,6 +247,27 @@
                 />
               </svg>
             </button>
+            <!-- 人数表示 -->
+            <div
+              class="flex items-center gap-1 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg text-sm"
+            >
+              <svg
+                class="w-4 h-4 text-emerald-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              <span class="font-medium text-emerald-700">
+                {{ currentMemberCount }} / {{ group?.max_members || 0 }}
+              </span>
+            </div>
           </div>
 
           <!-- 折りたたみ可能なメンバー一覧コンテンツ -->
@@ -254,78 +275,78 @@
             v-show="isMembersExpanded"
             class="transition-all duration-300 ease-in-out"
           >
-          <!-- 検索 & ソート UI -->
-          <div class="flex flex-col sm:flex-row gap-2 mb-4">
-            <input
-              v-model="keyword"
-              type="text"
-              placeholder="検索 (名前・ID)"
-              class="border rounded px-2 py-1 w-full sm:w-60"
-            />
-            <select
-              v-model="sortKey"
-              class="border rounded px-2 py-1 w-full sm:w-32"
-            >
-              <option value="name">名前</option>
-              <option value="friend_id">フレンドID</option>
-            </select>
-            <select
-              v-model="sortOrder"
-              class="border rounded px-2 py-1 w-full sm:w-28"
-            >
-              <option value="asc">昇順</option>
-              <option value="desc">降順</option>
-            </select>
-          </div>
+            <!-- 検索 & ソート UI -->
+            <div class="flex flex-col sm:flex-row gap-2 mb-4">
+              <input
+                v-model="keyword"
+                type="text"
+                placeholder="検索 (名前・ID)"
+                class="border rounded px-2 py-1 w-full sm:w-60"
+              />
+              <select
+                v-model="sortKey"
+                class="border rounded px-2 py-1 w-full sm:w-32"
+              >
+                <option value="name">名前</option>
+                <option value="friend_id">フレンドID</option>
+              </select>
+              <select
+                v-model="sortOrder"
+                class="border rounded px-2 py-1 w-full sm:w-28"
+              >
+                <option value="asc">昇順</option>
+                <option value="desc">降順</option>
+              </select>
+            </div>
 
-          <div v-if="membersPending" class="text-gray-500">
-            メンバー一覧を読み込み中...
-          </div>
-          <div v-else-if="membersError" class="text-red-500">
-            メンバー一覧の取得に失敗しました
-          </div>
-          <div v-else-if="paginatedItems.length === 0" class="text-gray-500">
-            他のメンバーはいません
-          </div>
-          <div v-else class="grid gap-3">
-            <div
-              v-for="member in paginatedItems"
-              :key="member.id"
-              class="bg-gray-50 border rounded-lg p-3"
-            >
-              <div class="flex justify-between items-center">
-                <div>
-                  <div class="font-medium">{{ member.name }}</div>
-                  <div class="text-sm text-gray-600">
-                    フレンドID: {{ member.friend_id }}
+            <div v-if="membersPending" class="text-gray-500">
+              メンバー一覧を読み込み中...
+            </div>
+            <div v-else-if="membersError" class="text-red-500">
+              メンバー一覧の取得に失敗しました
+            </div>
+            <div v-else-if="paginatedItems.length === 0" class="text-gray-500">
+              メンバーはいません
+            </div>
+            <div v-else class="grid gap-3">
+              <div
+                v-for="member in paginatedItems"
+                :key="member.id"
+                class="bg-gray-50 border rounded-lg p-3"
+              >
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-medium">{{ member.name }}</div>
+                    <div class="text-sm text-gray-600">
+                      フレンドID: {{ member.friend_id }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- ページネーション -->
-          <div
-            v-if="totalPages > 1"
-            class="flex justify-center items-center gap-4 mt-4"
-          >
-            <button
-              class="px-3 py-1 border rounded disabled:opacity-40"
-              :disabled="page === 1"
-              @click="prev"
+            <!-- ページネーション -->
+            <div
+              v-if="totalPages > 1"
+              class="flex justify-center items-center gap-4 mt-4"
             >
-              前へ
-            </button>
-            <span class="text-sm text-gray-600">
-              {{ page }} / {{ totalPages }}
-            </span>
-            <button
-              class="px-3 py-1 border rounded disabled:opacity-40"
-              :disabled="page === totalPages"
-              @click="next"
-            >
-              次へ
-            </button>
+              <button
+                class="px-3 py-1 border rounded disabled:opacity-40"
+                :disabled="page === 1"
+                @click="prev"
+              >
+                前へ
+              </button>
+              <span class="text-sm text-gray-600">
+                {{ page }} / {{ totalPages }}
+              </span>
+              <button
+                class="px-3 py-1 border rounded disabled:opacity-40"
+                :disabled="page === totalPages"
+                @click="next"
+              >
+                次へ
+              </button>
             </div>
           </div>
         </div>
@@ -423,7 +444,7 @@ const loadGroup = async () => {
   }
 };
 
-const refresh = loadGroup;
+const _refresh = loadGroup;
 
 // 初回読み込み
 await loadGroup();
@@ -436,6 +457,23 @@ const groupMembers = ref<GroupMember[]>([]);
 const membersPending = ref(false);
 const membersError = ref<Error | null>(null);
 const isMembersExpanded = ref(false); // メンバー一覧の展開状態（デフォルトは折りたたみ）
+
+// 現在のメンバー数を取得するcomputed（自分自身も含む）
+const currentMemberCount = computed(() => {
+  const memberCount = groupMembers.value.length;
+  const currentUserId = authStore.user?.id;
+  const isOwner = group.value?.owner_user_id === currentUserId;
+
+  // 自分がオーナーで、メンバー一覧に自分が含まれていない場合は+1
+  if (isOwner) {
+    const isOwnerInMemberList = groupMembers.value.some(
+      (member) => member.id === currentUserId
+    );
+    return isOwnerInMemberList ? memberCount : memberCount + 1;
+  }
+
+  return memberCount;
+});
 
 // 検索・ソート・ページネーション composable
 const {

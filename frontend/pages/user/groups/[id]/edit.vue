@@ -182,7 +182,7 @@
               v-else-if="paginatedExtendedItems.length === 0"
               class="text-gray-500"
             >
-              他のメンバーはいません
+              メンバーはいません
             </div>
             <div v-else class="grid gap-3">
               <div
