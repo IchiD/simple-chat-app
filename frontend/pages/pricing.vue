@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-6xl mx-auto p-4 space-y-8">
+  <div class="max-w-6xl mx-auto p-4">
     <!-- テスト環境バナー -->
     <div
       class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg"
@@ -20,7 +20,7 @@
     </div>
 
     <!-- ヘッダーセクション -->
-    <div class="text-center space-y-4">
+    <div class="text-center my-8">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900">料金プラン</h1>
     </div>
 
@@ -56,13 +56,13 @@
     </div>
 
     <!-- 現在のプラン表示 -->
-    <div v-if="authStore.isAuthenticated && authStore.user" class="space-y-4">
+    <div v-if="authStore.isAuthenticated && authStore.user" class="">
       <!-- キャンセル予定の警告表示 -->
       <div
         v-if="
           authStore.user && authStore.user.subscription_status === 'will_cancel'
         "
-        class="bg-orange-50 border border-orange-200 rounded-lg p-4"
+        class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4"
       >
         <div class="flex items-start">
           <svg
@@ -97,7 +97,7 @@
       </div>
 
       <!-- 通常のプラン表示 -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
         <div class="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
