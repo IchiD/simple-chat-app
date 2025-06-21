@@ -84,6 +84,11 @@
                       ]"
                       @click="activeTab = 'requests'"
                     >
+                      <!-- 未読友達申請バッジ -->
+                      <span
+                        v-if="shouldShowFriendRequestBadge"
+                        class="badge-dot absolute top-1 right-1 z-10"
+                      />
                       <div
                         class="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2"
                       >
@@ -549,6 +554,7 @@ import { ref, onMounted, watch } from "vue";
 import { useApi } from "../../composables/useApi";
 import { useToast } from "../../composables/useToast";
 import { useRouter } from "vue-router";
+import { useFriendRequests } from "../../composables/useFriendRequests";
 
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
@@ -606,6 +612,8 @@ definePageMeta({
 const { api } = useApi();
 const toast = useToast();
 const router = useRouter();
+const { shouldShowBadge: shouldShowFriendRequestBadge, checkPendingRequests } =
+  useFriendRequests();
 
 // 状態管理
 const loading = ref(true);
@@ -624,6 +632,8 @@ const pendingUnfriendId = ref<number | null>(null);
 // 初期データ読み込み
 onMounted(async () => {
   await refreshData();
+  // 友達申請のバッジ状態をチェック
+  await checkPendingRequests();
 });
 
 // データのリフレッシュ

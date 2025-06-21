@@ -26,7 +26,10 @@
 [class*="rounded-full"],
 .spinner-border,
 [class*="spinner"],
-.btn-circle {
+.btn-circle,
+.badge-base,
+.badge-dot,
+.badge-count {
   border-radius: 50% !important;
 }
 
@@ -52,6 +55,26 @@ header {
 footer {
   background-color: white;
   border-top: 1px solid var(--border);
+}
+
+/* 共通バッジスタイル */
+.badge-base {
+  @apply bg-gradient-to-br from-red-400 to-red-600 border-2 border-white shadow-md transition-all duration-200 animate-pulse;
+  animation-duration: 3s;
+}
+
+.badge-base:hover {
+  @apply scale-105 shadow-lg;
+}
+
+/* 数字なしバッジ（小さな円形バッジ） */
+.badge-dot {
+  @apply badge-base w-3 h-3 rounded-full;
+}
+
+/* 数字付きバッジ（カウント表示） */
+.badge-count {
+  @apply badge-base inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white rounded-full;
 }
 
  
