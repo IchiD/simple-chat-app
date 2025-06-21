@@ -228,7 +228,9 @@
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">STANDARD</h2>
           <div class="space-y-1">
-            <div class="text-3xl font-bold text-gray-900">{{ getPlanPrice('standard') }}</div>
+            <div class="text-3xl font-bold text-gray-900">
+              {{ getPlanPrice("standard") }}
+            </div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
           <ul class="space-y-2 text-sm text-gray-600 flex-grow">
@@ -378,7 +380,9 @@
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">PREMIUM</h2>
           <div class="space-y-1">
-            <div class="text-3xl font-bold text-gray-900">{{ getPlanPrice('premium') }}</div>
+            <div class="text-3xl font-bold text-gray-900">
+              {{ getPlanPrice("premium") }}
+            </div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
           <ul class="space-y-2 text-sm text-gray-600 flex-grow">
@@ -601,215 +605,95 @@
     <!-- 決済前確認モーダル -->
     <div
       v-if="confirmationState.isVisible"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
     >
-      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4">
-        <div class="text-center mb-6">
-          <div
-            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4"
-          >
-            <svg
-              class="h-6 w-6 text-blue-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full my-8">
+          <div class="text-center mb-6">
+            <div
+              class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">
-            プラン選択の確認
-          </h3>
-          <p class="text-sm text-gray-600">以下の内容で決済を進めますか？</p>
-        </div>
-
-        <!-- プラン詳細 -->
-        <div class="bg-gray-50 rounded-lg p-4 mb-6">
-          <div class="flex justify-between items-center mb-3">
-            <span class="font-medium text-gray-900">選択プラン</span>
-            <span class="text-lg font-bold text-blue-600 uppercase">
-              {{ confirmationState.selectedPlan }}
-            </span>
-          </div>
-
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-gray-600">月額料金</span>
-            <span class="font-semibold text-gray-900">
-              {{ getPlanPrice(confirmationState.selectedPlan) }}
-            </span>
-          </div>
-
-          <!-- 現在のプランからの変更の場合 -->
-          <div
-            v-if="authStore.user?.plan && authStore.user.plan !== 'free'"
-            class="border-t pt-3 mt-3"
-          >
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-gray-600">現在のプラン</span>
-              <span class="text-gray-900 uppercase">{{
-                authStore.user.plan
-              }}</span>
+              <svg
+                class="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
             </div>
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-gray-600">現在の料金</span>
-              <span class="text-gray-900">{{
-                getPlanPrice(authStore.user.plan)
-              }}</span>
-            </div>
-            <div class="flex justify-between items-center font-semibold">
-              <span class="text-gray-900">差額</span>
-              <span class="text-green-600">
-                +{{
-                  calculatePriceDifference(
-                    authStore.user.plan,
-                    confirmationState.selectedPlan
-                  )
-                }}
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              プラン選択の確認
+            </h3>
+            <p class="text-sm text-gray-600">以下の内容で決済を進めますか？</p>
+          </div>
+
+          <!-- プラン詳細 -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <div class="flex justify-between items-center mb-3">
+              <span class="font-medium text-gray-900">選択プラン</span>
+              <span class="text-lg font-bold text-blue-600 uppercase">
+                {{ confirmationState.selectedPlan }}
               </span>
             </div>
-          </div>
 
-          <!-- 初回決済の場合 -->
-          <div v-else class="border-t pt-3 mt-3">
-            <div class="flex justify-between items-center font-semibold">
-              <span class="text-gray-900">初回決済額</span>
-              <span class="text-blue-600">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-gray-600">月額料金</span>
+              <span class="font-semibold text-gray-900">
                 {{ getPlanPrice(confirmationState.selectedPlan) }}
               </span>
             </div>
-          </div>
-        </div>
 
-        <!-- 重要事項 -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
-          <div class="flex items-start">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+            <!-- 現在のプランからの変更の場合 -->
+            <div
+              v-if="authStore.user?.plan && authStore.user.plan !== 'free'"
+              class="border-t pt-3 mt-3"
             >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <div class="text-xs text-yellow-800">
-              <p class="font-medium mb-1">決済に関する重要事項</p>
-              <ul class="space-y-1">
-                <li>
-                  • 料金はご契約の請求サイクルに従って自動的に請求されます
-                </li>
-                <li>• プラン変更は即座に反映され、日割り計算されます</li>
-                <li>• キャンセルはいつでも可能ですが、返金はありません</li>
-                <li>• サービス内容や料金は予告なく変更される場合があります</li>
-                <li>
-                  • データ保存期間は技術的制約により変更される可能性があります
-                </li>
-              </ul>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">現在のプラン</span>
+                <span class="text-gray-900 uppercase">{{
+                  authStore.user.plan
+                }}</span>
+              </div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-600">現在の料金</span>
+                <span class="text-gray-900">{{
+                  getPlanPrice(authStore.user.plan)
+                }}</span>
+              </div>
+              <div class="flex justify-between items-center font-semibold">
+                <span class="text-gray-900">差額</span>
+                <span class="text-green-600">
+                  +{{
+                    calculatePriceDifference(
+                      authStore.user.plan,
+                      confirmationState.selectedPlan
+                    )
+                  }}
+                </span>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- ボタン -->
-        <div class="flex space-x-3">
-          <button
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            @click="cancelConfirmation"
-          >
-            キャンセル
-          </button>
-          <button
-            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            @click="proceedWithPayment"
-          >
-            決済を進める
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ローディング状態表示 -->
-    <div
-      v-if="loadingState.isLoading"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <div class="text-center">
-          <!-- ローディングアイコン -->
-          <div class="mb-6">
-            <div class="relative">
-              <svg
-                class="animate-spin h-16 w-16 text-blue-600 mx-auto"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              <!-- プラン表示 -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-xs font-bold text-blue-600 uppercase">
-                  {{ loadingState.selectedPlan }}
+            <!-- 初回決済の場合 -->
+            <div v-else class="border-t pt-3 mt-3">
+              <div class="flex justify-between items-center font-semibold">
+                <span class="text-gray-900">初回決済額</span>
+                <span class="text-blue-600">
+                  {{ getPlanPrice(confirmationState.selectedPlan) }}
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- プログレスバー -->
-          <div class="mb-6">
-            <div class="flex justify-between text-sm text-gray-600 mb-2">
-              <span>進行状況</span>
-              <span>{{ Math.round(loadingState.progress) }}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div
-                class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out"
-                :style="{ width: `${loadingState.progress}%` }"
-              />
-            </div>
-          </div>
-
-          <!-- ローディングメッセージ -->
-          <div class="mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">
-              決済処理中...
-            </h3>
-            <p class="text-sm text-gray-600 mb-3">
-              {{ loadingState.message }}
-            </p>
-
-            <!-- ステージ表示 -->
-            <div class="text-xs text-gray-500">
-              <span v-if="loadingState.stage">
-                ステージ: {{ loadingState.stage }}
-              </span>
-              <span v-if="elapsedTime > 0" class="ml-2">
-                経過時間: {{ elapsedTime }}秒
-              </span>
-            </div>
-          </div>
-
-          <!-- 注意事項 -->
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <!-- 重要事項 -->
+          <div
+            class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6"
+          >
             <div class="flex items-start">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -824,11 +708,139 @@
                 />
               </svg>
               <div class="text-xs text-yellow-800">
-                <p class="font-medium">重要な注意事項</p>
-                <p class="mt-1">
-                  このページを閉じたり、ブラウザの戻るボタンを押さないでください。
-                  決済処理が中断される可能性があります。
-                </p>
+                <p class="font-medium mb-1">決済に関する重要事項</p>
+                <ul class="space-y-1">
+                  <li>
+                    • 料金はご契約の請求サイクルに従って自動的に請求されます
+                  </li>
+                  <li>• プラン変更は即座に反映され、日割り計算されます</li>
+                  <li>• キャンセルはいつでも可能ですが、返金はありません</li>
+                  <li>
+                    • サービス内容や料金は予告なく変更される場合があります
+                  </li>
+                  <li>
+                    • データ保存期間は技術的制約により変更される可能性があります
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- ボタン -->
+          <div class="flex space-x-3">
+            <button
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              @click="cancelConfirmation"
+            >
+              キャンセル
+            </button>
+            <button
+              class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              @click="proceedWithPayment"
+            >
+              決済を進める
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ローディング状態表示 -->
+    <div
+      v-if="loadingState.isLoading"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
+    >
+      <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full my-8">
+          <div class="text-center">
+            <!-- ローディングアイコン -->
+            <div class="mb-6">
+              <div class="relative">
+                <svg
+                  class="animate-spin h-16 w-16 text-blue-600 mx-auto"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <!-- プラン表示 -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs font-bold text-blue-600 uppercase">
+                    {{ loadingState.selectedPlan }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- プログレスバー -->
+            <div class="mb-6">
+              <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span>進行状況</span>
+                <span>{{ Math.round(loadingState.progress) }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out"
+                  :style="{ width: `${loadingState.progress}%` }"
+                />
+              </div>
+            </div>
+
+            <!-- ローディングメッセージ -->
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                決済処理中...
+              </h3>
+              <p class="text-sm text-gray-600 mb-3">
+                {{ loadingState.message }}
+              </p>
+
+              <!-- ステージ表示 -->
+              <div class="text-xs text-gray-500">
+                <span v-if="loadingState.stage">
+                  ステージ: {{ loadingState.stage }}
+                </span>
+                <span v-if="elapsedTime > 0" class="ml-2">
+                  経過時間: {{ elapsedTime }}秒
+                </span>
+              </div>
+            </div>
+
+            <!-- 注意事項 -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div class="flex items-start">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <div class="text-xs text-yellow-800">
+                  <p class="font-medium">重要な注意事項</p>
+                  <p class="mt-1">
+                    このページを閉じたり、ブラウザの戻るボタンを押さないでください。
+                    決済処理が中断される可能性があります。
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -839,63 +851,43 @@
     <!-- キャンセル確認モーダル -->
     <div
       v-if="cancelConfirmationState.isVisible"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
     >
-      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <div class="text-center">
-          <!-- アイコン -->
-          <div class="mb-6">
-            <div
-              class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"
-            >
-              <svg
-                class="w-8 h-8 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+      <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full my-8">
+          <div class="text-center">
+            <!-- タイトル -->
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+              無料プランへの変更
+            </h3>
+            <!-- 説明 -->
+            <div class="text-gray-600 mb-6 space-y-3">
+              <p>有料プランをキャンセルし、無料プランに変更します。</p>
+              <div
+                class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
+                <p class="text-sm text-blue-800">
+                  キャンセル後も契約期間が終了するまでは、現在の有料プランの機能をすべてご利用いただけます。
+                  契約期間終了後に自動的に無料プランに変更されます。
+                </p>
+              </div>
             </div>
-          </div>
 
-          <!-- タイトル -->
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">
-            有料プランキャンセルの確認
-          </h3>
-
-          <!-- 説明 -->
-          <div class="text-gray-600 mb-6 space-y-3">
-            <p>有料プランをキャンセルし、無料プランに変更します。</p>
-            <div
-              class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
-            >
-              <p class="text-sm text-blue-800">
-                キャンセル後も契約期間が終了するまでは、現在の有料プランの機能をすべてご利用いただけます。
-                契約期間終了後に自動的に無料プランに変更されます。
-              </p>
+            <!-- ボタン -->
+            <div class="flex space-x-3">
+              <button
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                @click="cancelCancelConfirmation"
+              >
+                やめる
+              </button>
+              <button
+                class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                @click="cancelSubscription"
+              >
+                変更する
+              </button>
             </div>
-          </div>
-
-          <!-- ボタン -->
-          <div class="flex space-x-3">
-            <button
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              @click="cancelCancelConfirmation"
-            >
-              やめる
-            </button>
-            <button
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-              @click="cancelSubscription"
-            >
-              変更する
-            </button>
           </div>
         </div>
       </div>
@@ -904,62 +896,64 @@
     <!-- 解約取り消し確認モーダル -->
     <div
       v-if="resumeConfirmationState.isVisible"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
     >
-      <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
-        <div class="text-center">
-          <!-- アイコン -->
-          <div class="mb-6">
-            <div
-              class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"
-            >
-              <svg
-                class="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+      <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full my-8">
+          <div class="text-center">
+            <!-- アイコン -->
+            <div class="mb-6">
+              <div
+                class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+                <svg
+                  class="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
             </div>
-          </div>
 
-          <!-- タイトル -->
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">
-            解約取り消しの確認
-          </h3>
+            <!-- タイトル -->
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+              解約取り消しの確認
+            </h3>
 
-          <!-- 説明 -->
-          <div class="text-gray-600 mb-6 space-y-3">
-            <p>解約を取り消してサブスクリプションを継続します。</p>
-            <div
-              class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
-            >
-              <p class="text-sm text-blue-800">
-                解約取り消し後は、通常通り請求サイクルに従って料金が請求され、サブスクリプションが継続されます。
-              </p>
+            <!-- 説明 -->
+            <div class="text-gray-600 mb-6 space-y-3">
+              <p>解約を取り消してサブスクリプションを継続します。</p>
+              <div
+                class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left"
+              >
+                <p class="text-sm text-blue-800">
+                  解約取り消し後は、通常通り請求サイクルに従って料金が請求され、サブスクリプションが継続されます。
+                </p>
+              </div>
             </div>
-          </div>
 
-          <!-- ボタン -->
-          <div class="flex space-x-3">
-            <button
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              @click="cancelResumeConfirmation"
-            >
-              やめる
-            </button>
-            <button
-              class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-              @click="resumeSubscription"
-            >
-              解約を取り消す
-            </button>
+            <!-- ボタン -->
+            <div class="flex space-x-3">
+              <button
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                @click="cancelResumeConfirmation"
+              >
+                やめる
+              </button>
+              <button
+                class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                @click="resumeSubscription"
+              >
+                解約を取り消す
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1573,12 +1567,16 @@ const resumeConfirmationState = ref<{
 // 価格関連の関数（usePricingから取得）
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
-  return pricing.getPlanPrice(plan as keyof typeof pricing.pricingData.value.plans);
+  return pricing.getPlanPrice(
+    plan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
-const getPlanDisplayName = (plan: string | null): string => {
+const _getPlanDisplayName = (plan: string | null): string => {
   if (!plan) return "フリー";
-  return pricing.getPlanDisplayName(plan as keyof typeof pricing.pricingData.value.plans);
+  return pricing.getPlanDisplayName(
+    plan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
 // 差額計算関数（usePricingから取得）
@@ -2274,10 +2272,7 @@ const executeCheckout = async (plan: "standard" | "premium") => {
 onMounted(async () => {
   try {
     // 並行して認証チェックと価格情報取得を実行
-    await Promise.all([
-      authStore.checkAuth(),
-      pricing.initializePricing()
-    ]);
+    await Promise.all([authStore.checkAuth(), pricing.initializePricing()]);
   } catch (error) {
     console.error("初期化エラー:", error);
   }
