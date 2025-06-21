@@ -150,6 +150,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
+import { usePricing } from "@/composables/usePricing";
 
 // URLパラメータから選択されたプランを取得
 const route = useRoute();
@@ -157,31 +158,18 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const selectedPlan = ref<string | null>(null);
 const isLoadingPlan = ref(false);
+const pricing = usePricing();
 
-// プラン料金の定義
-const PLAN_PRICES: Record<string, string> = {
-  free: "¥0",
-  standard: "¥2,980",
-  premium: "¥5,980",
-};
-
-// プラン表示名の定義
-const PLAN_DISPLAY_NAMES: Record<string, string> = {
-  free: "フリー",
-  standard: "スタンダード",
-  premium: "プレミアム",
-};
-
-// プラン料金取得関数
+// プラン料金取得関数（usePricingから取得）
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
-  return PLAN_PRICES[plan] || "¥0";
+  return pricing.getPlanPrice(plan as keyof typeof pricing.pricingData.value.plans);
 };
 
-// プラン表示名取得関数
+// プラン表示名取得関数（usePricingから取得）
 const getPlanDisplayName = (plan: string | null): string => {
   if (!plan) return "フリー";
-  return PLAN_DISPLAY_NAMES[plan] || "フリー";
+  return pricing.getPlanDisplayName(plan as keyof typeof pricing.pricingData.value.plans);
 };
 
 // プランごとの利用可能機能
@@ -271,6 +259,9 @@ useHead({
 });
 
 onMounted(async () => {
+  // 価格情報を初期化
+  await pricing.initializePricing();
+  
   // URLパラメータからプラン情報を取得
   const planParam = route.query.plan as string;
   const sessionId = route.query.session_id as string;

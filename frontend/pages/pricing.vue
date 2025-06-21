@@ -228,7 +228,7 @@
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">STANDARD</h2>
           <div class="space-y-1">
-            <div class="text-3xl font-bold text-gray-900">¥2,980</div>
+            <div class="text-3xl font-bold text-gray-900">{{ getPlanPrice('standard') }}</div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
           <ul class="space-y-2 text-sm text-gray-600 flex-grow">
@@ -378,7 +378,7 @@
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">PREMIUM</h2>
           <div class="space-y-1">
-            <div class="text-3xl font-bold text-gray-900">¥5,980</div>
+            <div class="text-3xl font-bold text-gray-900">{{ getPlanPrice('premium') }}</div>
             <div class="text-sm text-gray-500">月額（税込）</div>
           </div>
           <ul class="space-y-2 text-sm text-gray-600 flex-grow">
@@ -1295,10 +1295,12 @@ import { ref, onMounted, h, computed, nextTick } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useApi } from "@/composables/useApi";
 import { useAuthStore } from "~/stores/auth";
+import { usePricing } from "@/composables/usePricing";
 
 const toast = useToast();
 const { api } = useApi();
 const authStore = useAuthStore();
+const pricing = usePricing();
 
 // ローディング状態を詳細管理
 const loadingState = ref<{
@@ -1568,34 +1570,27 @@ const resumeConfirmationState = ref<{
   isVisible: false,
 });
 
-// プラン料金の定義
-const PLAN_PRICES: Record<string, { price: number; display: string }> = {
-  free: { price: 0, display: "¥0" },
-  standard: { price: 2980, display: "¥2,980" },
-  premium: { price: 5980, display: "¥5,980" },
-};
-
-// プラン料金取得関数
+// 価格関連の関数（usePricingから取得）
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
-  return PLAN_PRICES[plan]?.display || "¥0";
+  return pricing.getPlanPrice(plan as keyof typeof pricing.pricingData.value.plans);
 };
 
-// 差額計算関数
+const getPlanDisplayName = (plan: string | null): string => {
+  if (!plan) return "フリー";
+  return pricing.getPlanDisplayName(plan as keyof typeof pricing.pricingData.value.plans);
+};
+
+// 差額計算関数（usePricingから取得）
 const calculatePriceDifference = (
   currentPlan: string | null,
   newPlan: string | null
 ): string => {
   if (!currentPlan || !newPlan) return "¥0";
-
-  const currentPrice = PLAN_PRICES[currentPlan]?.price || 0;
-  const newPrice = PLAN_PRICES[newPlan]?.price || 0;
-  const difference = newPrice - currentPrice;
-
-  if (difference > 0) {
-    return `¥${difference.toLocaleString()}`;
-  }
-  return "¥0";
+  return pricing.calculatePriceDifference(
+    currentPlan as keyof typeof pricing.pricingData.value.plans,
+    newPlan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
 // 確認モーダルキャンセル関数
@@ -2275,12 +2270,16 @@ const executeCheckout = async (plan: "standard" | "premium") => {
   }
 };
 
-// ページ読み込み時に認証状態をチェック
+// ページ読み込み時に認証状態と価格情報をチェック
 onMounted(async () => {
   try {
-    await authStore.checkAuth();
+    // 並行して認証チェックと価格情報取得を実行
+    await Promise.all([
+      authStore.checkAuth(),
+      pricing.initializePricing()
+    ]);
   } catch (error) {
-    console.error("認証チェックエラー:", error);
+    console.error("初期化エラー:", error);
   }
 });
 </script>
