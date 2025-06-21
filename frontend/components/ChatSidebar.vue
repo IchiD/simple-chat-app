@@ -132,8 +132,7 @@
             </p>
             <span
               v-if="convo.unread_messages_count > 0"
-              class="inline-block px-2 py-1 text-xs font-bold text-white rounded-full ml-2 flex-shrink-0"
-              style="background-color: var(--primary)"
+              class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white rounded-full ml-2 flex-shrink-0 bg-red-500 shadow-md border-2 border-red-400"
             >
               {{ convo.unread_messages_count }}
             </span>
