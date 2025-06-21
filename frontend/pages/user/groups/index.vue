@@ -154,9 +154,16 @@
         <li
           v-for="group in groups"
           :key="group.id"
-          class="p-3 bg-white border rounded cursor-pointer hover:bg-gray-50"
+          class="relative p-3 bg-white border rounded cursor-pointer hover:bg-gray-50"
           @click="goToGroup(group.id)"
         >
+          <!-- 未読メッセージバッジ -->
+          <div
+            v-if="
+              group.unread_messages_count && group.unread_messages_count > 0
+            "
+            class="badge-dot absolute -top-1 -right-1 z-10"
+          />
           <p class="font-medium">{{ group.name }}</p>
           <p v-if="group.description" class="text-sm text-gray-500">
             {{ group.description }}

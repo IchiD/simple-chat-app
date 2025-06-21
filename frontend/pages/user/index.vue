@@ -127,8 +127,13 @@
                         authStore.user.plan && authStore.user.plan !== 'free'
                       "
                       to="/user/groups"
-                      class="block"
+                      class="block relative"
                     >
+                      <!-- グループ未読メッセージバッジ -->
+                      <div
+                        v-if="shouldShowGroupBadge"
+                        class="badge-dot absolute -top-1 -right-1 z-10"
+                      />
                       <div
                         class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
                         style="border-color: var(--primary-light)"
@@ -1155,6 +1160,7 @@ import { useToast } from "../../composables/useToast";
 import { useApi } from "../../composables/useApi";
 import { useUnreadMessages } from "../../composables/useUnreadMessages";
 import { useFriendRequests } from "../../composables/useFriendRequests";
+import { useGroupUnreadMessages } from "../../composables/useGroupUnreadMessages";
 import { FetchError } from "ofetch";
 
 definePageMeta({
@@ -1169,6 +1175,8 @@ const isLoading = ref(true);
 const { shouldShowBadge, checkUnreadMessages } = useUnreadMessages();
 const { shouldShowBadge: shouldShowFriendBadge, checkPendingRequests } =
   useFriendRequests();
+const { shouldShowGroupBadge, checkGroupUnreadMessages } =
+  useGroupUnreadMessages();
 const isEditingName = ref(false);
 const editingName = ref("");
 const nameEditError = ref("");
@@ -1224,6 +1232,9 @@ onMounted(async () => {
 
     // 友達申請のチェック
     await checkPendingRequests();
+
+    // グループ未読メッセージのチェック
+    await checkGroupUnreadMessages();
   } catch (error) {
     console.error("Auth check error:", error);
     toast.add({
