@@ -200,14 +200,20 @@
                                 !isMyMessage(message.sender_id) &&
                                 shouldShowSenderName()
                               "
-                              class="text-xs mb-1"
+                              class="text-xs mb-1 flex items-center"
                               :class="
                                 isMyMessage(message.sender_id)
                                   ? 'text-emerald-200'
                                   : 'text-gray-500'
                               "
                             >
-                              {{ getMessageSenderName(message) }}
+                              <span>{{ getMessageSenderName(message) }}</span>
+                              <span
+                                v-if="isGroupOwnerMessage(message)"
+                                class="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800"
+                              >
+                                オーナー
+                              </span>
                             </div>
                             <div
                               class="whitespace-pre-line leading-relaxed break-all"
@@ -664,6 +670,16 @@ const getMessageSenderName = (message: Message): string => {
     return message.sender.name;
   }
   return "不明なユーザー";
+};
+
+// メッセージ送信者がグループオーナーかどうかを判定
+const isGroupOwnerMessage = (message: Message): boolean => {
+  return (
+    currentConversation.value?.type === "group_chat" &&
+    currentConversation.value?.group_owner &&
+    message.sender &&
+    message.sender.id === currentConversation.value.group_owner.id
+  );
 };
 
 const isMyMessage = (messageSenderId: number | null): boolean => {

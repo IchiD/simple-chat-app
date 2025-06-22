@@ -162,7 +162,7 @@
                   {{ getConversationDisplayName(convo) }}
                 </span>
                 <span
-                  class="text-xs px-1.5 py-0.5 rounded-full ml-2 whitespace-nowrap"
+                  class="text-xs px-1.5 py-0.5 ml-2 whitespace-nowrap"
                   :class="getTypeLabel(convo).classes"
                   :title="getTypeLabel(convo).tooltip"
                 >
