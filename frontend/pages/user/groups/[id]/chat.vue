@@ -807,12 +807,22 @@
                     </div>
                   </div>
                 </div>
-                <button
-                  class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                  @click="startChatWithMember(member)"
-                >
-                  個別チャット
-                </button>
+                <div class="relative">
+                  <!-- 未読メッセージバッジ -->
+                  <div
+                    v-if="
+                      member.unread_messages_count &&
+                      member.unread_messages_count > 0
+                    "
+                    class="badge-dot absolute -top-2 -right-2 z-10"
+                  />
+                  <button
+                    class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                    @click="startChatWithMember(member)"
+                  >
+                    個別チャット
+                  </button>
+                </div>
               </div>
 
               <div
@@ -1545,6 +1555,9 @@ const sendGroupMessage = async () => {
 
     groupNewMessage.value = "";
     await scrollGroupToBottom("smooth");
+
+    // グループメッセージ送信後にメンバーリストを再読み込み（念のため）
+    await loadMembers();
   } catch (error) {
     console.error("グループメッセージ送信エラー:", error);
     groupMessagesError.value = "メッセージの送信に失敗しました";
@@ -1618,11 +1631,21 @@ const loadMembers = async () => {
           friend_id: member.friend_id,
           group_member_label: member.group_member_label,
           owner_nickname: member.owner_nickname,
+          unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
         }));
       console.log("Debug: Processed members with nicknames:", members.value);
     } else {
       // 一般メンバーの場合は通常のメンバー情報を取得
-      members.value = await groupConversations.getGroupMembers(id);
+      const memberData = await groupConversations.getGroupMembers(id);
+      members.value = memberData.map((member) => ({
+        id: member.id,
+        name: member.name,
+        friend_id: member.friend_id,
+        group_member_label: member.group_member_label,
+        role: member.role,
+        joined_at: member.joined_at,
+        unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
+      }));
       console.log("Debug: getGroupMembers response:", members.value);
     }
   } catch (error) {
@@ -1744,6 +1767,20 @@ const startChatWithMember = async (member: GroupMember) => {
     currentConversation.value = conversation;
     await loadMessages();
 
+    // チャットルームを既読にマーク
+    try {
+      const { api } = useApi();
+      await api(`/conversations/room/${conversation.id}/read`, {
+        method: "POST",
+      });
+      console.log("チャットルームを既読にマークしました");
+
+      // 既読後にメンバーリストを再読み込みしてバッジを更新
+      await loadMembers();
+    } catch (error) {
+      console.error("既読マークエラー:", error);
+    }
+
     // 個別チャット開始時に画面最下部にスクロール
     await nextTick();
     window.scrollTo({
@@ -1819,6 +1856,9 @@ const sendMessage = async () => {
 
     newMessage.value = "";
     await scrollToBottom("smooth");
+
+    // メッセージ送信後にメンバーリストを再読み込みして未読数を更新
+    await loadMembers();
   } catch (error) {
     console.error("メッセージ送信エラー:", error);
     messagesError.value = "メッセージの送信に失敗しました";
@@ -1848,6 +1888,9 @@ const sendBulkMessage = async () => {
     selectedMemberIds.value = [];
     selectAll.value = false;
     showBulkMessageForm.value = false;
+
+    // 一斉送信後にメンバーリストを再読み込みして未読数を更新
+    await loadMembers();
 
     // 数秒後に結果メッセージを消す
     setTimeout(() => {
