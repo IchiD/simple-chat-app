@@ -662,119 +662,73 @@
               {{ membersError }}
             </div>
             <div v-else class="space-y-3">
-              <!-- 検索・ソートコントロール -->
-              <div class="mb-4 p-4 bg-gray-50 rounded-lg space-y-3">
+              <!-- 検索・フィルタコントロール -->
+              <div class="mb-4 space-y-3">
                 <!-- 検索フィールド -->
                 <div>
-                  <label
-                    for="member-search"
-                    class="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    メンバー検索
-                  </label>
                   <input
                     id="member-search"
                     v-model="keyword"
                     type="text"
                     placeholder="名前・ニックネームまたはユーザーIDで検索"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
-                <!-- ソートコントロール -->
-                <div class="flex flex-wrap gap-3 items-end">
-                  <div>
-                    <label
-                      for="sort-key"
-                      class="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      並び順
-                    </label>
+                <!-- フィルタ・ソート -->
+                <div
+                  class="flex flex-wrap items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                >
+                  <div class="flex items-center gap-2">
                     <select
                       id="sort-key"
                       v-model="sortKey"
-                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="px-3 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
-                      <option value="name">名前</option>
-                      <option value="friend_id">ユーザーID</option>
+                      <option value="name">名前順</option>
+                      <option value="friend_id">ID順</option>
+                      <option value="joined_at">加入順</option>
                     </select>
-                  </div>
-                  <div>
-                    <label
-                      for="sort-order"
-                      class="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      順序
-                    </label>
                     <select
                       id="sort-order"
                       v-model="sortOrder"
-                      class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="px-3 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="asc">昇順</option>
                       <option value="desc">降順</option>
                     </select>
                   </div>
-                  <div class="flex flex-col">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                      フィルタ
+
+                  <div class="flex items-center gap-2">
+                    <input
+                      id="show-only-unread"
+                      v-model="showOnlyUnread"
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label for="show-only-unread" class="text-sm text-gray-700">
+                      新着メッセージあり
                     </label>
-                    <div class="flex items-center px-3 py-2">
-                      <input
-                        id="show-only-unread"
-                        v-model="showOnlyUnread"
-                        type="checkbox"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <label
-                        for="show-only-unread"
-                        class="ml-2 text-sm text-gray-700"
-                      >
-                        新着メッセージあり
-                      </label>
-                    </div>
                   </div>
-                  <div v-if="hasActiveFilters">
+
+                  <div class="flex items-center gap-3 ml-auto">
+                    <span class="text-sm text-gray-600">
+                      {{ paginatedItems.length }}/{{ members.length }}人
+                    </span>
                     <button
+                      v-if="hasActiveFilters"
                       type="button"
-                      class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors flex items-center gap-2"
+                      class="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
                       @click="resetFilters"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
                       リセット
                     </button>
                   </div>
                 </div>
-
-                <!-- 結果情報 -->
-                <div class="text-sm text-gray-600">
-                  全 {{ members.length }}人中
-                  <span v-if="keyword.trim()">
-                    検索結果 {{ paginatedItems.length }}人を表示
-                  </span>
-                  <span v-else>
-                    {{ paginatedItems.length }}人を表示 ({{ page }}/{{
-                      totalPages
-                    }}ページ)
-                  </span>
-                </div>
               </div>
 
               <!-- 全選択オプション -->
-              <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center mb-3 p-2 bg-blue-50 rounded border">
                 <input
                   id="select-all"
                   v-model="selectAll"
@@ -782,123 +736,132 @@
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   @change="toggleSelectAll"
                 />
-                <label
-                  for="select-all"
-                  class="ml-2 text-sm font-medium text-gray-900"
-                >
+                <label for="select-all" class="ml-2 text-sm text-gray-700">
                   全員を選択
                 </label>
               </div>
 
               <!-- メンバー一覧 -->
-              <div
-                v-for="member in paginatedItems"
-                :key="member.id"
-                class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-              >
-                <div class="flex items-center">
-                  <input
-                    :id="`member-${member.id}`"
-                    v-model="selectedMemberIds"
-                    :value="member.id"
-                    type="checkbox"
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-3"
-                  />
-                  <!-- <div
-                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3"
-              >
-                <span class="text-blue-600 font-semibold">{{
-                  member.name.charAt(0)
-                }}</span>
-              </div> -->
-                  <div>
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ member.owner_nickname || member.name }}
-                    </div>
-                    <div
-                      v-if="member.owner_nickname"
-                      class="text-xs text-gray-400"
-                    >
-                      {{ member.name }}
-                    </div>
-                    <div class="text-xs text-gray-400">
-                      ID: {{ member.friend_id }}
+              <div class="space-y-2">
+                <div
+                  v-for="member in paginatedItems"
+                  :key="member.id"
+                  class="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-sm transition-shadow"
+                >
+                  <div class="flex items-center flex-1">
+                    <input
+                      :id="`member-${member.id}`"
+                      v-model="selectedMemberIds"
+                      :value="member.id"
+                      type="checkbox"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-3"
+                    />
+                    <div class="flex-1">
+                      <div class="font-medium text-gray-900">
+                        {{ member.owner_nickname || member.name }}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        <span v-if="member.owner_nickname"
+                          >{{ member.name }} •
+                        </span>
+                        ID: {{ member.friend_id }}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="relative">
-                  <!-- 未読メッセージバッジ -->
-                  <div
-                    v-if="
-                      member.unread_messages_count &&
-                      member.unread_messages_count > 0
-                    "
-                    class="badge-dot absolute -top-2 -right-2 z-10"
-                  />
-                  <button
-                    class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                    @click="startChatWithMember(member)"
-                  >
-                    個別チャット
-                  </button>
+                  <div class="relative">
+                    <!-- 未読メッセージバッジ -->
+                    <div
+                      v-if="
+                        member.unread_messages_count &&
+                        member.unread_messages_count > 0
+                      "
+                      class="badge-dot absolute -top-1 -right-1 z-10"
+                    />
+                    <button
+                      class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      @click="startChatWithMember(member)"
+                    >
+                      チャット
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <div
                 v-if="members.length === 0"
-                class="text-center py-8 text-gray-500"
+                class="text-center py-12 text-gray-500"
               >
-                このグループにはまだ他のメンバーがいません
+                <div class="mb-3">
+                  <svg
+                    class="w-12 h-12 mx-auto text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </div>
+                <p class="font-medium text-gray-600">メンバーがいません</p>
+                <p class="text-sm text-gray-500 mt-1">
+                  グループにメンバーを招待してください
+                </p>
               </div>
 
               <!-- ページネーション -->
               <div
                 v-if="totalPages > 1"
-                class="flex justify-center items-center gap-2 mt-4"
+                class="flex justify-center items-center gap-3 mt-6 pb-4"
               >
                 <button
                   :disabled="page === 1"
-                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   @click="prev"
                 >
-                  前へ
+                  ← 前
                 </button>
-                <span class="text-sm text-gray-600">
+                <span
+                  class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg"
+                >
                   {{ page }} / {{ totalPages }}
                 </span>
                 <button
                   :disabled="page === totalPages"
-                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   @click="next"
                 >
-                  次へ
+                  次 →
                 </button>
               </div>
 
               <!-- アクションボタン -->
               <div
                 v-if="selectedMemberIds.length > 0"
-                class="bg-blue-50 p-4 rounded-lg"
+                class="sticky bottom-0 bg-white border-t p-4 mt-4 -mx-4"
               >
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-sm text-gray-700">
-                    {{ selectedMemberIds.length }}人のメンバーが選択されています
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-gray-700">
+                    {{ selectedMemberIds.length }}人選択中
                   </span>
-                </div>
-                <div class="flex space-x-3">
-                  <button
-                    v-if="selectedMemberIds.length === 1"
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    @click="startChatWithSelectedMember()"
-                  >
-                    選択メンバーと個別チャット
-                  </button>
-                  <button
-                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    @click="openBulkMessageForm"
-                  >
-                    選択メンバーに一斉送信
-                  </button>
+                  <div class="flex space-x-2">
+                    <button
+                      v-if="selectedMemberIds.length === 1"
+                      class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      @click="startChatWithSelectedMember()"
+                    >
+                      個別チャット
+                    </button>
+                    <button
+                      class="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      @click="openBulkMessageForm"
+                    >
+                      一斉送信
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

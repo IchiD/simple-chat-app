@@ -1,6 +1,6 @@
 import { computed, ref, type Ref } from "vue";
 
-export type SortKey = "name" | "friend_id";
+export type SortKey = "name" | "friend_id" | "joined_at";
 export type SortOrder = "asc" | "desc";
 
 export interface PaginatedResult<T> {
@@ -18,6 +18,7 @@ export function useSortableMembers<
     owner_nickname?: string | null;
     pivot?: { owner_nickname?: string };
     unread_messages_count?: number;
+    joined_at?: string;
   }
 >(members: Ref<T[]>, perPage = 50) {
   const keyword = ref("");
@@ -80,6 +81,13 @@ export function useSortableMembers<
     return [...filtered.value].sort((a, b) => {
       const valA = a[sortKey.value];
       const valB = b[sortKey.value];
+
+      // undefined値の処理
+      if (valA === undefined && valB === undefined) return 0;
+      if (valA === undefined) return sortOrder.value === "asc" ? 1 : -1;
+      if (valB === undefined) return sortOrder.value === "asc" ? -1 : 1;
+
+      // 値の比較
       if (valA === valB) return 0;
       const compare = valA > valB ? 1 : -1;
       return sortOrder.value === "asc" ? compare : -compare;
