@@ -199,12 +199,12 @@
                       r="10"
                       stroke="currentColor"
                       stroke-width="4"
-                    ></circle>
+                    />
                     <path
                       class="opacity-75"
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                    />
                   </svg>
                   <svg
                     v-else
@@ -220,7 +220,11 @@
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  {{ billingPortalLoading ? '読み込み中...' : '請求書・支払い履歴' }}
+                  {{
+                    billingPortalLoading
+                      ? "読み込み中..."
+                      : "請求書・支払い履歴"
+                  }}
                 </button>
                 <p class="mt-2 text-xs text-gray-500">
                   Stripeで請求書の確認や支払い方法の変更ができます
@@ -277,7 +281,7 @@
             <div
               v-for="item in history"
               :key="item.id"
-              class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              class="border border-gray-200 rounded-lg p-4"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
@@ -545,7 +549,7 @@ const loadHistory = async (page: number = 1) => {
 // 請求書ポータル機能
 const openBillingPortal = async () => {
   billingPortalLoading.value = true;
-  
+
   try {
     const response = await api<{
       status: string;
@@ -554,31 +558,37 @@ const openBillingPortal = async () => {
     }>("/stripe/customer-portal", {
       method: "POST",
     });
-    
+
     if (response.status === "success" && response.data?.url) {
       window.open(response.data.url, "_blank");
     } else {
-      throw new Error(response.message || "請求書ページのURLを取得できませんでした");
+      throw new Error(
+        response.message || "請求書ページのURLを取得できませんでした"
+      );
     }
   } catch (error) {
-    console.error('Billing portal error:', error);
-    
+    console.error("Billing portal error:", error);
+
     // Stripe設定エラーの場合の特別な処理
-    if (error.data?.message?.includes('configuration') || 
-        error.data?.message?.includes('portal') ||
-        error.status === 500) {
+    if (
+      error.data?.message?.includes("configuration") ||
+      error.data?.message?.includes("portal") ||
+      error.status === 500
+    ) {
       toast.add({
-        title: '請求書機能準備中',
-        description: '請求書・支払い履歴機能は現在準備中です。しばらくお待ちください。',
-        color: 'orange',
-        timeout: 5000
+        title: "請求書機能準備中",
+        description:
+          "請求書・支払い履歴機能は現在準備中です。しばらくお待ちください。",
+        color: "orange",
+        timeout: 5000,
       });
     } else {
       toast.add({
-        title: 'エラーが発生しました',
-        description: '請求書ページの表示に失敗しました。しばらく時間をおいて再度お試しください。',
-        color: 'red',
-        timeout: 5000
+        title: "エラーが発生しました",
+        description:
+          "請求書ページの表示に失敗しました。しばらく時間をおいて再度お試しください。",
+        color: "red",
+        timeout: 5000,
       });
     }
   } finally {
@@ -612,7 +622,9 @@ const getStatusDisplayName = (status: string): string => {
 };
 
 const getPlanPrice = (plan: string): string => {
-  return pricing.getPlanPrice(plan as keyof typeof pricing.pricingData.value.plans);
+  return pricing.getPlanPrice(
+    plan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
 const getActionDisplayName = (action: string): string => {
@@ -699,8 +711,8 @@ onMounted(async () => {
   console.log("[subscription] ページがマウントされました");
   await Promise.all([
     pricing.initializePricing(),
-    loadSubscriptionData(), 
-    loadHistory()
+    loadSubscriptionData(),
+    loadHistory(),
   ]);
   console.log("[subscription] データ読み込み完了");
 });

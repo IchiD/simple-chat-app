@@ -226,38 +226,43 @@
                           編集
                         </button>
                       </div>
-                      <div v-else class="flex gap-2 items-center mt-1">
-                        <input
-                          v-model="nicknameInputs[member.member_id]"
-                          type="text"
-                          placeholder="ニックネームを入力"
-                          class="border rounded px-2 py-1 text-xs flex-1 max-w-32"
-                          maxlength="100"
-                          @keydown="handleNicknameKeydown($event, member)"
-                          @compositionstart="
-                            handleCompositionStart(member.member_id)
-                          "
-                          @compositionend="
-                            handleCompositionEnd(member.member_id)
-                          "
-                        />
-                        <button
-                          class="text-green-600 hover:text-green-800 text-xs px-1"
-                          :disabled="savingNickname[member.member_id]"
-                          @click="saveNickname(member)"
-                        >
-                          {{
-                            savingNickname[member.member_id]
-                              ? "保存中..."
-                              : "保存"
-                          }}
-                        </button>
-                        <button
-                          class="text-gray-600 hover:text-gray-800 text-xs px-1"
-                          @click="cancelEditNickname(member.member_id)"
-                        >
-                          キャンセル
-                        </button>
+                      <div v-else class="mt-1">
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model="nicknameInputs[member.member_id]"
+                            type="text"
+                            placeholder="ニックネームを入力"
+                            class="border rounded px-2 py-1 text-xs flex-1 max-w-32"
+                            maxlength="100"
+                            @keydown="handleNicknameKeydown($event, member)"
+                            @compositionstart="
+                              handleCompositionStart(member.member_id)
+                            "
+                            @compositionend="
+                              handleCompositionEnd(member.member_id)
+                            "
+                          />
+                          <button
+                            class="text-green-600 hover:text-green-800 text-xs px-1"
+                            :disabled="savingNickname[member.member_id]"
+                            @click="saveNickname(member)"
+                          >
+                            {{
+                              savingNickname[member.member_id]
+                                ? "保存中..."
+                                : "保存"
+                            }}
+                          </button>
+                          <button
+                            class="text-gray-600 hover:text-gray-800 text-xs px-1"
+                            @click="cancelEditNickname(member.member_id)"
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                          ※ニックネームはユーザー本人やあなた以外のグループメンバーには表示されません。
+                        </div>
                       </div>
                     </div>
                     <div

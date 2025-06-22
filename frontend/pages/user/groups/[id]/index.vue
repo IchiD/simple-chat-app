@@ -289,6 +289,7 @@
               >
                 <option value="name">名前</option>
                 <option value="friend_id">フレンドID</option>
+                <option value="joined_at">加入順</option>
               </select>
               <select
                 v-model="sortOrder"
@@ -316,9 +317,17 @@
               >
                 <div class="flex justify-between items-center">
                   <div>
-                    <div class="font-medium">{{ member.name }}</div>
+                    <div class="font-medium">
+                      {{ member.owner_nickname || member.name }}
+                    </div>
                     <div class="text-sm text-gray-600">
+                      <span v-if="member.owner_nickname">
+                        {{ member.name }} •
+                      </span>
                       フレンドID: {{ member.friend_id }}
+                    </div>
+                    <div v-if="member.joined_at" class="text-xs text-gray-500">
+                      加入日: {{ formatJoinedDate(member.joined_at) }}
                     </div>
                   </div>
                 </div>
@@ -376,6 +385,8 @@ interface GroupMember {
   name: string;
   friend_id: string;
   group_member_label: string;
+  joined_at?: string;
+  owner_nickname?: string | null; // オーナー専用ニックネーム
 }
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
@@ -487,6 +498,15 @@ const {
   prev,
 } = useSortableMembers(groupMembers, 50);
 
+// グループオーナーかどうかを判定
+const isGroupOwner = computed(() => {
+  return (
+    group.value &&
+    authStore.user &&
+    group.value.owner_user_id === authStore.user.id
+  );
+});
+
 // メンバー一覧を取得
 const loadMembers = async () => {
   if (!group.value?.id) return;
@@ -494,9 +514,29 @@ const loadMembers = async () => {
   try {
     membersPending.value = true;
     membersError.value = null;
-    groupMembers.value = await groupConversations.getGroupMembers(
-      group.value.id
-    );
+
+    if (isGroupOwner.value) {
+      // オーナーの場合はニックネーム情報を含む全メンバー情報を取得
+      const allMembers = await groupConversations.getAllGroupMembers(
+        group.value.id
+      );
+      // アクティブなメンバーのみをフィルタリング
+      groupMembers.value = allMembers
+        .filter((member) => member.is_active)
+        .map((member) => ({
+          id: member.id,
+          name: member.name,
+          friend_id: member.friend_id,
+          group_member_label: member.group_member_label,
+          joined_at: member.joined_at,
+          owner_nickname: member.owner_nickname,
+        }));
+    } else {
+      // 一般メンバーの場合は通常のメンバー情報を取得
+      groupMembers.value = await groupConversations.getGroupMembers(
+        group.value.id
+      );
+    }
   } catch (e) {
     membersError.value = e as Error;
     groupMembers.value = [];
@@ -631,5 +671,15 @@ function goBack() {
   } else {
     router.push("/user/groups");
   }
+}
+
+// 加入日時をフォーマット
+function formatJoinedDate(joinedAt: string): string {
+  const date = new Date(joinedAt);
+  return date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
 }
 </script>
