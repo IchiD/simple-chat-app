@@ -715,6 +715,25 @@
                       <option value="desc">降順</option>
                     </select>
                   </div>
+                  <div class="flex flex-col">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      フィルタ
+                    </label>
+                    <div class="flex items-center px-3 py-2">
+                      <input
+                        id="show-only-unread"
+                        v-model="showOnlyUnread"
+                        type="checkbox"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        for="show-only-unread"
+                        class="ml-2 text-sm text-gray-700"
+                      >
+                        新着メッセージあり
+                      </label>
+                    </div>
+                  </div>
                   <div v-if="hasActiveFilters">
                     <button
                       type="button"
@@ -1470,6 +1489,7 @@ const {
   keyword,
   sortKey,
   sortOrder,
+  showOnlyUnread,
   page,
   totalPages,
   paginatedItems,
@@ -1490,6 +1510,7 @@ const hasActiveFilters = computed(() => {
     keyword.value.trim() !== "" ||
     sortKey.value !== "name" ||
     sortOrder.value !== "asc" ||
+    showOnlyUnread.value ||
     page.value !== 1 ||
     selectedMemberIds.value.length > 0
   );
@@ -1692,8 +1713,8 @@ watch(
   { deep: true }
 );
 
-// 検索キーワードが変更されたらページを1にリセット
-watch(keyword, () => {
+// 検索キーワードや未読フィルタが変更されたらページを1にリセット
+watch([keyword, showOnlyUnread], () => {
   page.value = 1;
 });
 
@@ -1702,6 +1723,7 @@ const resetFilters = () => {
   keyword.value = "";
   sortKey.value = "name";
   sortOrder.value = "asc";
+  showOnlyUnread.value = false;
   page.value = 1;
   selectedMemberIds.value = [];
   selectAll.value = false;

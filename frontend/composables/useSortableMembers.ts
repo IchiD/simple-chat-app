@@ -17,41 +17,62 @@ export function useSortableMembers<
     friend_id: string;
     owner_nickname?: string | null;
     pivot?: { owner_nickname?: string };
+    unread_messages_count?: number;
   }
 >(members: Ref<T[]>, perPage = 50) {
   const keyword = ref("");
   const sortKey = ref<SortKey>("name");
   const sortOrder = ref<SortOrder>("asc");
+  const showOnlyUnread = ref(false);
   const page = ref(1);
 
   const filtered = computed(() => {
-    if (!keyword.value.trim()) return members.value;
-    const kw = keyword.value.toLowerCase();
-    console.log("Debug: Filtering members with keyword:", kw);
-    console.log("Debug: Members data:", members.value);
+    let result = members.value;
 
-    const result = members.value.filter((m) => {
-      const nameMatch = m.name.toLowerCase().includes(kw);
-      const friendIdMatch = m.friend_id.toLowerCase().includes(kw);
-      const nicknameMatch =
-        (m.owner_nickname?.toLowerCase().includes(kw) ?? false) ||
-        (m.pivot?.owner_nickname?.toLowerCase().includes(kw) ?? false);
+    // キーワードでフィルタリング
+    if (keyword.value.trim()) {
+      const kw = keyword.value.toLowerCase();
+      console.log("Debug: Filtering members with keyword:", kw);
+      console.log("Debug: Members data:", result);
 
-      console.log(`Debug: Member ${m.name}:`, {
-        name: m.name,
-        friend_id: m.friend_id,
-        owner_nickname: m.owner_nickname,
-        pivot: m.pivot,
-        nameMatch,
-        friendIdMatch,
-        nicknameMatch,
-        overallMatch: nameMatch || friendIdMatch || nicknameMatch,
+      result = result.filter((m) => {
+        const nameMatch = m.name.toLowerCase().includes(kw);
+        const friendIdMatch = m.friend_id.toLowerCase().includes(kw);
+        const nicknameMatch =
+          (m.owner_nickname?.toLowerCase().includes(kw) ?? false) ||
+          (m.pivot?.owner_nickname?.toLowerCase().includes(kw) ?? false);
+
+        console.log(`Debug: Member ${m.name}:`, {
+          name: m.name,
+          friend_id: m.friend_id,
+          owner_nickname: m.owner_nickname,
+          pivot: m.pivot,
+          nameMatch,
+          friendIdMatch,
+          nicknameMatch,
+          overallMatch: nameMatch || friendIdMatch || nicknameMatch,
+        });
+
+        return nameMatch || friendIdMatch || nicknameMatch;
       });
 
-      return nameMatch || friendIdMatch || nicknameMatch;
-    });
+      console.log("Debug: Filtered result by keyword:", result);
+    }
 
-    console.log("Debug: Filtered result:", result);
+    // 未読メッセージフィルタリング
+    if (showOnlyUnread.value) {
+      result = result.filter((m) => {
+        const hasUnread =
+          m.unread_messages_count && m.unread_messages_count > 0;
+        console.log(`Debug: Member ${m.name} unread filter:`, {
+          unread_messages_count: m.unread_messages_count,
+          hasUnread,
+        });
+        return hasUnread;
+      });
+      console.log("Debug: Filtered result by unread:", result);
+    }
+
     return result;
   });
 
@@ -85,6 +106,7 @@ export function useSortableMembers<
     keyword,
     sortKey,
     sortOrder,
+    showOnlyUnread,
     page,
     totalPages,
     paginatedItems,
