@@ -164,10 +164,17 @@
             "
             class="badge-dot absolute -top-1 -right-1 z-10"
           />
-          <p class="font-medium">{{ group.name }}</p>
-          <p v-if="group.description" class="text-sm text-gray-500">
-            {{ group.description }}
-          </p>
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-medium">{{ group.name }}</p>
+              <p v-if="group.description" class="text-sm text-gray-500">
+                {{ group.description }}
+              </p>
+            </div>
+            <div class="text-sm text-gray-600">
+              {{ group.member_count || 0 }} / {{ group.max_members || 50 }}
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -265,7 +272,7 @@ function goBack() {
   // ブラウザの履歴を使用して前のページに戻る
   // 履歴がない場合はダッシュボードに戻る
   if (window.history.length > 1) {
-    router.go(-1);
+    window.history.back();
   } else {
     router.push("/user/dashboard");
   }

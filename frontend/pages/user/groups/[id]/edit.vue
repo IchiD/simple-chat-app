@@ -122,7 +122,13 @@
         </section>
 
         <section>
-          <h2 class="font-semibold mb-4">メンバー管理</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold">メンバー管理</h2>
+            <div class="text-sm text-gray-600">
+              {{ extendedMembers.filter((m) => m.is_active).length + 1 }} /
+              {{ group.max_members || 50 }}
+            </div>
+          </div>
           <div class="mb-6">
             <h3 class="font-semibold mb-2">メンバー追加</h3>
             <div class="mb-2 flex space-x-2 items-end">

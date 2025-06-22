@@ -961,6 +961,84 @@
       </div>
     </div>
 
+    <!-- ダウングレードブロックモーダル -->
+    <div
+      v-if="downgradeBlockedState.isVisible"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
+    >
+      <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full my-8">
+          <div class="text-center">
+            <!-- アイコン -->
+            <div class="mb-6">
+              <div
+                class="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-8 h-8 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- タイトル -->
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+              プラン変更できません
+            </h3>
+
+            <!-- 説明 -->
+            <div class="text-gray-600 mb-6 space-y-3">
+              <p>
+                グループのメンバー数を50人以下にしてから、再度プラン変更を行ってください。
+              </p>
+              <div
+                v-if="downgradeBlockedState.groups.length > 0"
+                class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-left"
+              >
+                <p class="text-sm text-orange-800 font-medium mb-2">
+                  対象グループ：
+                </p>
+                <ul class="text-sm text-orange-700 space-y-1">
+                  <li
+                    v-for="groupName in downgradeBlockedState.groups"
+                    :key="groupName"
+                    class="list-disc ml-4"
+                  >
+                    {{ groupName }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- ボタン -->
+            <div class="flex space-x-3">
+              <button
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                @click="closeDowngradeBlockedModal"
+              >
+                キャンセル
+              </button>
+              <button
+                class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                @click="goToGroupsPage"
+              >
+                グループ管理へ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- エラー状態表示 -->
     <div
       v-if="errorState.hasError"
@@ -1406,6 +1484,7 @@ const ERROR_TYPES = {
   SERVER: "server",
   VALIDATION: "validation",
   TIMEOUT: "timeout",
+  DOWNGRADE_BLOCKED: "downgrade_blocked",
   UNKNOWN: "unknown",
 } as const;
 
@@ -1469,6 +1548,12 @@ const ERROR_MESSAGES: Record<
       "処理に時間がかかりすぎています。ネットワーク接続を確認してから再度お試しください。",
     action: "再試行",
     canRetry: true,
+  },
+  [ERROR_TYPES.DOWNGRADE_BLOCKED]: {
+    title: "プラン変更できません",
+    description: "グループ編集ページでメンバーの人数を50人以下にしてください。",
+    action: "グループ一覧へ",
+    canRetry: false,
   },
   [ERROR_TYPES.UNKNOWN]: {
     title: "予期しないエラー",
@@ -1564,6 +1649,15 @@ const resumeConfirmationState = ref<{
   isVisible: boolean;
 }>({
   isVisible: false,
+});
+
+// ダウングレードブロックモーダル状態
+const downgradeBlockedState = ref<{
+  isVisible: boolean;
+  groups: string[];
+}>({
+  isVisible: false,
+  groups: [],
 });
 
 // 価格関連の関数（usePricingから取得）
@@ -1668,6 +1762,28 @@ const resumeSubscriptionConfirm = () => {
 // 解約取り消し確認モーダル閉じる
 const cancelResumeConfirmation = () => {
   resumeConfirmationState.value.isVisible = false;
+};
+
+// ダウングレードブロックモーダル表示
+const showDowngradeBlockedModal = (groups: string[]) => {
+  downgradeBlockedState.value = {
+    isVisible: true,
+    groups: groups || [],
+  };
+};
+
+// ダウングレードブロックモーダル閉じる
+const closeDowngradeBlockedModal = () => {
+  downgradeBlockedState.value = {
+    isVisible: false,
+    groups: [],
+  };
+};
+
+// グループ一覧ページに遷移
+const goToGroupsPage = () => {
+  closeDowngradeBlockedModal();
+  navigateTo("/user/groups");
 };
 
 // 解約取り消し処理
@@ -1830,6 +1946,9 @@ const analyzeError = (error: unknown): ErrorType => {
       if (errorData?.error_type === "invalid_plan") {
         return ERROR_TYPES.VALIDATION;
       }
+      if (errorData?.error_type === "downgrade_blocked") {
+        return ERROR_TYPES.DOWNGRADE_BLOCKED;
+      }
     }
 
     // 直接のエラーオブジェクトをチェック
@@ -1840,6 +1959,9 @@ const analyzeError = (error: unknown): ErrorType => {
       }
       if (errorObj.error_type === "invalid_plan") {
         return ERROR_TYPES.VALIDATION;
+      }
+      if (errorObj.error_type === "downgrade_blocked") {
+        return ERROR_TYPES.DOWNGRADE_BLOCKED;
       }
     }
   }
@@ -1965,6 +2087,27 @@ const handleCheckoutError = (error: unknown, plan: string) => {
             color: "info",
           });
         }, 2000);
+      }
+      break;
+
+    case ERROR_TYPES.DOWNGRADE_BLOCKED:
+      // エラーがオブジェクトでメッセージが含まれている場合
+      if (error && typeof error === "object" && "data" in error) {
+        const errorData = (
+          error as {
+            data?: { message?: string; groups?: string[]; link?: string };
+          }
+        ).data;
+        if (errorData?.message) {
+          toast.add({
+            title: errorConfig.title,
+            description: errorData.message,
+            color: "error",
+            timeout: 8000,
+          });
+        }
+        // モーダルを表示（自動リダイレクトではなく）
+        showDowngradeBlockedModal(errorData?.groups || []);
       }
       break;
   }

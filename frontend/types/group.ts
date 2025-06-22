@@ -13,6 +13,7 @@ export interface GroupConversation {
   updated_at?: string;
   conversationParticipants?: GroupParticipant[];
   member_count?: number; // withCountで追加される場合
+  unread_messages_count?: number; // 未読メッセージ数
 }
 
 export interface GroupParticipant {
