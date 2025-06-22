@@ -29,9 +29,49 @@
         </button>
       </div>
 
+      <!-- グループ読み込み中 -->
+      <div v-if="groupPending" class="text-center py-8">
+        <div
+          class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"
+        />
+        <p class="text-gray-600 font-medium">グループを読み込み中...</p>
+      </div>
+
+      <!-- グループ読み込みエラー -->
+      <div v-else-if="groupError" class="text-center py-8">
+        <div
+          class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-8 w-8 text-red-600"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <p class="text-red-600 font-medium mb-2">{{ groupError }}</p>
+        <button
+          class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+          @click="loadGroup"
+        >
+          再読み込み
+        </button>
+      </div>
+
+      <!-- 無効なグループまたはチャットスタイル -->
+      <div v-else-if="isInvalidGroup" class="text-center py-8 text-gray-500">
+        無効なグループまたはチャットスタイルです
+      </div>
+
       <!-- グループ全体チャットのみの場合 -->
       <div
-        v-if="isGroupChatOnly"
+        v-else-if="isGroupChatOnly"
         class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
       >
         <div
@@ -1200,10 +1240,42 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- エラー表示（グループが存在しない場合） -->
-        <div v-else class="text-center py-8 text-gray-500">
-          無効なグループまたはチャットスタイルです
+      <!-- メンバーチャットのみまたは両方のチャットスタイルがある場合 -->
+      <div v-else class="text-center py-8 text-gray-600">
+        <div class="max-w-md mx-auto">
+          <div
+            class="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8 text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z"
+              />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            {{ group?.name || "グループ" }}
+          </h3>
+          <p class="text-sm text-gray-500 mb-4">
+            このグループは個別チャットスタイルです。<br />
+            グループ詳細ページから個別チャットを開始してください。
+          </p>
+          <button
+            class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+            @click="router.push(`/user/groups/${id}`)"
+          >
+            グループ詳細へ戻る
+          </button>
         </div>
       </div>
     </div>
@@ -1305,6 +1377,10 @@ const members = ref<GroupMember[]>([]);
 const membersPending = ref(true);
 const membersError = ref("");
 
+// グループ読み込み状態を追加
+const groupPending = ref(true);
+const groupError = ref("");
+
 // チャットスタイル分岐用
 const currentView = ref<"group" | "member">("group");
 
@@ -1333,6 +1409,26 @@ const hasBothStyles = computed(() => {
   const chatStyles = group.value?.chat_styles;
   if (!chatStyles || !Array.isArray(chatStyles)) return false;
   return chatStyles.includes("group") && chatStyles.includes("group_member");
+});
+
+// グループが無効かどうかを判定
+const isInvalidGroup = computed(() => {
+  // グループ読み込み中またはエラーの場合は無効ではない（別の状態）
+  if (groupPending.value || groupError.value) return false;
+
+  // グループが存在しない場合は無効
+  if (!group.value) return true;
+
+  // チャットスタイルが存在しないか、適切でない場合は無効
+  const chatStyles = group.value.chat_styles;
+  if (!chatStyles || !Array.isArray(chatStyles) || chatStyles.length === 0)
+    return true;
+
+  // サポートされていないチャットスタイルのみの場合は無効
+  if (!chatStyles.includes("group") && !chatStyles.includes("group_member"))
+    return true;
+
+  return false;
 });
 
 // メンバー選択状態
@@ -1479,13 +1575,18 @@ const scrollGroupToBottom = async (behavior: "auto" | "smooth" = "auto") => {
 // グループ情報を取得
 const loadGroup = async () => {
   console.log("loadGroup called with id:", id);
+  groupPending.value = true;
+  groupError.value = "";
+
   try {
     const groupData = await groupConversations.getGroup(id);
     console.log("Group data loaded:", groupData);
     group.value = groupData;
   } catch (error) {
     console.error("グループ取得エラー:", error);
-    membersError.value = "グループの取得に失敗しました";
+    groupError.value = "グループの取得に失敗しました";
+  } finally {
+    groupPending.value = false;
   }
 };
 
