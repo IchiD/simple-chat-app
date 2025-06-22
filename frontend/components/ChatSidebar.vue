@@ -80,27 +80,102 @@
       <button
         v-for="convo in conversations"
         :key="convo.id"
-        class="group relative flex flex-row items-center hover:bg-gradient-to-r hover:from-emerald-50 hover:to-blue-50 p-3 m-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 shadow-sm hover:shadow-md border border-transparent hover:border-emerald-100 cursor-pointer"
-        :class="{
-          'bg-gradient-to-r from-emerald-100 to-emerald-50 border-emerald-200 shadow-md':
-            selectedConversationRoomToken === convo.room_token,
-        }"
+        class="group relative flex flex-row items-center p-3 m-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 shadow-sm hover:shadow-md border cursor-pointer"
+        :class="getConversationStyles(convo)"
         @click="onConversationClick(convo)"
       >
+        <!-- チャットタイプアイコン -->
+        <div class="flex-shrink-0 mr-3">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center"
+            :class="getIconContainerStyles(convo)"
+          >
+            <!-- グループチャットアイコン -->
+            <svg
+              v-if="convo.type === 'group_chat'"
+              class="w-5 h-5"
+              :class="getIconStyles(convo)"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+              />
+            </svg>
+            <!-- メンバーチャットアイコン -->
+            <svg
+              v-else-if="convo.type === 'member_chat'"
+              class="w-5 h-5"
+              :class="getIconStyles(convo)"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            <!-- サポートチャットアイコン -->
+            <svg
+              v-else-if="convo.type === 'support_chat'"
+              class="w-5 h-5"
+              :class="getIconStyles(convo)"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <!-- 個人チャットアイコン -->
+            <svg
+              v-else
+              class="w-5 h-5"
+              :class="getIconStyles(convo)"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </div>
+        </div>
+
         <!-- メッセージ内容 -->
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center mb-1">
-            <p
-              class="text-sm font-semibold text-gray-900 truncate flex items-center"
-            >
-              <span>{{ getConversationDisplayName(convo) }}</span>
-              <span
+            <div class="flex flex-col flex-1 min-w-0">
+              <div class="flex items-center">
+                <span class="text-sm font-semibold text-gray-900 truncate">
+                  {{ getConversationDisplayName(convo) }}
+                </span>
+                <span
+                  class="text-xs px-1.5 py-0.5 rounded-full ml-2 whitespace-nowrap"
+                  :class="getTypeLabel(convo).classes"
+                  :title="getTypeLabel(convo).tooltip"
+                >
+                  {{ getTypeLabel(convo).text }}
+                </span>
+              </div>
+              <div
                 v-if="convo.type === 'group_chat'"
-                class="text-xs text-gray-600 ml-2 whitespace-nowrap"
+                class="text-xs text-left text-gray-600 mt-0.5"
               >
                 メンバー {{ convo.participant_count || 0 }}人
-              </span>
-            </p>
+              </div>
+            </div>
             <p
               v-if="convo.latest_message?.sent_at"
               class="text-xs text-gray-500 ml-2 flex-shrink-0"
@@ -213,7 +288,7 @@ type Conversation = {
   updated_at?: string;
 };
 
-defineProps({
+const props = defineProps({
   conversations: {
     type: Array as PropType<Conversation[] | undefined>,
     required: true,
@@ -320,6 +395,98 @@ const formatSentAt = (sentAt?: string | null): string => {
 
 const onConversationClick = (conversation: Conversation) => {
   emit("conversationSelected", conversation.room_token);
+};
+
+// チャットタイプ別のスタイルを取得する関数
+const getConversationStyles = (conversation: Conversation): string => {
+  const isSelected =
+    props.selectedConversationRoomToken === conversation.room_token;
+  const baseClasses = "border-transparent";
+
+  if (isSelected) {
+    switch (conversation.type) {
+      case "group_chat":
+        return `${baseClasses} bg-gradient-to-r from-blue-100 to-blue-50 border-blue-200 shadow-md`;
+      case "member_chat":
+        return `${baseClasses} bg-gradient-to-r from-purple-100 to-purple-50 border-purple-200 shadow-md`;
+      case "support_chat":
+        return `${baseClasses} bg-gradient-to-r from-green-100 to-green-50 border-green-200 shadow-md`;
+      default:
+        return `${baseClasses} bg-gradient-to-r from-emerald-100 to-emerald-50 border-emerald-200 shadow-md`;
+    }
+  }
+
+  // ホバー状態のスタイル
+  switch (conversation.type) {
+    case "group_chat":
+      return `${baseClasses} bg-gradient-to-r from-blue-25 to-blue-25 hover:from-blue-50 hover:to-blue-50 hover:border-blue-100`;
+    case "member_chat":
+      return `${baseClasses} bg-gradient-to-r from-purple-25 to-purple-25 hover:from-purple-50 hover:to-purple-50 hover:border-purple-100`;
+    case "support_chat":
+      return `${baseClasses} bg-gradient-to-r from-green-25 to-green-25 hover:from-green-50 hover:to-green-50 hover:border-green-100`;
+    default:
+      return `${baseClasses} bg-gradient-to-r from-gray-25 to-gray-25 hover:from-emerald-50 hover:to-blue-50 hover:border-emerald-100`;
+  }
+};
+
+// アイコンコンテナのスタイルを取得する関数
+const getIconContainerStyles = (conversation: Conversation): string => {
+  switch (conversation.type) {
+    case "group_chat":
+      return "bg-blue-100 group-hover:bg-blue-200";
+    case "member_chat":
+      return "bg-purple-100 group-hover:bg-purple-200";
+    case "support_chat":
+      return "bg-green-100 group-hover:bg-green-200";
+    default:
+      return "bg-gray-100 group-hover:bg-gray-200";
+  }
+};
+
+// アイコンのスタイルを取得する関数
+const getIconStyles = (conversation: Conversation): string => {
+  switch (conversation.type) {
+    case "group_chat":
+      return "text-blue-600";
+    case "member_chat":
+      return "text-purple-600";
+    case "support_chat":
+      return "text-green-600";
+    default:
+      return "text-gray-600";
+  }
+};
+
+// チャットタイプラベルを取得する関数
+const getTypeLabel = (
+  conversation: Conversation
+): { text: string; classes: string; tooltip: string } => {
+  switch (conversation.type) {
+    case "group_chat":
+      return {
+        text: "グループ",
+        classes: "bg-blue-100 text-blue-700",
+        tooltip: "このグループの全員が参加するチャット",
+      };
+    case "member_chat":
+      return {
+        text: "個別",
+        classes: "bg-purple-100 text-purple-700",
+        tooltip: "グループオーナーとメンバーの1対1チャット",
+      };
+    case "support_chat":
+      return {
+        text: "サポート",
+        classes: "bg-green-100 text-green-700",
+        tooltip: "運営サポートチャット",
+      };
+    default:
+      return {
+        text: "友達",
+        classes: "bg-gray-100 text-gray-700",
+        tooltip: "友達とのチャット",
+      };
+  }
 };
 </script>
 
