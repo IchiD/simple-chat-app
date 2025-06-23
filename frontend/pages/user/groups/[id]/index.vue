@@ -313,15 +313,32 @@
               <div
                 v-for="member in paginatedItems"
                 :key="member.id"
-                class="bg-gray-50 border rounded-lg p-3"
+                :class="[
+                  'border rounded-lg p-3',
+                  member.is_deleted_user
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-gray-50 border-gray-200',
+                ]"
               >
                 <div class="flex justify-between items-center">
                   <div>
-                    <div class="font-medium">
+                    <div class="font-medium flex items-center gap-2">
                       {{ member.owner_nickname || member.name }}
+                      <span
+                        v-if="member.is_deleted_user"
+                        class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full"
+                      >
+                        {{
+                          member.removal_type === "user_leave"
+                            ? "ユーザー自身によるアカウント削除"
+                            : "削除済み"
+                        }}
+                      </span>
                     </div>
                     <div class="text-sm text-gray-600">
-                      <span v-if="member.owner_nickname">
+                      <span
+                        v-if="member.owner_nickname && !member.is_deleted_user"
+                      >
                         {{ member.name }} •
                       </span>
                       フレンドID: {{ member.friend_id }}
@@ -387,6 +404,8 @@ interface GroupMember {
   group_member_label: string;
   joined_at?: string;
   owner_nickname?: string | null; // オーナー専用ニックネーム
+  is_deleted_user?: boolean; // 削除済みユーザーフラグ
+  removal_type?: string | null; // 削除タイプ
 }
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
@@ -520,17 +539,17 @@ const loadMembers = async () => {
       const allMembers = await groupConversations.getAllGroupMembers(
         group.value.id
       );
-      // アクティブなメンバーのみをフィルタリング
-      groupMembers.value = allMembers
-        .filter((member) => member.is_active)
-        .map((member) => ({
-          id: member.id,
-          name: member.name,
-          friend_id: member.friend_id,
-          group_member_label: member.group_member_label,
-          joined_at: member.joined_at,
-          owner_nickname: member.owner_nickname,
-        }));
+      // 全メンバー（削除済み含む）を表示
+      groupMembers.value = allMembers.map((member) => ({
+        id: member.id || 0, // 削除済みユーザーのidがnullの場合は0
+        name: member.name,
+        friend_id: member.friend_id || "不明", // 削除済みユーザーのfriend_idがnullの場合は'不明'
+        group_member_label: member.group_member_label,
+        joined_at: member.joined_at,
+        owner_nickname: member.owner_nickname,
+        is_deleted_user: !!member.is_deleted_user,
+        removal_type: member.removal_type,
+      }));
     } else {
       // 一般メンバーの場合は通常のメンバー情報を取得
       groupMembers.value = await groupConversations.getGroupMembers(

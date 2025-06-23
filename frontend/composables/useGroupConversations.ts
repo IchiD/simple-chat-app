@@ -17,9 +17,9 @@ interface AddMemberRequest extends Record<string, unknown> {
 }
 
 interface GroupMember extends Record<string, unknown> {
-  id: number;
+  id: number | null;
   name: string;
-  friend_id: string;
+  friend_id: string | null;
   group_member_label: string;
 }
 
@@ -36,6 +36,7 @@ interface ExtendedGroupMember extends GroupMember {
     name: string;
   } | null;
   is_active: boolean;
+  is_deleted_user: boolean; // 削除済みユーザーフラグ
 }
 
 interface BulkMessageRequest extends Record<string, unknown> {

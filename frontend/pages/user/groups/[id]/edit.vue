@@ -430,7 +430,11 @@
                             v-if="!member.is_active"
                             class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full"
                           >
-                            削除済み
+                            {{
+                              member.removal_type === "user_leave"
+                                ? "ユーザー自身によるアカウント削除"
+                                : "削除済み"
+                            }}
                           </span>
                           <span
                             v-if="!member.is_active && !member.can_rejoin"
@@ -440,7 +444,7 @@
                           </span>
                         </div>
                         <p class="text-sm text-gray-600">
-                          フレンドID: {{ member.friend_id }}
+                          フレンドID: {{ member.friend_id || "不明" }}
                         </p>
                       </div>
                     </div>
@@ -507,7 +511,7 @@
                       v-if="!member.is_active"
                       class="ml-13 text-xs text-gray-500"
                     >
-                      削除日時: {{ new Date(member.left_at!).toLocaleString() }}
+                      削除日時: {{ formatDeletedDate(member.left_at!) }}
                       <span v-if="member.removed_by_user">
                         (削除者: {{ member.removed_by_user.name }})
                       </span>
@@ -588,9 +592,9 @@ import type { GroupConversation } from "~/types/group";
 import { useSortableMembers } from "~/composables/useSortableMembers";
 
 interface GroupMember {
-  id: number;
+  id: number | null;
   name: string;
-  friend_id: string;
+  friend_id: string | null;
   group_member_label: string;
 }
 
@@ -968,6 +972,25 @@ function goBack() {
     window.history.back();
   } else {
     router.push(`/user/groups/${id}`);
+  }
+}
+
+// 削除日時をフォーマット
+function formatDeletedDate(dateString: string): string {
+  if (!dateString) return "不明";
+  try {
+    const date = new Date(dateString);
+    // Invalid Dateチェック
+    if (isNaN(date.getTime())) return "不明";
+    return date.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "不明";
   }
 }
 </script>
