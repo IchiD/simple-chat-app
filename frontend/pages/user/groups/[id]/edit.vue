@@ -159,14 +159,14 @@
                 class="text-sm text-gray-500 bg-gray-50 rounded-md px-3 py-2 border-l-4 border-gray-300"
               >
                 <span class="font-medium">注意：</span
-                >一度選択したスタイルは変更できません。新しいスタイルのみ追加可能です。
+                >一度選択するとチャットルームが作成されるため、追加のみ可能となります。
               </div>
               <div class="space-y-3">
                 <div
                   :class="[
                     'flex items-start space-x-3 p-3 border rounded-lg transition-colors',
                     (group?.chat_styles || []).includes('group')
-                      ? 'border-blue-200 bg-blue-50'
+                      ? 'border-blue-200 bg-green-50'
                       : 'border-gray-200 hover:bg-gray-50',
                   ]"
                 >
@@ -412,15 +412,6 @@
                   <div class="flex-1 space-y-2">
                     <!-- Member Info -->
                     <div class="flex items-center gap-3">
-                      <div class="flex-shrink-0">
-                        <div
-                          class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
-                        >
-                          <span class="text-white font-medium text-sm">
-                            {{ member.name.charAt(0).toUpperCase() }}
-                          </span>
-                        </div>
-                      </div>
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">
                           <h4 class="font-medium text-gray-900 truncate">
@@ -460,7 +451,7 @@
                           {{ member.owner_nickname || "未設定" }}
                         </span>
                         <button
-                          class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded border border-blue-200 hover:bg-blue-50 transition-colors"
+                          class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded border border-blue-200 hover:bg-green-50 transition-colors"
                           @click="startEditNickname(member)"
                         >
                           編集
@@ -515,6 +506,11 @@
                       <span v-if="member.removed_by_user">
                         (削除者: {{ member.removed_by_user.name }})
                       </span>
+                      <span
+                        v-else-if="member.removal_type === 'kicked_by_admin'"
+                      >
+                        (削除者: システム管理者)
+                      </span>
                     </div>
                   </div>
 
@@ -540,11 +536,15 @@
                           'px-3 py-1 text-sm border rounded transition-colors',
                           member.can_rejoin
                             ? 'text-orange-600 hover:text-orange-800 border-orange-300 hover:bg-orange-50'
-                            : 'text-blue-600 hover:text-blue-800 border-blue-300 hover:bg-blue-50',
+                            : 'text-blue-600 hover:text-blue-800 border-blue-300 hover:bg-green-50',
                         ]"
                         @click="toggleRejoin(member)"
                       >
-                        {{ member.can_rejoin ? "再参加禁止" : "再参加許可" }}
+                        {{
+                          member.can_rejoin
+                            ? "再参加禁止する"
+                            : "再参加許可する"
+                        }}
                       </button>
                     </template>
                   </div>

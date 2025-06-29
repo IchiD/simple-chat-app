@@ -155,7 +155,6 @@ import { usePricing } from "@/composables/usePricing";
 // URLパラメータから選択されたプランを取得
 const route = useRoute();
 const router = useRouter();
-const config = useRuntimeConfig();
 const selectedPlan = ref<string | null>(null);
 const isLoadingPlan = ref(false);
 const pricing = usePricing();
@@ -163,13 +162,19 @@ const pricing = usePricing();
 // プラン料金取得関数（usePricingから取得）
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
-  return pricing.getPlanPrice(plan as keyof typeof pricing.pricingData.value.plans);
+  if (!pricing.pricingData.value?.plans) return "¥0";
+  return pricing.getPlanPrice(
+    plan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
 // プラン表示名取得関数（usePricingから取得）
 const getPlanDisplayName = (plan: string | null): string => {
   if (!plan) return "フリー";
-  return pricing.getPlanDisplayName(plan as keyof typeof pricing.pricingData.value.plans);
+  if (!pricing.pricingData.value?.plans) return "フリー";
+  return pricing.getPlanDisplayName(
+    plan as keyof typeof pricing.pricingData.value.plans
+  );
 };
 
 // プランごとの利用可能機能
@@ -225,14 +230,11 @@ const openSupportChat = async () => {
     }
 
     // サポートチャットを作成または取得
-    const response = await $fetch<{ room_token: string }>(
-      `${config.public.apiBase}/support/conversation`,
+    const { api } = useApi();
+    const response = await api<{ room_token: string }>(
+      "/support/conversation",
       {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${authStore.token}`,
-        },
       }
     );
 
@@ -261,7 +263,7 @@ useHead({
 onMounted(async () => {
   // 価格情報を初期化
   await pricing.initializePricing();
-  
+
   // URLパラメータからプラン情報を取得
   const planParam = route.query.plan as string;
   const sessionId = route.query.session_id as string;
@@ -271,33 +273,67 @@ onMounted(async () => {
     selectedPlan.value = planParam;
     console.log("決済成功: プラン設定完了", planParam);
   } else if (sessionId) {
-    // session_idがある場合はAPIからユーザーのプラン情報を取得
+    // session_idがある場合はAPIからユーザーのプラン情報を取得（リトライ機能付き）
     isLoadingPlan.value = true;
-    try {
-      const authStore = useAuthStore();
 
-      if (authStore.isAuthenticated && authStore.token) {
-        // ユーザー情報を再取得してプラン情報を更新
-        await authStore.checkAuth();
+    // Webhook処理完了を待つためのリトライ処理
+    let retryCount = 0;
+    const maxRetries = 10; // 最大10回（約50秒間）
+    const retryDelay = 5000; // 5秒間隔
 
-        if (authStore.user?.plan && authStore.user.plan !== "free") {
-          selectedPlan.value = authStore.user.plan;
-          console.log("決済成功: APIからプラン情報を取得", authStore.user.plan);
-        } else {
-          selectedPlan.value = null;
-          console.warn(
-            "APIからプラン情報を取得できませんでした。プラン:",
-            authStore.user?.plan
-          );
+    const fetchPlanWithRetry = async () => {
+      try {
+        const authStore = useAuthStore();
+
+        if (authStore.isAuthenticated && authStore.token) {
+          // ユーザー情報を再取得してプラン情報を更新
+          await authStore.checkAuth();
+
+          if (authStore.user?.plan && authStore.user.plan !== "free") {
+            selectedPlan.value = authStore.user.plan;
+            console.log(
+              "決済成功: APIからプラン情報を取得",
+              authStore.user.plan
+            );
+            return true; // 成功
+          }
         }
-      } else {
-        selectedPlan.value = null;
-        console.warn("認証されていないか、トークンがありません");
+        return false; // 失敗またはまだ未更新
+      } catch (error) {
+        console.error("ユーザー情報の取得に失敗しました:", error);
+        return false;
       }
-    } catch (error) {
-      console.error("ユーザー情報の取得に失敗しました:", error);
-      selectedPlan.value = null;
-    } finally {
+    };
+
+    // 初回試行
+    const firstAttempt = await fetchPlanWithRetry();
+
+    if (!firstAttempt) {
+      // 初回で取得できない場合、リトライを実行
+      console.log("プラン情報の取得をリトライします...");
+
+      const retryInterval = setInterval(async () => {
+        retryCount++;
+        console.log(
+          `プラン情報取得を再試行中... (${retryCount}/${maxRetries})`
+        );
+
+        const success = await fetchPlanWithRetry();
+
+        if (success || retryCount >= maxRetries) {
+          clearInterval(retryInterval);
+
+          if (!success) {
+            selectedPlan.value = null;
+            console.warn(
+              "最大リトライ回数に達しましたが、プラン情報を取得できませんでした"
+            );
+          }
+
+          isLoadingPlan.value = false;
+        }
+      }, retryDelay);
+    } else {
       isLoadingPlan.value = false;
     }
   } else {

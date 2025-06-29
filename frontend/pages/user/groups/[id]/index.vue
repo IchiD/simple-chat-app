@@ -312,7 +312,7 @@
             <div v-else class="grid gap-3">
               <div
                 v-for="member in paginatedItems"
-                :key="member.id"
+                :key="member.id || `deleted-${member.friend_id || 'unknown'}`"
                 :class="[
                   'border rounded-lg p-3',
                   member.is_deleted_user
@@ -398,9 +398,9 @@ import { useSortableMembers } from "~/composables/useSortableMembers";
 
 // GroupMember型の定義
 interface GroupMember {
-  id: number;
+  id: number | null; // 削除済みユーザーの場合nullの可能性がある
   name: string;
-  friend_id: string;
+  friend_id: string | null; // 削除済みユーザーの場合nullの可能性がある
   group_member_label: string;
   joined_at?: string;
   owner_nickname?: string | null; // オーナー専用ニックネーム
@@ -490,19 +490,36 @@ const isMembersExpanded = ref(false); // メンバー一覧の展開状態（デ
 
 // 現在のメンバー数を取得するcomputed（自分自身も含む）
 const currentMemberCount = computed(() => {
-  const memberCount = groupMembers.value.length;
+  // 削除済みメンバーを除外してカウント
+  const activeMemberCount = groupMembers.value.filter(
+    (member) => !member.is_deleted_user
+  ).length;
   const currentUserId = authStore.user?.id;
   const isOwner = group.value?.owner_user_id === currentUserId;
 
-  // 自分がオーナーで、メンバー一覧に自分が含まれていない場合は+1
+  // 自分がオーナーで、アクティブメンバー一覧に自分が含まれていない場合は+1
   if (isOwner) {
-    const isOwnerInMemberList = groupMembers.value.some(
-      (member) => member.id === currentUserId
+    const isOwnerInActiveMemberList = groupMembers.value.some(
+      (member) => member.id === currentUserId && !member.is_deleted_user
     );
-    return isOwnerInMemberList ? memberCount : memberCount + 1;
+    return isOwnerInActiveMemberList
+      ? activeMemberCount
+      : activeMemberCount + 1;
   }
 
-  return memberCount;
+  return activeMemberCount;
+});
+
+// useSortableMembers用に型を変換したデータ
+const sortableMembers = computed(() => {
+  return groupMembers.value.map((member) => ({
+    name: member.name,
+    friend_id: member.friend_id || "不明", // nullの場合は'不明'に変換
+    owner_nickname: member.owner_nickname,
+    joined_at: member.joined_at,
+    // 元のメンバー情報も含める（テンプレートで使用するため）
+    _original: member,
+  }));
 });
 
 // 検索・ソート・ページネーション composable
@@ -512,10 +529,15 @@ const {
   sortOrder,
   page,
   totalPages,
-  paginatedItems,
+  paginatedItems: sortedPaginatedItems,
   next,
   prev,
-} = useSortableMembers(groupMembers, 50);
+} = useSortableMembers(sortableMembers, 50);
+
+// テンプレート用のページネーションアイテム（元のGroupMember型）
+const paginatedItems = computed(() => {
+  return sortedPaginatedItems.value.map((item) => item._original);
+});
 
 // グループオーナーかどうかを判定
 const isGroupOwner = computed(() => {
