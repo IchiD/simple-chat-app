@@ -936,9 +936,54 @@
                     <li>
                       グループチャットでは名前の横に「（退室済み）」と表示されます
                     </li>
-                    <li>所属していたグループへは再参加する必要があります。</li>
-                    <li>同じメールアドレスで再登録すれば復元できます</li>
+                    <li>
+                      同じメールアドレスで再登録すればデータは復元できますが、所属していたグループへは再参加する必要があります。
+                    </li>
                   </ul>
+
+                  <!-- サブスクリプション関連の警告 -->
+                  <div
+                    v-if="
+                      authStore.user?.subscription_status === 'active' ||
+                      authStore.user?.subscription_status === 'trialing'
+                    "
+                    class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md"
+                  >
+                    <div class="flex items-start">
+                      <svg
+                        class="h-5 w-5 text-yellow-400 mt-0.5 mr-3 flex-shrink-0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      <div>
+                        <h4 class="text-sm font-medium text-yellow-800 mb-2">
+                          サブスクリプションについて
+                        </h4>
+                        <p class="text-sm text-yellow-700 mb-2">
+                          現在アクティブなサブスクリプションがあります。アカウント削除により：
+                        </p>
+                        <ul
+                          class="text-sm text-yellow-700 space-y-1 list-disc list-inside"
+                        >
+                          <li>
+                            サブスクリプションは現在の請求期間終了時に自動的にキャンセルされます
+                          </li>
+                          <li>
+                            期間終了まではサービスを継続してご利用いただけます
+                          </li>
+                          <li>次回以降の課金は発生しません</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
                   <form @submit.prevent="handleDeleteAccount">
                     <!-- Google認証ユーザー以外はパスワード入力が必要 -->
                     <div
