@@ -903,30 +903,9 @@
       <div class="min-h-screen px-4 py-6 flex items-center justify-center">
         <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full my-8">
           <div class="text-center">
-            <!-- アイコン -->
-            <div class="mb-6">
-              <div
-                class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"
-              >
-                <svg
-                  class="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
             <!-- タイトル -->
             <h3 class="text-xl font-semibold text-gray-900 mb-4">
-              解約取り消しの確認
+              解約取り消し
             </h3>
 
             <!-- 説明 -->

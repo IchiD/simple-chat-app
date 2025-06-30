@@ -1268,6 +1268,15 @@ onMounted(async () => {
       return router.push("/auth/login");
     }
 
+    // 最新のユーザー情報を強制的に取得（退会後の再登録に対応）
+    try {
+      const { api } = useApi();
+      const userData = await api("/users/me");
+      authStore.user = userData;
+    } catch (error) {
+      console.error("Failed to fetch fresh user data:", error);
+    }
+
     // 名前変更提案が必要かチェック
     if (authStore.user?.should_suggest_name_change) {
       showNameChangeSuggestionModal.value = true;
