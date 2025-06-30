@@ -291,7 +291,7 @@ const onSubmit = async () => {
 
 const onGoogleLogin = () => {
   try {
-    authStore.startGoogleLogin();
+    authStore.startGoogleLogin("login");
   } catch (error) {
     console.error("Googleログインエラー:", error);
     toast.add({

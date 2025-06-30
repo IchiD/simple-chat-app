@@ -207,10 +207,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, computed, watch, onMounted } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useToast } from "../../composables/useToast";
 import { useRouter } from "vue-router";
+import { useRoute } from "#app";
 
 // ページメタデータの設定
 definePageMeta({
@@ -257,6 +258,23 @@ const authStore = useAuthStore();
 const loading = computed(() => authStore.loading);
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
+
+// onMountedを追加してエラーパラメータを処理
+onMounted(() => {
+  // URLパラメータからエラーメッセージをチェック
+  const errorParam = route.query.error as string;
+
+  if (errorParam) {
+    const errorMessage = decodeURIComponent(errorParam);
+    console.warn("Google認証エラー:", errorMessage);
+    toast.add({
+      title: "認証エラー",
+      description: errorMessage,
+      color: "error",
+    });
+  }
+});
 
 // フォームの無効状態を判定する算出プロパティ
 const isFormInvalid = computed(() => {
@@ -377,6 +395,6 @@ async function onRegister() {
 
 // Google登録処理
 function onGoogleRegister() {
-  authStore.startGoogleLogin();
+  authStore.startGoogleLogin("register");
 }
 </script>

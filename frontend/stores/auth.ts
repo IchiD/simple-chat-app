@@ -266,14 +266,14 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   // Googleログイン開始
-  function startGoogleLogin() {
+  function startGoogleLogin(intent: "login" | "register" = "login") {
     if (!import.meta.client) return;
 
     const config = useRuntimeConfig();
     const apiBase = config.public.apiBase || "http://localhost/api";
 
-    // Google認証ページにリダイレクト
-    window.location.href = `${apiBase}/auth/google/redirect`;
+    // Google認証ページにリダイレクト（intentをstateパラメータとして送信）
+    window.location.href = `${apiBase}/auth/google/redirect?intent=${intent}`;
   }
 
   // Googleコールバック処理
