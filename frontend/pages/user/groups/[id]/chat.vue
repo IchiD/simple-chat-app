@@ -651,10 +651,6 @@
           v-if="(hasBothStyles && currentView === 'member') || isMemberChatOnly"
         >
           <div class="mb-6">
-            <h2 class="text-lg font-semibold mb-3">
-              メンバーを選択してください
-            </h2>
-
             <div v-if="membersPending" class="text-gray-500">
               メンバー読み込み中...
             </div>

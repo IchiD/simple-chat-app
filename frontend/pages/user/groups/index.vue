@@ -48,7 +48,7 @@
           class="px-4 py-2 bg-emerald-600 text-white rounded"
           @click="showCreateForm = true"
         >
-          新しいグループを作成
+          新規グループを作成
         </button>
       </div>
 
@@ -79,17 +79,22 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-2"
+          <label class="block text-sm font-semibold"
             >チャットルームスタイル</label
           >
+          <p class="text-xs text-gray-600 mb-2">
+            利用するチャット形式を選択してください（複数選択可）
+            <br />
+            後から追加のみ可能です。
+          </p>
           <div class="space-y-2">
-            <div class="flex items-start space-x-2">
+            <div class="flex items-center space-x-2">
               <input
                 id="style-group"
                 v-model="newGroup.chatStyles"
                 type="checkbox"
                 value="group"
-                class="mt-0.5"
+                class="flex-shrink-0 cursor-pointer"
               />
               <div>
                 <label
@@ -104,13 +109,13 @@
               </div>
             </div>
 
-            <div class="flex items-start space-x-2">
+            <div class="flex items-center space-x-2">
               <input
                 id="style-group-member"
                 v-model="newGroup.chatStyles"
                 type="checkbox"
                 value="group_member"
-                class="mt-0.5"
+                class="flex-shrink-0 cursor-pointer"
               />
               <div>
                 <label

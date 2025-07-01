@@ -69,9 +69,9 @@
                           </div>
                           <div>
                             <h3 class="font-semibold">友達を管理</h3>
-                            <p class="text-sm text-gray-600">
+                            <!-- <p class="text-sm text-gray-600">
                               友達の追加・確認ができます
-                            </p>
+                            </p> -->
                           </div>
                         </div>
                       </div>
@@ -113,9 +113,9 @@
                           </div>
                           <div>
                             <h3 class="font-semibold">チャット</h3>
-                            <p class="text-sm text-gray-600">
+                            <!-- <p class="text-sm text-gray-600">
                               友達とメッセージを交換できます
-                            </p>
+                            </p> -->
                           </div>
                         </div>
                       </div>
@@ -160,9 +160,9 @@
                           </div>
                           <div>
                             <h3 class="font-semibold">グループ管理</h3>
-                            <p class="text-sm text-gray-600">
+                            <!-- <p class="text-sm text-gray-600">
                               グループチャットを管理
-                            </p>
+                            </p> -->
                             <span
                               class="inline-block text-xs px-2 py-1 mt-1"
                               :class="getPlanLabelClass(authStore.user?.plan)"
@@ -198,7 +198,7 @@
                           </div>
                           <div>
                             <h3 class="font-semibold text-yellow-800">
-                              プレミアム機能
+                              グループチャット
                             </h3>
                             <p class="text-sm text-yellow-700">
                               グループチャットを利用するにはアップグレードが必要です
