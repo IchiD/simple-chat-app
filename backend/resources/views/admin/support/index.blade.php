@@ -13,7 +13,7 @@
         <div>
           @if(request('filter') !== 'unread')
             <a href="{{ route('admin.support', ['filter' => 'unread']) }}" class="btn btn-outline-warning">
-              <i class="fas fa-bell me-1"></i>新着のみ表示
+              <i class="fas fa-bell me-1"></i>未読のみ表示
             </a>
           @else
             <a href="{{ route('admin.support') }}" class="btn btn-outline-secondary">
@@ -36,7 +36,7 @@
               <label for="filter" class="form-label">フィルタ</label>
               <select class="form-select" id="filter" name="filter">
                 <option value="">すべてのチャット</option>
-                <option value="unread" {{ request('filter') === 'unread' ? 'selected' : '' }}>新着メッセージのあるチャットのみ</option>
+                <option value="unread" {{ request('filter') === 'unread' ? 'selected' : '' }}>未読メッセージのあるチャットのみ</option>
               </select>
             </div>
             <div class="col-md-4 d-flex align-items-end">
@@ -57,13 +57,13 @@
           <h5 class="card-title mb-0">
             サポートチャット一覧 ({{ $conversations->total() }}件)
             @if(request('filter') === 'unread')
-              <span class="badge bg-warning text-dark ms-2">新着メッセージのみ表示</span>
+              <span class="badge bg-warning text-dark ms-2">未読メッセージのみ表示</span>
             @endif
             @php
               $totalUnreadCount = $conversations->sum('unread_count');
             @endphp
             @if($totalUnreadCount > 0)
-              <span class="badge bg-danger ms-2">{{ $totalUnreadCount }}件の新着メッセージ</span>
+              <span class="badge bg-danger ms-2">{{ $totalUnreadCount }}件の未読メッセージ</span>
             @endif
           </h5>
         </div>
@@ -112,7 +112,7 @@
                         </div>
                       </div>
                       @if($conversation->unread_count > 0)
-                      <span class="badge bg-danger rounded-pill">{{ $conversation->unread_count }}件の新着</span>
+                      <span class="badge bg-danger rounded-pill">{{ $conversation->unread_count }}件の未読</span>
                       @endif
                     </div>
                     @else
@@ -142,8 +142,8 @@
           <div class="text-center py-4">
             <i class="fas fa-comments fa-3x text-muted mb-3"></i>
             @if(request('filter') === 'unread')
-              <h5 class="text-muted">新着メッセージのあるお問い合わせはありません</h5>
-              <p class="text-muted">過去7日以内に新着メッセージのあるお問い合わせがある場合、ここに表示されます。</p>
+              <h5 class="text-muted">未読メッセージのあるお問い合わせはありません</h5>
+              <p class="text-muted">未読のメッセージがあるお問い合わせがある場合、ここに表示されます。</p>
               <a href="{{ route('admin.support') }}" class="btn btn-outline-primary">
                 <i class="fas fa-list me-1"></i>すべてのお問い合わせを表示
               </a>
