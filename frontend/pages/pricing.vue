@@ -793,9 +793,9 @@
                 <span>進行状況</span>
                 <span>{{ Math.round(loadingState.progress) }}%</span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="w-full bg-gray-200 rounded h-3">
                 <div
-                  class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out"
+                  class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded transition-all duration-300 ease-out"
                   :style="{ width: `${loadingState.progress}%` }"
                 />
               </div>
@@ -810,12 +810,9 @@
                 {{ loadingState.message }}
               </p>
 
-              <!-- ステージ表示 -->
+              <!-- 経過時間表示 -->
               <div class="text-xs text-gray-500">
-                <span v-if="loadingState.stage">
-                  ステージ: {{ loadingState.stage }}
-                </span>
-                <span v-if="elapsedTime > 0" class="ml-2">
+                <span v-if="elapsedTime > 0">
                   経過時間: {{ elapsedTime }}秒
                 </span>
               </div>
@@ -837,8 +834,7 @@
                   />
                 </svg>
                 <div class="text-xs text-yellow-800">
-                  <p class="font-medium">重要な注意事項</p>
-                  <p class="mt-1">
+                  <p>
                     このページを閉じたり、ブラウザの戻るボタンを押さないでください。
                     決済処理が中断される可能性があります。
                   </p>
