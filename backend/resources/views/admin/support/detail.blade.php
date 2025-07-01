@@ -10,9 +10,14 @@
         <h1 class="h3 mb-0">
           <i class="fas fa-comment-dots me-2"></i>お問い合わせ詳細
         </h1>
-        <a href="{{ route('admin.support') }}" class="btn btn-secondary">
-          <i class="fas fa-arrow-left me-1"></i>一覧に戻る
-        </a>
+        <div>
+          <button type="button" class="btn btn-outline-success me-2" onclick="markAsRead()">
+            <i class="fas fa-check me-1"></i>既読にする
+          </button>
+          <a href="{{ route('admin.support') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>一覧に戻る
+          </a>
+        </div>
       </div>
 
       <!-- チャット情報 -->
@@ -131,6 +136,58 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   });
+
+  // 手動既読機能
+  function markAsRead() {
+    fetch('{{ route("admin.support.mark-read", $conversation->id) }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // 既読ボタンを無効化して視覚的フィードバックを提供
+        const button = document.querySelector('button[onclick="markAsRead()"]');
+        button.innerHTML = '<i class="fas fa-check me-1"></i>既読済み';
+        button.classList.remove('btn-outline-success');
+        button.classList.add('btn-success');
+        button.disabled = true;
+        
+        // 成功メッセージを表示
+        showAlert('このチャットを既読にしました。', 'success');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showAlert('既読処理中にエラーが発生しました。', 'danger');
+    });
+  }
+
+  // アラート表示関数
+  function showAlert(message, type) {
+    const alertHtml = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    `;
+    
+    // アラートを挿入する場所を見つけて表示
+    const container = document.querySelector('.container-fluid .row .col-12');
+    const firstCard = container.querySelector('.card');
+    firstCard.insertAdjacentHTML('beforebegin', alertHtml);
+    
+    // 3秒後に自動的に削除
+    setTimeout(() => {
+      const alert = container.querySelector('.alert');
+      if (alert) {
+        alert.remove();
+      }
+    }, 3000);
+  }
 </script>
 
 <style>
