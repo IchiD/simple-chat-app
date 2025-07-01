@@ -810,68 +810,39 @@
 
                   <!-- アカウント削除セクション -->
                   <div
+                    v-if="showDangerousSettings"
                     class="bg-red-50 border border-red-200 rounded-lg shadow-md p-6"
                   >
                     <h3
                       class="text-md font-semibold text-red-800 mb-4 flex items-center"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"
-                          clip-rule="evenodd"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
                       アカウント削除
                     </h3>
-                    <p class="text-sm text-red-700 mb-4">
-                      アカウントを削除すると、以下の状態になります：
-                    </p>
-                    <ul
-                      class="text-sm text-red-700 mb-4 space-y-1 list-disc list-inside"
-                    >
-                      <li>
-                        他のユーザーから見て友達リストやチャットルームが表示されなくなります
-                      </li>
-                      <li>
-                        グループチャットでは「（退室済み）」と表示されます
-                      </li>
-                      <li>
-                        同じメールアドレスで再登録すると、データが復元されます
-                      </li>
-                    </ul>
                     <button
                       class="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2 flex items-center transition transform hover:scale-105 cursor-pointer shadow-md hover:shadow-lg"
                       @click="openDeleteAccountModal"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"
-                          clip-rule="evenodd"
-                        />
-                        <path
-                          fill-rule="evenodd"
-                          d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      アカウントを削除
+                      アカウント削除へ進む
+                    </button>
+                  </div>
+
+                  <!-- 危険な設定表示ボタン -->
+                  <div v-if="!showDangerousSettings" class="text-center py-4">
+                    <button
+                      class="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+                      @click="showDangerousSettings = true"
+                    >
+                      その他設定を表示
+                    </button>
+                  </div>
+
+                  <!-- 危険な設定を隠すボタン -->
+                  <div v-if="showDangerousSettings" class="text-center py-4">
+                    <button
+                      class="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+                      @click="showDangerousSettings = false"
+                    >
+                      その他設定を隠す
                     </button>
                   </div>
                 </div>
@@ -887,16 +858,14 @@
       v-if="showDeleteAccountModal"
       class="fixed inset-0 z-50 overflow-y-auto"
     >
-      <div
-        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-      >
+      <div class="flex items-center justify-center min-h-screen p-4">
         <div class="fixed inset-0 transition-opacity" aria-hidden="true">
           <div class="absolute inset-0 bg-gray-500 opacity-75" />
         </div>
 
         <!-- モーダルコンテンツ -->
         <div
-          class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full"
         >
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
@@ -927,7 +896,7 @@
                 </h3>
                 <div class="mt-2">
                   <p class="text-sm text-gray-500 mb-4">
-                    本当にアカウントを削除しますか？この操作により：
+                    アカウントを削除すると：
                   </p>
                   <ul
                     class="text-sm text-gray-500 space-y-1 list-disc list-inside mb-4"
@@ -994,7 +963,7 @@
                         for="deletePassword"
                         class="block text-sm font-medium text-gray-700 mb-2"
                       >
-                        確認のためパスワードを入力してください
+                        ログインパスワードを入力してください
                       </label>
                       <input
                         id="deletePassword"
@@ -1002,7 +971,7 @@
                         type="password"
                         required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        placeholder="現在のパスワード"
+                        placeholder="パスワード"
                       />
                     </div>
                     <!-- Google認証ユーザー向けの説明 -->
@@ -1243,6 +1212,7 @@ const deleteAccountReason = ref("");
 const deleteAccountLoading = ref(false);
 const showNameChangeSuggestionModal = ref(false);
 const nameChangeSuggestionLoading = ref(false);
+const showDangerousSettings = ref(false);
 
 // editingName を監視してリアルタイムバリデーション
 watch(editingName, (newName) => {
