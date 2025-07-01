@@ -1747,12 +1747,29 @@ class AdminDashboardController extends Controller
       });
     }
 
+    // 新着メッセージフィルタ
+    if ($request->get('filter') === 'unread') {
+      $query->whereHas('messages', function ($messageQuery) {
+        $messageQuery->where('sender_id', '!=', null) // ユーザーからのメッセージ
+          ->whereNull('deleted_at')
+          ->whereNull('admin_deleted_at')
+          ->where('sent_at', '>=', now()->subDays(7)); // 過去7日以内の新着メッセージ
+      });
+    }
+
     $conversations = $query->paginate(20);
     $conversations->appends($request->query());
 
-    // 各チャットの未読メッセージ数を取得（AdminConversationReadモデル削除のため一時的に0を設定）
-    $conversationsWithUnread = $conversations->through(function ($conversation) use ($admin) {
-      $conversation->unread_count = 0; // TODO: 新しい未読管理システムに置き換え
+    // 各チャットの新着メッセージ数を取得（過去7日以内）
+    $conversationsWithUnread = $conversations->through(function ($conversation) {
+      // 過去7日以内のユーザーメッセージ数を計算
+      $conversation->unread_count = Message::where('chat_room_id', $conversation->id)
+        ->where('sender_id', '!=', null) // ユーザーからのメッセージのみ
+        ->whereNull('deleted_at')
+        ->whereNull('admin_deleted_at')
+        ->where('sent_at', '>=', now()->subDays(7))
+        ->count();
+      
       return $conversation;
     });
 
