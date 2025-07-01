@@ -249,8 +249,9 @@
           <div v-else-if="historyError" class="text-center py-8">
             <p class="text-red-600 mb-4">履歴の読み込みに失敗しました</p>
             <button
+              type="button"
               class="text-blue-600 hover:text-blue-800 font-medium"
-              @click="loadHistory"
+              @click="() => loadHistory()"
             >
               再試行
             </button>
@@ -363,7 +364,7 @@
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   "
-                  @click="loadHistory(page)"
+                  @click="() => loadHistory(page)"
                 >
                   {{ page }}
                 </button>
@@ -381,6 +382,11 @@
 definePageMeta({
   layout: "default",
 });
+
+// Composables
+const { api } = useApi();
+const pricing = usePricing();
+const toast = useToast();
 
 // 型定義
 interface SubscriptionData {
@@ -405,6 +411,11 @@ interface HistoryItem {
   notes: string | null;
   created_at: string;
   formatted_amount?: string;
+  metadata?: {
+    current_period_end?: string;
+    cancel_source?: string;
+    [key: string]: string | number | boolean | null | undefined;
+  };
 }
 
 interface Pagination {
@@ -413,10 +424,6 @@ interface Pagination {
   per_page: number;
   total: number;
 }
-
-// Composables
-const { api } = useApi();
-const pricing = usePricing();
 
 // デバッグログ
 console.log("[subscription] ページスクリプトが実行されました");
@@ -566,20 +573,24 @@ const openBillingPortal = async () => {
         response.message || "請求書ページのURLを取得できませんでした"
       );
     }
-  } catch (error) {
-    console.error("Billing portal error:", error);
+  } catch (err: unknown) {
+    console.error("Billing portal error:", err);
+
+    // エラーの型チェック
+    const errorData = (err as { data?: { message?: string; status?: number } })
+      ?.data;
 
     // Stripe設定エラーの場合の特別な処理
     if (
-      error.data?.message?.includes("configuration") ||
-      error.data?.message?.includes("portal") ||
-      error.status === 500
+      errorData?.message?.includes("configuration") ||
+      errorData?.message?.includes("portal") ||
+      errorData?.status === 500
     ) {
       toast.add({
         title: "請求書機能準備中",
         description:
           "請求書・支払い履歴機能は現在準備中です。しばらくお待ちください。",
-        color: "orange",
+        color: "warning",
         timeout: 5000,
       });
     } else {
@@ -587,7 +598,7 @@ const openBillingPortal = async () => {
         title: "エラーが発生しました",
         description:
           "請求書ページの表示に失敗しました。しばらく時間をおいて再度お試しください。",
-        color: "red",
+        color: "error",
         timeout: 5000,
       });
     }
@@ -607,24 +618,12 @@ const getPlanDisplayName = (plan: string): string => {
   );
 };
 
-const getStatusDisplayName = (status: string): string => {
-  return (
-    {
-      active: "アクティブ",
-      canceled: "キャンセル済み",
-      past_due: "支払い遅延",
-      trialing: "トライアル中",
-      incomplete: "不完全",
-      incomplete_expired: "期限切れ",
-      unpaid: "未払い",
-    }[status] || status
-  );
-};
-
 const getPlanPrice = (plan: string): string => {
-  return pricing.getPlanPrice(
-    plan as keyof typeof pricing.pricingData.value.plans
-  );
+  const planKey = plan as keyof typeof pricing.pricingData.value.plans;
+  if (planKey && pricing.pricingData.value?.plans?.[planKey]) {
+    return pricing.getPlanPrice(planKey);
+  }
+  return "¥0";
 };
 
 const getActionDisplayName = (action: string): string => {
@@ -635,7 +634,7 @@ const getActionDisplayName = (action: string): string => {
       downgraded: "変更",
       canceled: "キャンセル",
       renewed: "更新",
-      reactivated: "再開",
+      reactivated: "解約取り消し",
     }[action] || action
   );
 };
@@ -664,14 +663,39 @@ const getHistoryDescription = (item: HistoryItem): string => {
       return `${fromPlan}プランから${toPlan}プランに変更しました`;
     case "downgraded":
       return `${fromPlan}プランから${toPlan}プランに変更しました`;
-    case "canceled":
-      return `${fromPlan}プランをキャンセルしました`;
-    case "renewed":
-      return `${toPlan}プランを更新しました`;
+    case "canceled": {
+      // アカウント削除時のキャンセルか通常のキャンセルかを判定
+      const cancelSource = item.metadata?.cancel_source;
+      const periodEnd = item.metadata?.current_period_end;
+
+      let message = "";
+      if (cancelSource === "account_deletion") {
+        message = `アカウント削除に伴い${toPlan}プランをキャンセルしました`;
+      } else {
+        message = `${toPlan}プランをキャンセルしました`;
+      }
+
+      // 利用可能期限があれば追加
+      if (item.metadata && periodEnd && typeof periodEnd === "string") {
+        try {
+          const endDate = new Date(periodEnd);
+          const formattedDate = endDate.toLocaleDateString("ja-JP", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          message += `（${formattedDate}まで利用可能）`;
+        } catch (error) {
+          console.warn("Date parsing error:", error);
+        }
+      }
+
+      return message;
+    }
     case "reactivated":
-      return `${toPlan}プランを再開しました`;
+      return `${toPlan}プランの解約を取り消しました`;
     default:
-      return `プランを${toPlan}に変更しました`;
+      return `${toPlan}プランが${item.action}されました`;
   }
 };
 
