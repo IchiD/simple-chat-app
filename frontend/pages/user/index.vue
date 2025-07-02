@@ -789,7 +789,7 @@
                   <!-- ログアウトボタン -->
                   <div class="text-center pt-6 pb-8">
                     <button
-                      class="bg-red-500 hover:bg-red-600 text-white rounded-md px-8 py-3 flex items-center mx-auto transition transform hover:scale-105 cursor-pointer shadow-md hover:shadow-lg"
+                      class="bg-red-500 hover:bg-red-600 text-white rounded-md px-8 py-3 flex items-center mx-auto transition transform cursor-pointer shadow-md"
                       @click="handleLogout"
                     >
                       <svg
@@ -819,7 +819,7 @@
                       アカウント削除
                     </h3>
                     <button
-                      class="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2 flex items-center transition transform hover:scale-105 cursor-pointer shadow-md hover:shadow-lg"
+                      class="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2 flex items-center transition transform cursor-pointer shadow-md"
                       @click="openDeleteAccountModal"
                     >
                       アカウント削除へ進む
