@@ -465,33 +465,13 @@ const currentPage = ref(1);
 const hasNextPage = ref(false);
 const loadingMoreMessages = ref(false);
 
-// Fetch headers for conversation details, reactive to authStore.token
-const conversationDetailHeaders = computed(() => {
-  return {
-    Accept: "application/json",
-    ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}),
-  };
-});
+// Function to fetch conversation details
+const fetchConversationDetails = async () => {
+  const roomToken = currentRoomToken.value;
+  if (!roomToken) return null;
 
-// useFetch for conversation details - defined once, non-immediate
-const {
-  data: fetchedConvData,
-  error: fetchedConvError,
-  pending: fetchConvPending,
-  execute: executeFetchConversationDetails,
-} = useFetch<Conversation>(
-  () => {
-    const roomToken = currentRoomToken.value;
-    if (!roomToken) return ""; // Prevent fetch if no room token by providing invalid URL effectively
-    return `${config.public.apiBase}/conversations/token/${roomToken}`;
-  },
-  {
-    headers: conversationDetailHeaders,
-    immediate: false, // Crucial: Do not run on setup, we trigger manually
-    server: false,
-    watch: false, // We control refresh via watchEffect
-  }
-);
+  return await api<Conversation>(`/conversations/token/${roomToken}`);
+};
 
 // Function to fetch messages (to be called after conversation is loaded)
 const fetchMessagesForCurrentConversation = async () => {
@@ -506,11 +486,8 @@ const fetchMessagesForCurrentConversation = async () => {
   hasNextPage.value = false;
 
   try {
-    const msgData = await $fetch<PaginatedMessagesResponse>(
-      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`,
-      {
-        headers: conversationDetailHeaders.value,
-      }
+    const msgData = await api<PaginatedMessagesResponse>(
+      `/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`
     );
 
     messages.value = msgData.data.sort(
@@ -560,23 +537,24 @@ watchEffect(async () => {
     currentConversation.value = null; // Reset before fetching new one
     messages.value = []; // Clear messages when conversation changes
 
-    await executeFetchConversationDetails(); // Execute the fetch
+    try {
+      const fetchedConversation = await fetchConversationDetails();
+      currentConversation.value = fetchedConversation;
+      conversationPending.value = false;
 
-    conversationPending.value = fetchConvPending.value; // Reflect pending state
-    currentConversation.value = fetchedConvData.value;
-    conversationError.value = fetchedConvError.value;
-
-    if (currentConversation.value && !conversationError.value) {
-      await fetchMessagesForCurrentConversation();
-    } else if (conversationError.value) {
+      if (currentConversation.value) {
+        await fetchMessagesForCurrentConversation();
+      } else {
+        messagesPending.value = false;
+      }
+    } catch (error) {
+      conversationError.value = error as Error;
+      conversationPending.value = false;
+      messagesPending.value = false;
       console.error(
         `[ChatRoom] watchEffect: Error occurred fetching conversation ${roomTokenVal}:`,
-        JSON.parse(JSON.stringify(conversationError.value))
+        error
       );
-      // Ensure messagesPending is false if conversation fetch fails before message fetch starts
-      messagesPending.value = false;
-    } else {
-      messagesPending.value = false;
     }
   } else {
     currentConversation.value = null;
@@ -682,7 +660,7 @@ const getMessageSenderName = (message: Message): string => {
 
 // メッセージ送信者がグループオーナーかどうかを判定
 const isGroupOwnerMessage = (message: Message): boolean => {
-  return (
+  return !!(
     currentConversation.value?.type === "group_chat" &&
     currentConversation.value?.group_owner &&
     message.sender &&
@@ -775,17 +753,8 @@ const loadMoreMessages = async () => {
   const previousScrollTop = messageContainer?.scrollTop || 0;
 
   try {
-    const fetchMoreMessagesHeaders = {
-      Accept: "application/json",
-      ...(authStore.token
-        ? { Authorization: `Bearer ${authStore.token}` }
-        : {}),
-    };
-    const data = await $fetch<PaginatedMessagesResponse>(
-      `${config.public.apiBase}/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`,
-      {
-        headers: fetchMoreMessagesHeaders,
-      }
+    const data = await api<PaginatedMessagesResponse>(
+      `/conversations/room/${currentConversation.value.room_token}/messages?page=${currentPage.value}`
     );
 
     const newMsgs = data.data.sort(
