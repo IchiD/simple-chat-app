@@ -1788,10 +1788,13 @@ class AdminDashboardController extends Controller
       ->orderBy('sent_at', 'asc')
       ->get();
 
-    // チャット詳細を表示する際に自動的に既読にする
-    \App\Models\AdminChatRead::updateLastRead($admin->id, $conversation->id);
+    // 自動既読は無効化：管理者が明示的に既読ボタンを押した時のみ既読にする
+    // \App\Models\AdminChatRead::updateLastRead($admin->id, $conversation->id);
 
-    return view('admin.support.detail', compact('admin', 'conversation', 'messages'));
+    // 現在の未読メッセージ数を取得
+    $unreadCount = \App\Models\AdminChatRead::getUnreadCount($admin->id, $conversation->id);
+
+    return view('admin.support.detail', compact('admin', 'conversation', 'messages', 'unreadCount'));
   }
 
   /**
