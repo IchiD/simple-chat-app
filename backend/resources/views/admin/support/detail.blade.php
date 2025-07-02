@@ -11,15 +11,6 @@
           <i class="fas fa-comment-dots me-2"></i>お問い合わせ詳細
         </h1>
         <div>
-          @if($unreadCount > 0)
-            <button type="button" class="btn btn-warning me-2" onclick="markAsRead()">
-              <i class="fas fa-bell me-1"></i>{{ $unreadCount }}件の未読を既読にする
-            </button>
-          @else
-            <button type="button" class="btn btn-success me-2" disabled>
-              <i class="fas fa-check me-1"></i>既読済み
-            </button>
-          @endif
           <a href="{{ route('admin.support') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left me-1"></i>一覧に戻る
           </a>
@@ -137,6 +128,15 @@
               @enderror
             </div>
             <div class="d-flex justify-content-end">
+              @if($unreadCount > 0)
+                <button type="button" class="btn btn-warning me-2" onclick="markAsRead()">
+                  <i class="fas fa-bell me-1"></i>{{ $unreadCount }}件の未読を既読にする
+                </button>
+              @else
+                <button type="button" class="btn btn-success me-2" disabled>
+                  <i class="fas fa-check me-1"></i>既読済み
+                </button>
+              @endif
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-paper-plane me-1"></i>送信
               </button>
@@ -191,6 +191,13 @@
         userMessages.forEach(msg => {
           msg.classList.remove('unread-message');
         });
+        
+        // チャット情報エリアのバッジも更新
+        const chatInfoBadge = document.querySelector('.card-header .badge');
+        if (chatInfoBadge) {
+          chatInfoBadge.className = 'badge bg-success ms-2';
+          chatInfoBadge.textContent = 'すべて既読';
+        }
       }
     })
     .catch(error => {
@@ -244,7 +251,6 @@
     border-left: 4px solid #ffc107 !important;
     background-color: #fff3cd !important;
     box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
-    animation: unread-pulse 2s ease-in-out infinite;
   }
 
   .unread-message::before {
@@ -263,15 +269,6 @@
 
   .unread-message {
     position: relative;
-  }
-
-  @keyframes unread-pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.02);
-    }
   }
 
   /* 既読処理後のアニメーション */
