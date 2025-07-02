@@ -745,7 +745,7 @@
               <!-- メンバー一覧 -->
               <div class="space-y-2">
                 <div
-                  v-for="member in paginatedItems"
+                  v-for="member in (paginatedItems as GroupMember[])"
                   :key="member.id"
                   class="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-sm transition-shadow"
                 >
@@ -1292,6 +1292,9 @@ interface GroupMember {
   friend_id: string;
   group_member_label: string;
   owner_nickname?: string | null; // オーナー専用ニックネーム
+  unread_messages_count?: number; // 未読メッセージ数
+  role?: unknown;
+  joined_at?: unknown;
 }
 
 interface MemberConversation {
@@ -1467,7 +1470,8 @@ const {
   paginatedItems,
   next,
   prev,
-} = useSortableMembers(members, 50);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = useSortableMembers(members as any, 50);
 
 // 選択されたメンバー情報を取得
 const selectedMembers = computed(() => {
@@ -1605,24 +1609,24 @@ const loadMembers = async () => {
       members.value = allMembers
         .filter((member) => member.is_active)
         .map((member) => ({
-          id: member.id,
+          id: member.id!,
           name: member.name,
-          friend_id: member.friend_id,
+          friend_id: member.friend_id!,
           group_member_label: member.group_member_label,
           owner_nickname: member.owner_nickname,
-          unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
+          unread_messages_count: member.unread_messages_count as number, // 未読メッセージ数を追加
         }));
     } else {
       // 一般メンバーの場合は通常のメンバー情報を取得
       const memberData = await groupConversations.getGroupMembers(id);
       members.value = memberData.map((member) => ({
-        id: member.id,
+        id: member.id!,
         name: member.name,
-        friend_id: member.friend_id,
+        friend_id: member.friend_id!,
         group_member_label: member.group_member_label,
         role: member.role,
         joined_at: member.joined_at,
-        unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
+        unread_messages_count: member.unread_messages_count as number, // 未読メッセージ数を追加
       }));
     }
   } catch (error) {
@@ -1637,7 +1641,9 @@ const loadMembers = async () => {
 const toggleSelectAll = async () => {
   if (selectAll.value) {
     // 現在のページのメンバーを選択状態に追加
-    const currentPageIds = paginatedItems.value.map((m) => m.id);
+    const currentPageIds = (paginatedItems.value as GroupMember[]).map(
+      (m) => m.id
+    );
     const newSelected = [
       ...new Set([...selectedMemberIds.value, ...currentPageIds]),
     ];
@@ -1651,7 +1657,9 @@ const toggleSelectAll = async () => {
     });
   } else {
     // 現在のページのメンバーを選択状態から除去
-    const currentPageIds = paginatedItems.value.map((m) => m.id);
+    const currentPageIds = (paginatedItems.value as GroupMember[]).map(
+      (m) => m.id
+    );
     selectedMemberIds.value = selectedMemberIds.value.filter(
       (id) => !currentPageIds.includes(id)
     );
@@ -1662,9 +1670,10 @@ const toggleSelectAll = async () => {
 watch(
   [selectedMemberIds, paginatedItems],
   ([newSelected, currentPageItems]) => {
+    const typedItems = currentPageItems as GroupMember[];
     selectAll.value =
-      currentPageItems.length > 0 &&
-      currentPageItems.every((item) => newSelected.includes(item.id));
+      typedItems.length > 0 &&
+      typedItems.every((item) => newSelected.includes(item.id));
   },
   { deep: true }
 );
@@ -1930,9 +1939,9 @@ const getMessageSenderName = (message: GroupMessage): string => {
   if (message.sender) {
     // オーナーの場合はニックネームがあればニックネームを、なければ通常の名前を表示
     let displayName = message.sender.name;
-    if (isGroupOwner.value) {
+    if (isGroupOwner.value && message.sender) {
       const memberWithNickname = members.value.find(
-        (m) => m.id === message.sender.id
+        (m) => m.id === message.sender!.id
       );
       if (memberWithNickname?.owner_nickname) {
         displayName = memberWithNickname.owner_nickname;
