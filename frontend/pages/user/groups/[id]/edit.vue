@@ -399,7 +399,7 @@
             </div>
             <div v-else class="space-y-3">
               <div
-                v-for="member in paginatedExtendedItems"
+                v-for="member in (paginatedExtendedItems as ExtendedGroupMember[])"
                 :key="member.member_id"
                 :class="[
                   'border rounded-lg p-4 transition-all duration-200',
@@ -754,9 +754,11 @@ const {
   paginatedItems: _paginatedItems,
   next: _next,
   prev: _prev,
-} = useSortableMembers(groupMembers, 50);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = useSortableMembers(groupMembers as any, 50);
 
 // 拡張メンバー用のソート機能
+
 const {
   keyword: _extendedKeyword,
   sortKey: _extendedSortKey,
@@ -766,7 +768,8 @@ const {
   paginatedItems: paginatedExtendedItems,
   next: _extendedNext,
   prev: _extendedPrev,
-} = useSortableMembers(extendedMembers, 50);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = useSortableMembers(extendedMembers as any, 50);
 
 const _loadMembers = async () => {
   if (!group.value?.id) return;
