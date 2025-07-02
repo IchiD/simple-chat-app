@@ -43,6 +43,22 @@ export interface GroupMessage {
   sender_left_at?: string | null;
 }
 
+export interface GroupMember {
+  id: number;
+  name: string;
+  friend_id: string;
+  group_member_label: string;
+  owner_nickname?: string | null;
+  unread_messages_count?: number;
+  role?: string;
+  joined_at?: string;
+  is_active?: boolean;
+  left_at?: string | null;
+  can_rejoin?: boolean;
+  removal_type?: string | null;
+  removed_by_user?: { id: number; name: string } | null;
+}
+
 export interface Paginated<T> {
   data: T[];
   links: {

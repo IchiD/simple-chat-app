@@ -1,5 +1,5 @@
 declare module "vue-router" {
-  import { RouteLocationNormalized } from "vue-router";
+  import type { RouteLocationNormalized } from "vue-router";
 
   export const useRouter: () => {
     push: (to: string) => Promise<void>;
@@ -7,6 +7,8 @@ declare module "vue-router" {
       value: RouteLocationNormalized;
     };
   };
+
+  export const useRoute: () => RouteLocationNormalized;
 
   export interface RouteLocationNormalized {
     path: string;
@@ -17,5 +19,12 @@ declare module "vue-router" {
     hash: string;
     matched: any[];
     meta: Record<string, any>;
+  }
+
+  export interface Router {
+    push: (to: string) => Promise<void>;
+    currentRoute: {
+      value: RouteLocationNormalized;
+    };
   }
 }

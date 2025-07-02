@@ -1636,7 +1636,7 @@ const handleNameChangeSuggestion = async (action: "accept" | "decline") => {
     if (authStore.user && response.user) {
       authStore.user.name = response.user.name;
       authStore.user.should_suggest_name_change = false;
-      authStore.user.previous_name = null;
+      authStore.user.previous_name = undefined;
     }
 
     toast.add({

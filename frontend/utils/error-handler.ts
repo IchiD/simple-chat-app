@@ -4,18 +4,10 @@
 
 import { FetchError } from "ofetch";
 import type { Router } from "vue-router";
+import type { Toast } from "~/composables/useToast";
 
-// トーストインターフェース（Nuxt UIのトーストに合わせる）
-interface Toast {
-  id?: number;
-  title: string;
-  description?: string;
-  color?: "error" | "success" | "info" | "warning";
-  timeout?: number;
-  [key: string]: unknown;
-}
-
-interface ToastInterface {
+// useToast composableが返すオブジェクトの型を定義
+interface ToastService {
   add: (toast: Omit<Toast, "id">) => number;
 }
 
@@ -71,7 +63,7 @@ export function extractErrorMessage(
  * @param router Nuxtルーターインスタンス
  * @param toast トーストコンポーネントインスタンス
  */
-export function handleAuthError(router: Router, toast: ToastInterface): void {
+export function handleAuthError(router: Router, toast: ToastService): void {
   if (import.meta.client) {
     // セッションストレージの認証情報をクリア
     sessionStorage.removeItem("auth_token");
@@ -101,7 +93,7 @@ export function handleAuthError(router: Router, toast: ToastInterface): void {
  */
 export function handleApiError(
   error: unknown,
-  toast: ToastInterface,
+  toast: ToastService,
   router: Router,
   defaultMessage: string,
   title: string = "エラー",

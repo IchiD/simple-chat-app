@@ -185,7 +185,7 @@ const handleSubmit = async () => {
       if (errorData.errors) {
         emailError.value = errorData.errors.email
           ? errorData.errors.email[0]
-          : errorData.message;
+          : errorData.message || "";
       } else if (errorData.message) {
         message = errorData.message;
       }

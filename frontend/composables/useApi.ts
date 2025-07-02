@@ -5,7 +5,12 @@ import {
   sanitizeInput,
 } from "~/utils/security";
 import { handleAuthError } from "~/utils/error-handler";
-import type { Toast } from "~/composables/useToast";
+
+interface AuthError extends Error {
+  status?: number;
+  message: string;
+  error_type?: string;
+}
 
 // HTTP メソッドの型定義
 type HttpMethod =
@@ -121,13 +126,21 @@ export function useApi() {
     // 認証ヘッダーを取得（skipAuthが指定されていない場合のみ）
     const authHeaders = options.skipAuth ? {} : getAuthHeader();
 
+    // fetchオプションからカスタムオプションを除外
+    const {
+      skipAuth,
+      skipAuthRedirect,
+      headers: optionHeaders,
+      ...fetchOptions
+    } = options;
+
     // デフォルトのヘッダー
-    const headers = {
+    const finalHeaders = {
       "Content-Type": "application/json",
       Accept: "application/json",
       ...authHeaders, // 認証ヘッダーを追加（条件付き）
       ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
-      ...(options.headers || {}),
+      ...(optionHeaders || {}),
     };
 
     // リクエストボディをサニタイズ（XSS対策）
@@ -136,19 +149,16 @@ export function useApi() {
     try {
       // $fetchを使ってAPIリクエストを送信
       const response = await $fetch<T>(url, {
-        ...options,
-        headers,
-        // JSON本文を自動的に変換
-        body: body,
-        // GETリクエストではparamsを使わないようにする
-        params: undefined,
+        method: options.method,
+        headers: finalHeaders,
+        body,
+        // 必要に応じて他の有効なオプションをここに追加
       });
 
       return response;
     } catch (error) {
       // エラーの処理と変換
       if (error instanceof FetchError) {
-        const enhancedError = error as FetchError<unknown>;
         console.error(`API Error (${url}):`, {
           status: error.status,
           message: error.message,
@@ -161,10 +171,10 @@ export function useApi() {
         // アカウント削除・バンエラーの特別処理
         if (
           error.status === 403 &&
-          enhancedError.data &&
-          typeof enhancedError.data === "object"
+          error.data &&
+          typeof error.data === "object"
         ) {
-          const errorData = enhancedError.data as {
+          const errorData = error.data as {
             error_type?: string;
             message?: string;
           };
@@ -188,7 +198,7 @@ export function useApi() {
               title: "アカウント状態エラー",
               description: message,
               color: "error",
-            } as Omit<Toast, "id">);
+            });
 
             // ログインページにリダイレクト
             if (import.meta.client && !options.skipAuthRedirect) {
@@ -197,20 +207,19 @@ export function useApi() {
               }, 1000);
             }
 
-            throw enhancedError;
+            throw error;
           }
         }
 
         if (error.status === 401) {
           if (options.skipAuthRedirect) {
             // skipAuthRedirectが設定されている場合は、エラーデータをそのまま呼び出し元に渡す
-            const authError = new Error() as any;
+            const authError: AuthError = new Error(error.message);
             authError.status = error.status;
-            authError.message = error.message;
 
             // バックエンドからのエラーデータを取得
-            if (enhancedError.data && typeof enhancedError.data === "object") {
-              const errorData = enhancedError.data as {
+            if (error.data && typeof error.data === "object") {
+              const errorData = error.data as {
                 message?: string;
                 error_type?: string;
               };
@@ -222,7 +231,7 @@ export function useApi() {
           } else {
             // skipAuthRedirectが設定されていない場合は、共通の認証エラーハンドリング
             handleAuthError(router, toast);
-            throw enhancedError;
+            throw error;
           }
         } else if (error.status === 429) {
           toast.add({
@@ -230,13 +239,13 @@ export function useApi() {
             description:
               "メッセージの送信回数が上限に達しました。しばらくしてから再度お試しください。",
             color: "warning",
-          } as Omit<Toast, "id">);
-          throw enhancedError; // 必要に応じてエラーを再スロー
+          });
+          throw error; // 必要に応じてエラーを再スロー
         } else {
           // その他のFetchError (400, 500系など)
           let errorMessage = "サーバーとの通信に失敗しました。";
-          if (enhancedError.data && typeof enhancedError.data === "object") {
-            const errorData = enhancedError.data as {
+          if (error.data && typeof error.data === "object") {
+            const errorData = error.data as {
               message?: string;
               errors?: Record<string, string[]>;
             };
@@ -253,8 +262,8 @@ export function useApi() {
             title: "エラー",
             description: errorMessage,
             color: "error",
-          } as Omit<Toast, "id">);
-          throw enhancedError;
+          });
+          throw error;
         }
       }
 
@@ -265,7 +274,7 @@ export function useApi() {
         description:
           "予期せぬエラーが発生しました。時間をおいて再度お試しください。",
         color: "error",
-      } as Omit<Toast, "id">);
+      });
       throw error;
     }
   };
