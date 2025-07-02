@@ -619,8 +619,11 @@ const getPlanDisplayName = (plan: string): string => {
 };
 
 const getPlanPrice = (plan: string): string => {
+  if (!pricing.pricingData.value?.plans) {
+    return "¥0";
+  }
   const planKey = plan as keyof typeof pricing.pricingData.value.plans;
-  if (planKey && pricing.pricingData.value?.plans?.[planKey]) {
+  if (planKey && pricing.pricingData.value.plans[planKey]) {
     return pricing.getPlanPrice(planKey);
   }
   return "¥0";

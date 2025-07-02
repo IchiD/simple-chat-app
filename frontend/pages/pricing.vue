@@ -1638,6 +1638,9 @@ const downgradeBlockedState = ref<{
 // 価格関連の関数（usePricingから取得）
 const getPlanPrice = (plan: string | null): string => {
   if (!plan) return "¥0";
+  if (!pricing.pricingData.value?.plans) {
+    return "¥0";
+  }
   return pricing.getPlanPrice(
     plan as keyof typeof pricing.pricingData.value.plans
   );
@@ -1645,6 +1648,9 @@ const getPlanPrice = (plan: string | null): string => {
 
 const _getPlanDisplayName = (plan: string | null): string => {
   if (!plan) return "フリー";
+  if (!pricing.pricingData.value?.plans) {
+    return plan?.toUpperCase() || "FREE";
+  }
   return pricing.getPlanDisplayName(
     plan as keyof typeof pricing.pricingData.value.plans
   );
@@ -1655,7 +1661,9 @@ const calculatePriceDifference = (
   currentPlan: string | null,
   newPlan: string | null
 ): string => {
-  if (!currentPlan || !newPlan) return "¥0";
+  if (!currentPlan || !newPlan || !pricing.pricingData.value?.plans) {
+    return "¥0";
+  }
   return pricing.calculatePriceDifference(
     currentPlan as keyof typeof pricing.pricingData.value.plans,
     newPlan as keyof typeof pricing.pricingData.value.plans
