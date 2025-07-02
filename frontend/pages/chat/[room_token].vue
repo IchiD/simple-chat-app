@@ -253,17 +253,21 @@
                       rows="1"
                       placeholder="メッセージを入力..."
                       @keydown="handleKeydown"
+                      @compositionstart="isComposing = true"
+                      @compositionend="isComposing = false"
                     />
                   </div>
                   <button
                     type="submit"
                     class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     :class="
-                      sendingMessage || !newMessageText.trim()
+                      sendingMessage || (!newMessageText.trim() && !isComposing)
                         ? 'bg-gray-400'
                         : 'bg-emerald-600 hover:bg-emerald-700'
                     "
-                    :disabled="sendingMessage || !newMessageText.trim()"
+                    :disabled="
+                      sendingMessage || (!newMessageText.trim() && !isComposing)
+                    "
                     @click="sendMessage"
                   >
                     <svg
@@ -452,6 +456,10 @@ const currentConversation = ref<Conversation | null>(null);
 const messages = ref<Message[]>([]);
 const newMessageText = ref("");
 const sendingMessage = ref(false);
+
+// 日本語入力の変換状態を管理
+const isComposing = ref(false);
+
 const messageContainerRef = ref<HTMLDivElement | null>(null);
 const currentPage = ref(1);
 const hasNextPage = ref(false);

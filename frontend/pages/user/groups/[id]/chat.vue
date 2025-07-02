@@ -288,17 +288,20 @@
                           rows="1"
                           placeholder="メッセージを入力..."
                           @keydown="handleGroupKeydown"
+                          @compositionstart="groupIsComposing = true"
+                          @compositionend="groupIsComposing = false"
                         />
                       </div>
                       <button
                         type="submit"
                         class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         :class="
-                          groupSending || !groupNewMessage.trim()
+                          groupSending ||
+                          (!groupNewMessage.trim() && !groupIsComposing)
                             ? 'bg-gray-400'
                             : 'bg-emerald-600 hover:bg-emerald-700'
                         "
-                        :disabled="groupSending || !groupNewMessage.trim()"
+                        :disabled="isGroupSendButtonDisabled"
                         @click="
                           () => {
                             console.log('Send button clicked!');
@@ -585,17 +588,19 @@
                               rows="1"
                               placeholder="メッセージを入力..."
                               @keydown="handleGroupKeydown"
+                              @compositionstart="groupIsComposing = true"
+                              @compositionend="groupIsComposing = false"
                             />
                           </div>
                           <button
                             type="submit"
                             class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
-                              groupSending || !groupNewMessage.trim()
+                              isGroupSendButtonDisabled
                                 ? 'bg-gray-400'
                                 : 'bg-emerald-600 hover:bg-emerald-700'
                             "
-                            :disabled="groupSending || !groupNewMessage.trim()"
+                            :disabled="isGroupSendButtonDisabled"
                             @click="
                               () => {
                                 console.log('Send button clicked!');
@@ -1173,17 +1178,21 @@
                               rows="1"
                               placeholder="メッセージを入力..."
                               @keydown="handleKeydown"
+                              @compositionstart="isComposing = true"
+                              @compositionend="isComposing = false"
                             />
                           </div>
                           <button
                             type="submit"
                             class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
-                              sending || !newMessage.trim()
+                              sending || (!newMessage.trim() && !isComposing)
                                 ? 'bg-gray-400'
                                 : 'bg-emerald-600 hover:bg-emerald-700'
                             "
-                            :disabled="sending || !newMessage.trim()"
+                            :disabled="
+                              sending || (!newMessage.trim() && !isComposing)
+                            "
                             @click="sendMessage"
                           >
                             <svg
@@ -1378,6 +1387,7 @@ const groupMessagesPending = ref(false);
 const groupMessagesError = ref("");
 const groupNewMessage = ref("");
 const groupSending = ref(false);
+const groupIsComposing = ref(false);
 const groupMessageContainerRef = ref<HTMLElement | null>(null);
 
 // チャットスタイルに基づく表示判定
@@ -1440,6 +1450,9 @@ const messagesError = ref("");
 const newMessage = ref("");
 const sending = ref(false);
 
+// 日本語入力の変換状態を管理
+const isComposing = ref(false);
+
 // メッセージコンテナの参照
 const messageContainerRef = ref<HTMLElement | null>(null);
 
@@ -1475,6 +1488,14 @@ const hasActiveFilters = computed(() => {
   );
 });
 
+// グループ送信ボタンの無効状態を判定
+const isGroupSendButtonDisabled = computed(() => {
+  return (
+    groupSending.value ||
+    (!groupNewMessage.value.trim() && !groupIsComposing.value)
+  );
+});
+
 // グループ全体チャット用関数
 const loadGroupMessages = async () => {
   if (!group.value?.room_token) return;
@@ -1499,38 +1520,20 @@ const loadGroupMessages = async () => {
 };
 
 const sendGroupMessage = async () => {
-  console.log("sendGroupMessage called!");
-  console.log("groupNewMessage:", groupNewMessage.value);
-  console.log("group object:", group.value);
-  console.log("group room_token:", group.value?.room_token);
-
   if (!groupNewMessage.value.trim() || !group.value?.room_token) {
-    console.log("Validation failed - message or room_token is empty");
     return;
   }
 
-  console.log("Validation passed, sending message...");
   groupSending.value = true;
   const messageText = groupNewMessage.value;
   try {
-    console.log("About to call sendMessage with:", {
-      room_token: group.value.room_token,
-      messageText,
-    });
-
     const sentMessage = await groupConversations.sendMessage(
       group.value.room_token,
       messageText
     );
 
-    console.log("Message sent successfully:", sentMessage);
-
     if (sentMessage) {
       groupMessages.value.push(sentMessage);
-      console.log(
-        "Message added to groupMessages, count:",
-        groupMessages.value.length
-      );
     }
 
     groupNewMessage.value = "";
@@ -1544,7 +1547,6 @@ const sendGroupMessage = async () => {
     await loadGroupMessages();
   } finally {
     groupSending.value = false;
-    console.log("sendGroupMessage finished");
   }
 };
 
@@ -1567,13 +1569,11 @@ const scrollGroupToBottom = async (behavior: "auto" | "smooth" = "auto") => {
 
 // グループ情報を取得
 const loadGroup = async () => {
-  console.log("loadGroup called with id:", id);
   groupPending.value = true;
   groupError.value = "";
 
   try {
     const groupData = await groupConversations.getGroup(id);
-    console.log("Group data loaded:", groupData);
     group.value = groupData;
   } catch (error) {
     console.error("グループ取得エラー:", error);
@@ -1601,7 +1601,6 @@ const loadMembers = async () => {
     if (isGroupOwner.value) {
       // オーナーの場合はニックネーム情報を含む全メンバー情報を取得
       const allMembers = await groupConversations.getAllGroupMembers(id);
-      console.log("Debug: getAllGroupMembers response:", allMembers);
       // アクティブなメンバーのみをフィルタリング
       members.value = allMembers
         .filter((member) => member.is_active)
@@ -1613,7 +1612,6 @@ const loadMembers = async () => {
           owner_nickname: member.owner_nickname,
           unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
         }));
-      console.log("Debug: Processed members with nicknames:", members.value);
     } else {
       // 一般メンバーの場合は通常のメンバー情報を取得
       const memberData = await groupConversations.getGroupMembers(id);
@@ -1626,7 +1624,6 @@ const loadMembers = async () => {
         joined_at: member.joined_at,
         unread_messages_count: member.unread_messages_count, // 未読メッセージ数を追加
       }));
-      console.log("Debug: getGroupMembers response:", members.value);
     }
   } catch (error) {
     console.error("メンバー取得エラー:", error);
@@ -1732,8 +1729,6 @@ const startChatWithMember = async (member: GroupMember) => {
   messages.value = [];
   messagesError.value = "";
 
-  console.log("個別チャット開始:", { member, target_user_id: member.id });
-
   try {
     // メンバー間チャットルームを取得/作成
     const { api } = useApi();
@@ -1754,7 +1749,6 @@ const startChatWithMember = async (member: GroupMember) => {
       await api(`/conversations/room/${conversation.id}/read`, {
         method: "POST",
       });
-      console.log("チャットルームを既読にマークしました");
 
       // 既読後にメンバーリストを再読み込みしてバッジを更新
       await loadMembers();
