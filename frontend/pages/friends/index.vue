@@ -71,7 +71,7 @@
                             d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
                           />
                         </svg>
-                        <span class="text-xs sm:text-sm">友達一覧</span>
+                        <span class="text-xs sm:text-sm">友達</span>
                       </div>
                     </button>
 
@@ -102,7 +102,7 @@
                             d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                           />
                         </svg>
-                        <span class="text-xs sm:text-sm">受信申請</span>
+                        <span class="text-xs sm:text-sm">受け取った申請</span>
                       </div>
                     </button>
 
@@ -128,7 +128,7 @@
                             d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
                           />
                         </svg>
-                        <span class="text-xs sm:text-sm">送信済み</span>
+                        <span class="text-xs sm:text-sm">送信した申請</span>
                       </div>
                     </button>
                   </nav>
@@ -257,9 +257,6 @@
                     >
                       受け取った友達申請はありません
                     </p>
-                    <p class="text-sm sm:text-base text-gray-400">
-                      友達申請が届くとここに表示されます
-                    </p>
                   </div>
                   <div v-else class="grid gap-4">
                     <div
@@ -360,10 +357,7 @@
                     <p
                       class="text-lg sm:text-xl text-gray-500 font-medium mb-2"
                     >
-                      送信済みの友達申請はありません
-                    </p>
-                    <p class="text-sm sm:text-base text-gray-400">
-                      友達申請を送信するとここに表示されます
+                      送信した友達申請はありません
                     </p>
                   </div>
                   <div v-else class="grid gap-4">
@@ -516,7 +510,7 @@
             <div class="p-6">
               <p class="text-gray-600 mb-6">
                 <span class="font-semibold">{{
-                  friends.find((f) => f.id === pendingUnfriendId)?.name
+                  friends.find((f: User) => f.id === pendingUnfriendId)?.name
                 }}</span>
                 さんを友達から削除しますか？
               </p>

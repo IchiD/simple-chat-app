@@ -1,9 +1,6 @@
 <template>
   <div>
-    <form
-      class="flex flex-col sm:flex-row gap-3"
-      @submit.prevent="searchFriend"
-    >
+    <form class="flex flex-col sm:flex-row" @submit.prevent="searchFriend">
       <div class="flex-1">
         <div class="relative">
           <input
