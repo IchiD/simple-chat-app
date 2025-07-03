@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/tailwindcss",
   ],
-  // @ts-expect-error Runtime config type inference issue
   runtimeConfig: {
     public: {
       apiBase:
