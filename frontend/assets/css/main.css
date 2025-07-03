@@ -59,8 +59,7 @@ footer {
 
 /* 共通バッジスタイル */
 .badge-base {
-  @apply bg-gradient-to-br from-red-400 to-red-600 border-2 border-white shadow-md transition-all duration-200 animate-pulse;
-  animation-duration: 3s;
+  @apply bg-gradient-to-br from-red-400 to-red-600 border-2 border-white shadow-md transition-all duration-200;
 }
 
 .badge-base:hover {

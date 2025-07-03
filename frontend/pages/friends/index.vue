@@ -389,7 +389,7 @@
                             </p>
                             <div class="flex items-center mt-1">
                               <div
-                                class="h-2 w-2 bg-orange-400 rounded-full animate-pulse mr-2"
+                                class="h-2 w-2 bg-orange-400 rounded-full mr-2"
                               />
                               <span class="text-xs text-orange-600 font-medium"
                                 >承認待ち</span
