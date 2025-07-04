@@ -220,11 +220,6 @@
       <div
         class="border-2 border-blue-500 rounded-xl p-6 relative bg-white shadow-lg flex flex-col h-full"
       >
-        <div
-          class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium"
-        >
-          おすすめ
-        </div>
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">STANDARD</h2>
           <div class="space-y-1">
@@ -372,11 +367,6 @@
       <div
         class="border-2 border-purple-500 rounded-xl p-6 relative bg-white shadow-lg flex flex-col h-full"
       >
-        <div
-          class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-medium"
-        >
-          最高機能
-        </div>
         <div class="text-center space-y-4 flex-grow flex flex-col">
           <h2 class="text-xl font-semibold text-gray-900">PREMIUM</h2>
           <div class="space-y-1">
@@ -1307,10 +1297,8 @@
             </div>
           </div>
 
-          <div
-            class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200"
-          >
-            <p class="text-xs text-gray-600 text-center">
+          <div class="mt-4 rounded-lg">
+            <p class="text-xs text-gray-600 text-left">
               <strong>※</strong>
               請求サイクルはカレンダー月に基づき、月によって日数が変動します（28-31日）。
               実際の金額はStripeが正確に計算します。
