@@ -36,7 +36,7 @@
                   >
                     <NuxtLink to="/friends" class="block relative">
                       <div
-                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white h-full shadow-md rounded-lg p-4 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] hover:bg-gray-50/50"
                         style="border-color: var(--primary-light)"
                       >
                         <!-- 友達申請バッジ -->
@@ -79,7 +79,7 @@
 
                     <NuxtLink to="/chat" class="block relative">
                       <div
-                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white rounded-lg h-full shadow-md p-4 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] hover:bg-gray-50/50"
                         style="border-color: var(--primary-light)"
                       >
                         <!-- 未読メッセージバッジ -->
@@ -135,7 +135,7 @@
                         class="badge-dot absolute -top-1 -right-1 z-10"
                       />
                       <div
-                        class="flex flex-row bg-white rounded-lg h-full shadow-md hover:shadow-lg hover:border border-transparent transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="flex flex-row bg-white rounded-lg h-full shadow-md p-4 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] hover:bg-gray-50/50"
                         style="border-color: var(--primary-light)"
                       >
                         <div class="flex items-center">
@@ -177,7 +177,7 @@
                     <!-- フリープランユーザー向けアップグレード案内 -->
                     <NuxtLink v-else to="/pricing" class="block">
                       <div
-                        class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-dashed border-yellow-300 rounded-lg h-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 p-4"
+                        class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-dashed border-yellow-300 rounded-lg h-full shadow-md p-4 transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] hover:from-yellow-100 hover:to-orange-100 hover:border-yellow-400"
                       >
                         <div class="flex items-center">
                           <div
@@ -211,7 +211,7 @@
 
                   <!-- サブスクリプション管理エリア（テスト用：常に表示） -->
                   <div
-                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                    class="bg-white rounded-lg shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.01] hover:bg-gray-50/50"
                   >
                     <NuxtLink to="/user/subscription" class="block p-6">
                       <div class="flex items-center">
@@ -267,7 +267,7 @@
 
                   <!-- フレンドID表示エリア（カラフルでモダンな表示） -->
                   <div
-                    class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    class="bg-white border-l-4 rounded-lg overflow-hidden shadow-md"
                     style="border-left-color: var(--primary)"
                   >
                     <div class="relative">
@@ -348,9 +348,7 @@
                   </div>
 
                   <!-- ユーザー情報エリア -->
-                  <div
-                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
-                  >
+                  <div class="bg-white rounded-lg shadow-md p-6">
                     <h3
                       class="text-md font-semibold text-gray-800 mb-4 flex items-center"
                     >
@@ -764,9 +762,7 @@
                   </div>
 
                   <!-- 通知設定エリア -->
-                  <div
-                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6"
-                  >
+                  <div class="bg-white rounded-lg shadow-md p-6">
                     <h3
                       class="text-md font-semibold text-gray-800 mb-4 flex items-center"
                     >
