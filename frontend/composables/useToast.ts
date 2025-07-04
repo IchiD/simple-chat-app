@@ -21,7 +21,7 @@ export const useToastStore = () => {
     const newToast = {
       ...toast,
       id,
-      timeout: toast.duration || 5000, // デフォルトは5秒
+      timeout: toast.duration || 8000, // デフォルトを8秒に変更
     };
 
     toasts.push(newToast);

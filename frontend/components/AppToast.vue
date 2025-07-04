@@ -9,14 +9,30 @@
   >
     <div
       v-if="show"
-      class="fixed top-4 right-4 z-50 w-full max-w-sm shadow-lg rounded-lg pointer-events-auto"
+      class="fixed top-4 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-50 max-w-md w-auto shadow-lg rounded-lg pointer-events-auto overflow-hidden"
       :class="[
         color === 'success' ? 'bg-green-50 border-l-4 border-green-500' : '',
         color === 'error' ? 'bg-red-50 border-l-4 border-red-500' : '',
         color === 'warning' ? 'bg-yellow-50 border-l-4 border-yellow-500' : '',
         color === 'info' ? 'bg-blue-50 border-l-4 border-blue-500' : '',
       ]"
+      style="min-width: 320px"
     >
+      <div
+        ref="progressBar"
+        class="absolute top-0 left-0 h-1 transition-all ease-linear"
+        :class="[
+          color === 'success' ? 'bg-green-500' : '',
+          color === 'error' ? 'bg-red-500' : '',
+          color === 'warning' ? 'bg-yellow-500' : '',
+          color === 'info' ? 'bg-blue-500' : '',
+        ]"
+        :style="{
+          width: progressWidth + '%',
+          animationDuration: props.timeout + 'ms',
+        }"
+      />
+
       <div class="p-4">
         <div class="flex items-start">
           <div class="flex-shrink-0">
@@ -45,7 +61,7 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
             <svg
@@ -124,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 interface Props {
   title: string;
@@ -137,18 +153,38 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   description: "",
   color: "info",
-  timeout: 5000,
+  timeout: 8000,
 });
 
 const emit = defineEmits(["close"]);
 
 const show = ref(true);
+const progressWidth = ref(100);
+const progressBar = ref<HTMLElement | null>(null);
+let progressInterval: NodeJS.Timeout | null = null;
 
 onMounted(() => {
   if (props.timeout > 0) {
-    setTimeout(() => {
-      close();
-    }, props.timeout);
+    const startTime = Date.now();
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.max(0, 100 - (elapsed / props.timeout) * 100);
+      progressWidth.value = progress;
+
+      if (progress <= 0) {
+        close();
+      } else {
+        progressInterval = setTimeout(updateProgress, 16);
+      }
+    };
+
+    updateProgress();
+  }
+});
+
+onUnmounted(() => {
+  if (progressInterval) {
+    clearTimeout(progressInterval);
   }
 });
 
@@ -157,6 +193,9 @@ function close() {
   emit("close");
   if (props.onClose) {
     props.onClose();
+  }
+  if (progressInterval) {
+    clearTimeout(progressInterval);
   }
 }
 </script>

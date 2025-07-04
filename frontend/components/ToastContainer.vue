@@ -1,5 +1,7 @@
 <template>
-  <div class="fixed top-0 right-0 z-50 p-4 space-y-4">
+  <div
+    class="fixed top-0 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 z-50 p-4 space-y-4 w-auto max-w-md"
+  >
     <TransitionGroup
       name="toast-list"
       tag="div"
