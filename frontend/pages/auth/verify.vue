@@ -59,9 +59,7 @@
               />
             </svg>
             <p class="mb-4">{{ message }}</p>
-            <p class="text-sm text-gray-500">
-              ユーザーページに自動的に移動します...
-            </p>
+            <p class="text-sm text-gray-500">ページは自動的に切り替わります</p>
           </template>
         </div>
       </div>
@@ -90,7 +88,31 @@ const verifyToken = async (token: string) => {
       success.value = true;
       message.value = result.message || "メールアドレスの認証が完了しました";
 
-      // 成功したら3秒後にユーザーページへリダイレクト
+      // 保留中のグループ参加があるかチェック
+      const pendingGroupToken = sessionStorage.getItem("pendingGroupToken");
+      if (pendingGroupToken) {
+        try {
+          sessionStorage.removeItem("pendingGroupToken");
+
+          // グループ参加処理
+          const groupConversations = useGroupConversations();
+          await groupConversations.joinByToken(pendingGroupToken);
+
+          message.value = "メール認証が完了し、グループに参加しました";
+
+          // チャットページにリダイレクト
+          setTimeout(() => {
+            router.push("/chat");
+          }, 3000);
+          return;
+        } catch (error: unknown) {
+          console.error("グループ参加エラー:", error);
+          message.value =
+            "メール認証は完了しましたが、グループ参加に失敗しました";
+        }
+      }
+
+      // 通常の認証成功後はユーザーページへリダイレクト
       setTimeout(() => {
         router.push("/user");
       }, 3000);

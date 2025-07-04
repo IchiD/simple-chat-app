@@ -58,14 +58,34 @@
 
       <!-- グループ情報が取得できた場合のみ表示 -->
       <div v-if="groupInfo">
-        <!-- 認証済みの場合の自動参加 -->
-        <div v-if="isAuthenticated && !joining" class="text-center">
+        <!-- 登録処理中 -->
+        <div v-if="registering" class="text-center">
           <div class="mb-6">
-            <p class="text-gray-700 mb-4">
-              ログイン済みです。<strong>{{ groupInfo.name }}</strong
-              >に参加しますか？
-            </p>
+            <div
+              class="w-16 h-16 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+            />
+            <p class="mt-4 text-gray-600">アカウント作成中...</p>
           </div>
+        </div>
+
+        <!-- 参加処理中 -->
+        <div v-else-if="joining" class="text-center">
+          <div class="mb-6">
+            <div
+              class="w-16 h-16 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+            />
+            <p class="mt-4 text-gray-600">{{ groupInfo.name }}に参加中...</p>
+          </div>
+        </div>
+
+        <!-- 認証済みユーザーの場合 -->
+        <div v-else-if="authStore.isAuthenticated" class="text-center">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            {{ groupInfo.name }}に参加しますか？
+          </h2>
+          <p class="text-gray-600 mb-6">
+            既にログイン済みです。このグループに参加することができます。
+          </p>
           <button
             :disabled="!groupInfo.can_join"
             :class="{
@@ -83,24 +103,79 @@
           </button>
         </div>
 
-        <!-- 参加処理中 -->
-        <div v-else-if="joining" class="text-center">
-          <div class="mb-6">
-            <div
-              class="w-16 h-16 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+        <!-- メール確認画面 -->
+        <div v-else-if="showVerification" class="text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="text-5xl mb-4 mx-auto h-12 w-12 text-blue-500"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
             />
-            <p class="mt-4 text-gray-600">{{ groupInfo.name }}に参加中...</p>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">メール確認</h2>
+          <p class="text-gray-600 mb-6">
+            登録したメールアドレスに確認メールを送信しました。<br />
+            メール内のリンクをクリックして認証を完了してください。<br />
+            認証完了後、自動的に{{ groupInfo.name }}に参加します。
+          </p>
+          <button
+            :disabled="resendLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="resendVerification"
+          >
+            <svg
+              v-if="resendLoading"
+              xmlns="http://www.w3.org/2000/svg"
+              class="animate-spin h-4 w-4 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            確認メールを再送信
+          </button>
+          <div class="mt-6 text-center text-sm text-gray-600">
+            <NuxtLink
+              :to="`/join/${token}`"
+              class="font-medium text-blue-600 hover:text-blue-500"
+            >
+              ログインページに戻る
+            </NuxtLink>
           </div>
         </div>
 
-        <!-- 未認証の場合のログインフォーム -->
+        <!-- 新規登録フォーム -->
         <div v-else class="space-y-6">
           <h2 class="text-lg font-semibold text-gray-900 text-center">
-            ログインして{{ groupInfo.name }}に参加
+            アカウント作成して{{ groupInfo.name }}に参加
           </h2>
 
-          <!-- 通常ログインフォーム -->
-          <form class="space-y-4" @submit.prevent="loginAndJoin">
+          <!-- 通常登録フォーム -->
+          <form class="space-y-4" @submit.prevent="registerAndJoin">
+            <div>
+              <label
+                for="name"
+                class="block text-sm font-medium text-gray-700 mb-1"
+              >
+                名前
+              </label>
+              <input
+                id="name"
+                v-model="registerForm.name"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="お名前"
+              />
+            </div>
             <div>
               <label
                 for="email"
@@ -110,7 +185,7 @@
               </label>
               <input
                 id="email"
-                v-model="loginForm.email"
+                v-model="registerForm.email"
                 type="email"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -126,29 +201,45 @@
               </label>
               <input
                 id="password"
-                v-model="loginForm.password"
+                v-model="registerForm.password"
                 type="password"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="パスワード"
+                placeholder="パスワード（8文字以上）"
+              />
+            </div>
+            <div>
+              <label
+                for="password_confirmation"
+                class="block text-sm font-medium text-gray-700 mb-1"
+              >
+                パスワード確認
+              </label>
+              <input
+                id="password_confirmation"
+                v-model="registerForm.password_confirmation"
+                type="password"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="パスワード（確認）"
               />
             </div>
             <button
               type="submit"
-              :disabled="loginPending || !groupInfo.can_join"
+              :disabled="registering || !groupInfo.can_join"
               :class="{
                 'w-full py-2 px-4 rounded-md transition-colors': true,
                 'bg-blue-600 text-white hover:bg-blue-700':
-                  !loginPending && groupInfo.can_join,
+                  !registering && groupInfo.can_join,
                 'bg-gray-400 text-white cursor-not-allowed':
-                  loginPending || !groupInfo.can_join,
+                  registering || !groupInfo.can_join,
               }"
             >
               {{
-                loginPending
-                  ? "ログイン中..."
+                registering
+                  ? "アカウント作成中..."
                   : groupInfo.can_join
-                  ? `ログインして${groupInfo.name}に参加`
+                  ? `アカウント作成して${groupInfo.name}に参加`
                   : "グループが満員です"
               }}
             </button>
@@ -165,15 +256,15 @@
           </div>
 
           <button
-            :disabled="loginPending || !groupInfo.can_join"
+            :disabled="registering || !groupInfo.can_join"
             :class="{
               'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium transition-colors': true,
               'text-gray-700 bg-white hover:bg-gray-50':
-                !loginPending && groupInfo.can_join,
+                !registering && groupInfo.can_join,
               'text-gray-400 bg-gray-100 cursor-not-allowed':
-                loginPending || !groupInfo.can_join,
+                registering || !groupInfo.can_join,
             }"
-            @click="googleLoginAndJoin"
+            @click="googleRegisterAndJoin"
           >
             <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path
@@ -195,19 +286,19 @@
             </svg>
             {{
               groupInfo.can_join
-                ? `Googleでログインして${groupInfo.name}に参加`
+                ? `Googleでアカウント作成して${groupInfo.name}に参加`
                 : "グループが満員です"
             }}
           </button>
 
           <div class="text-center text-sm text-gray-600">
             <p>
-              アカウントをお持ちでないですか？
+              既にアカウントをお持ちですか？
               <NuxtLink
-                :to="`/auth/register-and-join/${token}`"
+                :to="`/join/${token}`"
                 class="font-medium text-blue-600 hover:text-blue-500"
               >
-                アカウント作成して参加
+                ログイン
               </NuxtLink>
             </p>
           </div>
@@ -218,15 +309,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
-// import type { GroupParticipant } from "~/types/group";
 
 definePageMeta({
   layout: "default",
-  title: "グループへ参加",
-  auth: false, // QRコードアクセスのため初期は認証不要だが、実際の参加には認証が必要
+  title: "アカウント作成してグループに参加",
+  auth: false,
 });
 
 const route = useRoute();
@@ -239,18 +329,20 @@ const token = route.params.token as string;
 // UI状態
 const errorMessage = ref("");
 const successMessage = ref("");
+const registering = ref(false);
 const joining = ref(false);
 const loading = ref(true);
+const showVerification = ref(false);
+const resendLoading = ref(false);
+const registeredEmail = ref("");
 
-// 認証状態
-const isAuthenticated = computed(() => authStore.isAuthenticated);
-
-// ログインフォーム
-const loginForm = reactive({
+// 新規登録フォーム
+const registerForm = reactive({
+  name: "",
   email: "",
   password: "",
+  password_confirmation: "",
 });
-const loginPending = ref(false);
 
 // グループ情報
 const groupInfo = ref<{
@@ -265,7 +357,7 @@ const groupInfo = ref<{
 
 // グループ参加処理
 const joinGroup = async () => {
-  if (!isAuthenticated.value) {
+  if (!authStore.isAuthenticated) {
     errorMessage.value = "ログインが必要です";
     return;
   }
@@ -305,32 +397,86 @@ const joinGroup = async () => {
   }
 };
 
-// ログインして参加
-const loginAndJoin = async () => {
+// 新規登録して参加
+const registerAndJoin = async () => {
   if (!groupInfo.value?.can_join) {
     errorMessage.value = "このグループは現在満員です";
     return;
   }
 
+  if (registerForm.password !== registerForm.password_confirmation) {
+    errorMessage.value = "パスワードが一致しません";
+    return;
+  }
+
+  if (registerForm.password.length < 8) {
+    errorMessage.value = "パスワードは8文字以上で入力してください";
+    return;
+  }
+
   errorMessage.value = "";
-  loginPending.value = true;
+  registering.value = true;
 
   try {
-    // ログイン処理
-    await authStore.login(loginForm.email, loginForm.password);
+    // 新規登録処理
+    const result = await authStore.register(
+      registerForm.name,
+      registerForm.email,
+      registerForm.password,
+      registerForm.password_confirmation
+    );
 
-    // ログイン成功後にグループ参加処理
-    await joinGroup();
+    if (result.success) {
+      // グループトークンをセッションストレージに保存（メール認証完了後の自動参加用）
+      if (import.meta.client) {
+        sessionStorage.setItem("pendingGroupToken", token);
+      }
+
+      // 登録したメールアドレスを保存（再送信用）
+      registeredEmail.value = registerForm.email;
+
+      // メール確認画面に切り替え
+      showVerification.value = true;
+      successMessage.value =
+        "確認メールを送信しました。メール内のリンクをクリックして認証を完了してください。認証完了後、自動的にグループに参加します。";
+      return;
+    } else {
+      throw new Error(result.message || "登録に失敗しました");
+    }
   } catch (error: unknown) {
-    console.error("ログインエラー:", error);
-    errorMessage.value = "ログイン処理中にエラーが発生しました";
+    console.error("登録エラー:", error);
+    if (
+      error &&
+      typeof error === "object" &&
+      "data" in error &&
+      error.data &&
+      typeof error.data === "object" &&
+      "message" in error.data
+    ) {
+      errorMessage.value = error.data.message as string;
+    } else if (
+      error &&
+      typeof error === "object" &&
+      "data" in error &&
+      error.data &&
+      typeof error.data === "object" &&
+      "errors" in error.data &&
+      error.data.errors &&
+      typeof error.data.errors === "object"
+    ) {
+      const errors = error.data.errors as Record<string, string[]>;
+      const firstError = Object.values(errors)[0];
+      errorMessage.value = firstError ? firstError[0] : "登録に失敗しました";
+    } else {
+      errorMessage.value = "登録処理中にエラーが発生しました";
+    }
   } finally {
-    loginPending.value = false;
+    registering.value = false;
   }
 };
 
 // Googleログインして参加
-const googleLoginAndJoin = () => {
+const googleRegisterAndJoin = () => {
   if (!groupInfo.value?.can_join) {
     errorMessage.value = "このグループは現在満員です";
     return;
@@ -343,6 +489,47 @@ const googleLoginAndJoin = () => {
   const config = useRuntimeConfig();
   const apiBase = config.public.apiBase || "http://localhost/api";
   window.location.href = `${apiBase}/auth/google/redirect`;
+};
+
+// メール再送信機能
+const resendVerification = async () => {
+  if (!registeredEmail.value) {
+    errorMessage.value = "メールアドレスが取得できません。";
+    return;
+  }
+
+  resendLoading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const { api } = useApi();
+    const response = await api("/resend-verification", {
+      method: "POST",
+      body: { email: registeredEmail.value },
+    });
+
+    if (response.status === "success") {
+      successMessage.value = "確認メールを再送信しました。";
+    } else {
+      errorMessage.value = response.message || "確認メールの送信に失敗しました";
+    }
+  } catch (error: unknown) {
+    console.error("メール再送信エラー:", error);
+    if (
+      error &&
+      typeof error === "object" &&
+      "data" in error &&
+      error.data &&
+      typeof error.data === "object" &&
+      "message" in error.data
+    ) {
+      errorMessage.value = error.data.message as string;
+    } else {
+      errorMessage.value = "確認メールの送信に失敗しました";
+    }
+  } finally {
+    resendLoading.value = false;
+  }
 };
 
 // グループ情報を取得
@@ -372,21 +559,8 @@ const loadGroupInfo = async () => {
   }
 };
 
-// 認証済みユーザーが復帰した場合の自動参加処理
 onMounted(async () => {
-  // まずグループ情報を取得
+  // グループ情報を取得
   await loadGroupInfo();
-
-  if (import.meta.client) {
-    const pendingToken = sessionStorage.getItem("pendingGroupToken");
-    if (
-      pendingToken === token &&
-      isAuthenticated.value &&
-      groupInfo.value?.can_join
-    ) {
-      sessionStorage.removeItem("pendingGroupToken");
-      await joinGroup();
-    }
-  }
 });
 </script>

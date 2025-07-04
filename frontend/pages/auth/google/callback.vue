@@ -81,7 +81,6 @@ import { ref, onMounted } from "vue";
 import { useAuthStore } from "../../../stores/auth";
 import { useToast } from "../../../composables/useToast";
 import { useRouter, useRoute } from "#app";
-import { useApi } from "../../../composables/useApi";
 
 definePageMeta({
   layout: "default",
@@ -136,11 +135,8 @@ onMounted(async () => {
           sessionStorage.removeItem("pendingGroupToken");
 
           // グループ参加処理
-          const { api } = useApi();
-          const _member = await api(`/groups/join/${pendingGroupToken}`, {
-            method: "POST",
-            body: { nickname: authStore.user?.name || "ユーザー" },
-          });
+          const groupConversations = useGroupConversations();
+          await groupConversations.joinByToken(pendingGroupToken);
 
           toast.add({
             title: "参加完了",

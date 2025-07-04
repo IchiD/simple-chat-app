@@ -14,6 +14,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     "/", // トップページ
     "/auth/login", // ログインページ
     "/auth/register", // 登録ページ
+    "/auth/register-and-join", // グループ参加用登録ページ
     "/auth/verification", // メール確認ページ
     "/auth/verify", // メール認証リンク（本登録）
     "/auth/verify-email", // メール認証ページ
@@ -41,7 +42,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     // ログイン状態で認証ページにアクセスしている場合はリダイレクト
     if (
       to.path.startsWith("/auth/") &&
-      to.path !== "/auth/verify-email-change"
+      to.path !== "/auth/verify-email-change" &&
+      !to.path.startsWith("/auth/register-and-join/")
     ) {
       await authStore.checkAuth();
 
