@@ -863,7 +863,7 @@ const sendMessage = async () => {
           errorData.message.includes("deleted_or_banned")
         ) {
           errorMessage =
-            "相手のアカウントが削除またはバンされたため、メッセージを送信できません。";
+            "相手のアカウントが存在しないため、メッセージを送信できません。";
           shouldRedirect = true;
         } else if (errorData.message.includes("権限") || statusCode === 403) {
           errorMessage = "メッセージを送信する権限がありません。";
