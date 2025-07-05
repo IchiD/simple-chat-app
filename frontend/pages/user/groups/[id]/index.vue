@@ -35,7 +35,7 @@
           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex-shrink-0"
           @click="() => router.push(`/user/groups/${id}/edit`)"
         >
-          編集
+          編集・管理
         </button>
       </div>
 

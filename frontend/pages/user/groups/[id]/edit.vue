@@ -284,7 +284,7 @@
           <!-- Add Member Section -->
           <div class="p-6 bg-gray-50 border-b border-gray-200">
             <h3 class="font-medium text-gray-900 mb-4">新しいメンバーを追加</h3>
-            <div class="flex gap-3">
+            <div class="flex">
               <div class="flex-1">
                 <input
                   id="member-user"
