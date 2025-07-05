@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col bg-gray-50">
     <!-- 共通ヘッダー (chat/[room_token] ページとルートページでは非表示) -->
     <nav
       v-if="!shouldHideNavFooter"
@@ -15,7 +15,7 @@
           <div class="flex items-center space-x-2 sm:space-x-3">
             <!-- ユーザー（ホーム）ボタン -->
             <NuxtLink
-              v-if="currentPage !== 'user'"
+              v-if="authStore.isAuthenticated && currentPage !== 'user'"
               to="/user"
               class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
             >
@@ -34,7 +34,7 @@
 
             <!-- 友達ボタン -->
             <NuxtLink
-              v-if="currentPage !== 'friends'"
+              v-if="authStore.isAuthenticated && currentPage !== 'friends'"
               to="/friends"
               class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
             >
@@ -55,7 +55,11 @@
 
             <!-- グループボタン（有料プランユーザーのみ） -->
             <NuxtLink
-              v-if="isPaidUser && currentPage !== 'groups'"
+              v-if="
+                authStore.isAuthenticated &&
+                isPaidUser &&
+                currentPage !== 'groups'
+              "
               to="/user/groups"
               class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
             >
@@ -74,7 +78,7 @@
 
             <!-- チャットボタン -->
             <NuxtLink
-              v-if="currentPage !== 'chat'"
+              v-if="authStore.isAuthenticated && currentPage !== 'chat'"
               to="/chat"
               class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-150 ease-in-out"
             >

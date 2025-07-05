@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+  <div class="flex-grow flex items-center justify-center px-4 py-8">
     <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
       <!-- ローディング中 -->
       <div v-if="loading" class="text-center">
@@ -200,14 +200,15 @@
             }}
           </button>
 
-          <div class="text-center text-sm text-gray-600">
-            <p>
-              アカウントをお持ちでないですか？
+          <!-- 新規登録リンク -->
+          <div class="text-center">
+            <p class="text-sm text-gray-600">
+              アカウントをお持ちでない方は
               <NuxtLink
                 :to="`/auth/register-and-join/${token}`"
                 class="font-medium text-blue-600 hover:text-blue-500"
               >
-                アカウント作成して参加
+                新規登録
               </NuxtLink>
             </p>
           </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+  <div class="flex-grow flex items-center justify-center px-4 py-8">
     <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
       <!-- ローディング中 -->
       <div v-if="loading" class="text-center">
@@ -213,7 +213,7 @@
                 for="password_confirmation"
                 class="block text-sm font-medium text-gray-700 mb-1"
               >
-                パスワード確認
+                パスワード（確認）
               </label>
               <input
                 id="password_confirmation"
@@ -291,9 +291,10 @@
             }}
           </button>
 
-          <div class="text-center text-sm text-gray-600">
-            <p>
-              既にアカウントをお持ちですか？
+          <!-- ログインリンク -->
+          <div class="text-center">
+            <p class="text-sm text-gray-600">
+              既にアカウントをお持ちの方は
               <NuxtLink
                 :to="`/join/${token}`"
                 class="font-medium text-blue-600 hover:text-blue-500"
