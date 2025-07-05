@@ -24,9 +24,7 @@
                 class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8"
               >
                 <div class="flex items-center mb-4">
-                  <div
-                    class="h-8 w-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3"
-                  >
+                  <div class="h-8 w-8 flex items-center justify-center mr-3">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-5 w-5 text-emerald-600"

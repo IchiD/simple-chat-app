@@ -94,7 +94,7 @@
                 d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 16h4.01M12 8h4.01"
               />
             </svg>
-            QRコード招待（認証必須）
+            招待QRコード（認証必須）
           </h2>
 
           <div v-if="qrLoading" class="text-center py-8">
@@ -138,7 +138,7 @@
               />
             </div>
             <p class="text-sm text-gray-600 mb-4">
-              このQRコードをスキャンして、メンバーをグループに招待できます（要ログイン）
+              このQRコードをスキャンしてもらうことで、グループに加入できます。（登録が必要です）
             </p>
             <div class="flex flex-col sm:flex-row gap-2 justify-center">
               <button
@@ -231,7 +231,7 @@
               class="flex items-center gap-1 px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
               @click="isMembersExpanded = !isMembersExpanded"
             >
-              <span>{{ isMembersExpanded ? "折りたたむ" : "展開" }}</span>
+              <span>{{ isMembersExpanded ? "閉じる" : "全て表示" }}</span>
               <svg
                 class="w-3 h-3 transition-transform duration-200"
                 :class="{ 'rotate-180': isMembersExpanded }"
