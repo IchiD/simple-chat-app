@@ -11,16 +11,16 @@
       v-if="show"
       class="fixed top-4 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-4 sm:translate-x-0 z-50 max-w-md w-auto shadow-lg rounded-lg pointer-events-auto overflow-hidden"
       :class="[
-        color === 'success' ? 'bg-green-50 border-l-4 border-green-500' : '',
-        color === 'error' ? 'bg-red-50 border-l-4 border-red-500' : '',
-        color === 'warning' ? 'bg-yellow-50 border-l-4 border-yellow-500' : '',
-        color === 'info' ? 'bg-blue-50 border-l-4 border-blue-500' : '',
+        color === 'success' ? 'bg-green-50 border-green-500' : '',
+        color === 'error' ? 'bg-red-50 border-red-500' : '',
+        color === 'warning' ? 'bg-yellow-50 border-yellow-500' : '',
+        color === 'info' ? 'bg-blue-50 border-blue-500' : '',
       ]"
       style="min-width: 320px"
     >
       <div
         ref="progressBar"
-        class="absolute top-0 left-0 h-1 transition-all ease-linear"
+        class="absolute bottom-0 left-0 h-1 transition-all ease-linear"
         :class="[
           color === 'success' ? 'bg-green-500' : '',
           color === 'error' ? 'bg-red-500' : '',
