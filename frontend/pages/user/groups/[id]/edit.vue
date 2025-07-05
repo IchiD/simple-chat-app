@@ -36,34 +36,6 @@
         <p class="text-gray-600">グループの基本情報とメンバーを管理できます</p>
       </div>
 
-      <!-- Messages -->
-      <div
-        v-if="successMessage"
-        class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center"
-      >
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        {{ successMessage }}
-      </div>
-      <div
-        v-if="errorMessage"
-        class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-center"
-      >
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        {{ errorMessage }}
-      </div>
-
       <div v-if="pending" class="text-center py-12">
         <div
           class="h-8 w-8 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
@@ -588,6 +560,7 @@
 import { ref, computed, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
+import { useToast } from "~/composables/useToast";
 import type { GroupConversation } from "~/types/group";
 import { useSortableMembers } from "~/composables/useSortableMembers";
 
@@ -627,6 +600,7 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const groupConversations = useGroupConversations();
+const toast = useToast();
 
 const isCheckingAccess = ref(true);
 const hasPremiumAccess = computed(() => {
@@ -702,23 +676,31 @@ watch(
   { immediate: true }
 );
 
-const successMessage = ref("");
-const errorMessage = ref("");
 const saving = ref(false);
 
 const save = async () => {
-  successMessage.value = "";
-  errorMessage.value = "";
   if (!editForm.value.name.trim()) {
-    errorMessage.value = "グループ名を入力してください";
+    toast.add({
+      title: "エラー",
+      description: "グループ名を入力してください",
+      color: "error",
+    });
     return;
   }
   if (editForm.value.name.length > 100) {
-    errorMessage.value = "グループ名は100文字以内で入力してください";
+    toast.add({
+      title: "エラー",
+      description: "グループ名は100文字以内で入力してください",
+      color: "error",
+    });
     return;
   }
   if (editForm.value.chat_styles.length === 0) {
-    errorMessage.value = "チャットスタイルを少なくとも1つ選択してください";
+    toast.add({
+      title: "エラー",
+      description: "チャットスタイルを少なくとも1つ選択してください",
+      color: "error",
+    });
     return;
   }
   try {
@@ -729,10 +711,18 @@ const save = async () => {
       chatStyles: editForm.value.chat_styles,
     });
     await refresh();
-    successMessage.value = "グループ情報を更新しました";
+    toast.add({
+      title: "成功",
+      description: "グループ情報を更新しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "更新に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "更新に失敗しました",
+      color: "error",
+    });
   } finally {
     saving.value = false;
   }
@@ -814,10 +804,12 @@ watch(
 );
 
 const addMember = async () => {
-  errorMessage.value = "";
-  successMessage.value = "";
   if (!newMemberFriendId.value.trim()) {
-    errorMessage.value = "フレンドIDを入力してください";
+    toast.add({
+      title: "エラー",
+      description: "フレンドIDを入力してください",
+      color: "error",
+    });
     return;
   }
   adding.value = true;
@@ -827,10 +819,18 @@ const addMember = async () => {
     });
     newMemberFriendId.value = "";
     await loadExtendedMembers();
-    successMessage.value = "メンバーを追加しました";
+    toast.add({
+      title: "成功",
+      description: "メンバーを追加しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "メンバー追加に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "メンバー追加に失敗しました",
+      color: "error",
+    });
   } finally {
     adding.value = false;
   }
@@ -843,16 +843,22 @@ const removeMember = async (participantId: number) => {
     return;
   }
 
-  errorMessage.value = "";
-  successMessage.value = "";
   try {
     // デフォルトで再参加許可
     await groupConversations.removeMember(id, participantId, true);
     await loadExtendedMembers();
-    successMessage.value = "メンバーを削除しました（再参加可能）";
+    toast.add({
+      title: "成功",
+      description: "メンバーを削除しました（再参加可能）",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "メンバー削除に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "メンバー削除に失敗しました",
+      color: "error",
+    });
   }
 };
 
@@ -866,8 +872,6 @@ const toggleRejoin = async (member: ExtendedGroupMember) => {
     return;
   }
 
-  errorMessage.value = "";
-  successMessage.value = "";
   try {
     await groupConversations.toggleMemberRejoin(
       id,
@@ -875,12 +879,18 @@ const toggleRejoin = async (member: ExtendedGroupMember) => {
       newStatus
     );
     await loadExtendedMembers();
-    successMessage.value = newStatus
-      ? "再参加を許可しました"
-      : "再参加を禁止しました";
+    toast.add({
+      title: "成功",
+      description: newStatus ? "再参加を許可しました" : "再参加を禁止しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "設定変更に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "設定変更に失敗しました",
+      color: "error",
+    });
   }
 };
 
@@ -889,15 +899,21 @@ const restoreMember = async (member: ExtendedGroupMember) => {
     return;
   }
 
-  errorMessage.value = "";
-  successMessage.value = "";
   try {
     await groupConversations.restoreMember(id, member.member_id);
     await loadExtendedMembers();
-    successMessage.value = "メンバーを復活しました";
+    toast.add({
+      title: "成功",
+      description: "メンバーを復活しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "メンバー復活に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "メンバー復活に失敗しました",
+      color: "error",
+    });
   }
 };
 
@@ -920,9 +936,6 @@ const cancelEditNickname = (memberId: number) => {
 const saveNickname = async (member: ExtendedGroupMember) => {
   const nickname = nicknameInputs.value[member.member_id]?.trim() || null;
 
-  errorMessage.value = "";
-  successMessage.value = "";
-
   try {
     savingNickname.value[member.member_id] = true;
     await groupConversations.updateMemberNickname(
@@ -941,10 +954,18 @@ const saveNickname = async (member: ExtendedGroupMember) => {
 
     editingNickname.value[member.member_id] = false;
     nicknameInputs.value[member.member_id] = "";
-    successMessage.value = "ニックネームを更新しました";
+    toast.add({
+      title: "成功",
+      description: "ニックネームを更新しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "ニックネーム更新に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "ニックネーム更新に失敗しました",
+      color: "error",
+    });
   } finally {
     savingNickname.value[member.member_id] = false;
   }

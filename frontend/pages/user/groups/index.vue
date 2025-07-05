@@ -30,18 +30,6 @@
       </div>
 
       <h1 class="text-xl font-bold mb-4">グループ一覧</h1>
-      <div
-        v-if="successMessage"
-        class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
-      >
-        {{ successMessage }}
-      </div>
-      <div
-        v-if="errorMessage"
-        class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-      >
-        {{ errorMessage }}
-      </div>
 
       <div class="mb-4">
         <button
@@ -130,10 +118,6 @@
               </div>
             </div>
           </div>
-
-          <div v-if="chatStyleError" class="mt-2 text-sm text-red-600">
-            {{ chatStyleError }}
-          </div>
         </div>
 
         <div class="space-x-2">
@@ -190,6 +174,7 @@
 import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
+import { useToast } from "~/composables/useToast";
 import type { GroupConversation } from "~/types/group";
 
 // ページメタデータでプレミアム認証をミドルウェアで制御
@@ -200,6 +185,7 @@ definePageMeta({
 const router = useRouter();
 const authStore = useAuthStore();
 const groupConversations = useGroupConversations();
+const toast = useToast();
 
 const isCheckingAccess = ref(true);
 
@@ -264,9 +250,6 @@ onMounted(() => {
   loadGroups();
 });
 
-const successMessage = ref("");
-const errorMessage = ref("");
-const chatStyleError = ref("");
 const creating = ref(false);
 
 function goToGroup(id: number) {
@@ -295,21 +278,28 @@ const newGroup = ref<{
 });
 
 async function createGroup() {
-  errorMessage.value = "";
-  successMessage.value = "";
-  chatStyleError.value = "";
-
   if (!newGroup.value.name.trim()) {
-    errorMessage.value = "グループ名を入力してください";
+    toast.add({
+      title: "エラー",
+      description: "グループ名を入力してください",
+      color: "error",
+    });
     return;
   }
   if (newGroup.value.name.length > 50) {
-    errorMessage.value = "グループ名は50文字以内で入力してください";
+    toast.add({
+      title: "エラー",
+      description: "グループ名は50文字以内で入力してください",
+      color: "error",
+    });
     return;
   }
   if (newGroup.value.chatStyles.length === 0) {
-    chatStyleError.value =
-      "チャットルームスタイルを少なくとも1つ選択してください";
+    toast.add({
+      title: "エラー",
+      description: "チャットルームスタイルを少なくとも1つ選択してください",
+      color: "error",
+    });
     return;
   }
 
@@ -319,10 +309,18 @@ async function createGroup() {
     showCreateForm.value = false;
     newGroup.value = { name: "", description: "", chatStyles: [] };
     await refresh();
-    successMessage.value = "グループを作成しました";
+    toast.add({
+      title: "成功",
+      description: "グループを作成しました",
+      color: "success",
+    });
   } catch (e) {
     console.error(e);
-    errorMessage.value = "グループ作成に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "グループ作成に失敗しました",
+      color: "error",
+    });
   } finally {
     creating.value = false;
   }
@@ -331,7 +329,5 @@ async function createGroup() {
 function cancelCreate() {
   showCreateForm.value = false;
   newGroup.value = { name: "", description: "", chatStyles: [] };
-  errorMessage.value = "";
-  chatStyleError.value = "";
 }
 </script>

@@ -38,18 +38,7 @@
           編集
         </button>
       </div>
-      <div
-        v-if="successMessage"
-        class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
-      >
-        {{ successMessage }}
-      </div>
-      <div
-        v-if="errorMessage"
-        class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-      >
-        {{ errorMessage }}
-      </div>
+
       <div v-if="pending" class="text-gray-500">読み込み中...</div>
       <div v-else-if="error" class="text-red-500">{{ error.message }}</div>
       <div v-else-if="group" class="space-y-4">
@@ -392,6 +381,7 @@
 import { ref, computed, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "#app";
 import { useAuthStore } from "~/stores/auth";
+import { useToast } from "~/composables/useToast";
 import type { GroupConversation } from "~/types/group";
 import { useQRCode } from "~/composables/useQRCode";
 import { useSortableMembers } from "~/composables/useSortableMembers";
@@ -417,6 +407,7 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const groupConversations = useGroupConversations();
+const toast = useToast();
 
 const isCheckingAccess = ref(true);
 
@@ -478,9 +469,6 @@ const _refresh = loadGroup;
 
 // 初回読み込み
 await loadGroup();
-
-const successMessage = ref("");
-const errorMessage = ref("");
 
 // メンバー一覧データ
 const groupMembers = ref<GroupMember[]>([]);
@@ -631,10 +619,18 @@ const regenerateQRCode = async () => {
       group.value.id
     );
     qrCodeImage.value = await generateQRImage(qr_code_token);
-    successMessage.value = "QRコードを再生成しました";
+    toast.add({
+      title: "成功",
+      description: "QRコードを再生成しました",
+      color: "success",
+    });
   } catch (error: unknown) {
     console.error("QRコード再生成エラー:", error);
-    errorMessage.value = "QRコードの再生成に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "QRコードの再生成に失敗しました",
+      color: "error",
+    });
   } finally {
     regenerating.value = false;
   }
@@ -669,7 +665,11 @@ const shareQRCode = async () => {
     });
   } catch (error) {
     console.error("共有エラー:", error);
-    errorMessage.value = "共有に失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "共有に失敗しました",
+      color: "error",
+    });
   }
 };
 
@@ -681,10 +681,18 @@ const copyJoinUrl = async () => {
 
   try {
     await navigator.clipboard.writeText(joinUrl);
-    successMessage.value = "参加URLをコピーしました";
+    toast.add({
+      title: "成功",
+      description: "参加URLをコピーしました",
+      color: "success",
+    });
   } catch (error) {
     console.error("コピーエラー:", error);
-    errorMessage.value = "URLのコピーに失敗しました";
+    toast.add({
+      title: "エラー",
+      description: "URLのコピーに失敗しました",
+      color: "error",
+    });
   }
 };
 
