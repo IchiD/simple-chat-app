@@ -134,7 +134,7 @@
                   class="text-sm text-gray-500 bg-gray-50 rounded-md px-3 py-2 border-l-4 border-gray-300"
                 >
                   <span class="font-medium">注意：</span
-                  >一度選択するとチャットルームが作成されるため、追加のみ可能となります。
+                  >一度選択するとチャットルームが作成されるため、取り消しはできません。追加のみ可能となります。
                 </div>
                 <div class="space-y-3">
                   <div
@@ -589,7 +589,7 @@
             </h2>
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <div class="text-sm text-red-800">
-                <p class="font-medium mb-2">⚠️ 注意事項</p>
+                <p class="font-medium mb-2">注意事項</p>
                 <ul class="list-disc pl-5 space-y-1">
                   <li>
                     グループを削除すると、関連するすべてのチャットルームも削除されます
@@ -664,12 +664,9 @@
             </div>
           </div>
           <div class="mb-6">
-            <p class="text-sm text-gray-500 mb-4">
-              本当に「{{ group?.name }}」を削除しますか？
-            </p>
             <div class="bg-red-50 border border-red-200 rounded p-3">
               <p class="text-sm text-red-800 font-medium">
-                この操作は取り消すことができません
+                本当に「{{ group?.name }}」を削除しますか？
               </p>
             </div>
           </div>

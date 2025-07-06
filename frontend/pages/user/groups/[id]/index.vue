@@ -621,7 +621,8 @@ const regenerateQRCode = async () => {
     qrCodeImage.value = await generateQRImage(qr_code_token);
     toast.add({
       title: "成功",
-      description: "QRコードを再生成しました",
+      description:
+        "QRコードを再生成しました。以前のQRコードやURLは無効になります。",
       color: "success",
     });
   } catch (error: unknown) {
