@@ -1194,7 +1194,7 @@
                 </svg>
               </div>
               <h4 class="font-medium text-gray-900">
-                あなたの請求サイクルに基づく正確な計算
+                請求サイクルに基づく正確な計算
               </h4>
             </div>
             <div class="space-y-2 text-sm text-gray-700">
