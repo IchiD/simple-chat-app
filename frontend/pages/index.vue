@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="fixed w-full bg-white/80 backdrop-blur-md z-50 shadow-sm">
       <div
-        class="container mx-auto px-4 py-3 flex items-center justify-between"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between"
       >
         <NuxtLink to="/" class="text-3xl font-['Pacifico'] text-primary"
           >logo</NuxtLink
@@ -90,7 +90,7 @@
     <section class="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
       <div class="absolute inset-0 gradient-bg" />
       <div class="absolute top-0 right-0 w-full h-full hero-bg" />
-      <div class="container mx-auto px-4 relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="max-w-2xl hero-gradient rounded-xl p-8 md:p-12">
           <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             コミュニティ運営、ぜんぶこのチャットで。
@@ -118,7 +118,7 @@
 
     <!-- Problem & Solution Section -->
     <section class="py-16 md:py-24 bg-white">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             現状の課題、解決します
@@ -224,7 +224,7 @@
 
     <!-- Features Section -->
     <section id="features" class="py-16 md:py-24 bg-gray-50">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">主な機能</h2>
           <p class="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -290,7 +290,7 @@
 
     <!-- Friend Chat Section -->
     <section class="py-16 md:py-24 bg-white">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             無料で使える 1対1 チャット
@@ -358,7 +358,7 @@
 
     <!-- How to Use Section -->
     <section class="py-16 md:py-24 bg-gray-50">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">
             使い方はこんなにカンタン
@@ -414,7 +414,7 @@
 
     <!-- Pricing Section -->
     <section id="pricing" class="py-16 md:py-24 gradient-bg">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">料金プラン</h2>
           <p class="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -468,14 +468,6 @@
                   一括配信
                 </li>
               </ul>
-            </div>
-            <div class="p-6 pt-0">
-              <NuxtLink
-                to="/register"
-                class="block w-full bg-gray-100 text-gray-800 text-center py-3 rounded-button font-medium hover:bg-gray-200 transition-colors"
-              >
-                無料で始める
-              </NuxtLink>
             </div>
           </div>
 
@@ -539,14 +531,6 @@
                 </li>
               </ul>
             </div>
-            <div class="p-6 pt-0">
-              <NuxtLink
-                to="/register?plan=standard"
-                class="block w-full bg-primary text-white text-center py-3 rounded-button font-medium hover:bg-primary/90 transition-colors"
-              >
-                今すぐ登録
-              </NuxtLink>
-            </div>
           </div>
 
           <!-- PREMIUM Plan -->
@@ -604,14 +588,6 @@
                 </li>
               </ul>
             </div>
-            <div class="p-6 pt-0">
-              <NuxtLink
-                to="/register?plan=premium"
-                class="block w-full bg-blue-500 text-white text-center py-3 rounded-button font-medium hover:bg-blue-600 transition-colors"
-              >
-                プレミアムを選ぶ
-              </NuxtLink>
-            </div>
           </div>
         </div>
       </div>
@@ -619,7 +595,7 @@
 
     <!-- Testimonials Section -->
     <section class="py-16 md:py-24 bg-white">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">ユーザーの声</h2>
           <p class="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -704,7 +680,7 @@
 
     <!-- FAQ Section -->
     <section id="faq" class="py-16 md:py-24 bg-gray-50">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
           <h2 class="text-3xl md:text-4xl font-bold mb-4">よくある質問</h2>
           <p class="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -738,7 +714,7 @@
 
     <!-- CTA Section -->
     <section class="py-16 md:py-24 bg-primary text-white">
-      <div class="container mx-auto px-4 text-center">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-6">
           今すぐコミュニティ運営を始めよう
         </h2>
@@ -756,7 +732,7 @@
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-gray-300 py-12">
-      <div class="container mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid md:grid-cols-4 gap-8">
           <div>
             <NuxtLink
@@ -850,14 +826,16 @@
                 >
               </li>
               <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >特定商取引法に基づく表記</a
+                <NuxtLink
+                  to="/legal/tokushoho"
+                  class="hover:text-white transition-colors"
+                  >特定商取引法に基づく表記</NuxtLink
                 >
               </li>
             </ul>
           </div>
         </div>
-        <div class="mt-12 pt-8 border-t border-gray-700 text-center">
+        <div class="mt-12 pt-8 border-gray-700 text-center">
           <p>© 2025 logo. All rights reserved.</p>
         </div>
       </div>

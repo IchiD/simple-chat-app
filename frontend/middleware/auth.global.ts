@@ -23,6 +23,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
     "/auth/verify-email-change", // メール変更認証ページ
     "/auth/google/callback", // Google認証コールバックページ
     "/join", // QRコード参加ページ
+    "/legal", // 法的情報ページ（特定商取引法、プライバシーポリシー等）
     // "/guest", // ゲストユーザー専用ページ（廃止）
   ];
 
