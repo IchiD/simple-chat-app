@@ -236,9 +236,7 @@
 
         <!-- プラン変更履歴 -->
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold text-gray-900 mb-6">
-            プラン変更履歴
-          </h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-6">履歴</h2>
 
           <div v-if="historyLoading" class="flex justify-center py-8">
             <div

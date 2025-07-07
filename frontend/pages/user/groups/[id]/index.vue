@@ -83,7 +83,7 @@
                 d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 16h4.01M12 8h4.01"
               />
             </svg>
-            招待QRコード（認証必須）
+            グループ参加用QRコード
           </h2>
 
           <div v-if="qrLoading" class="text-center py-8">
@@ -611,6 +611,15 @@ const loadQRCode = async () => {
 const regenerateQRCode = async () => {
   if (!group.value?.id) return;
 
+  // 確認ダイアログを表示
+  const isConfirmed = window.confirm(
+    "QRコードを再生成しますか？\n\n注意: 以前のQRコードやURLは無効になります。"
+  );
+
+  if (!isConfirmed) {
+    return;
+  }
+
   regenerating.value = true;
   qrError.value = "";
 
@@ -621,8 +630,7 @@ const regenerateQRCode = async () => {
     qrCodeImage.value = await generateQRImage(qr_code_token);
     toast.add({
       title: "成功",
-      description:
-        "QRコードを再生成しました。以前のQRコードやURLは無効になります。",
+      description: "QRコードを再生成しました。",
       color: "success",
     });
   } catch (error: unknown) {
@@ -638,13 +646,131 @@ const regenerateQRCode = async () => {
 };
 
 // QRコードダウンロード
-const downloadQRCode = () => {
-  if (!qrCodeImage.value) return;
+const downloadQRCode = async () => {
+  if (!qrCodeImage.value || !group.value) return;
 
-  const link = document.createElement("a");
-  link.download = `group-${group.value?.id}-qr.png`;
-  link.href = qrCodeImage.value;
-  link.click();
+  try {
+    // Canvas要素を作成
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // キャンバスサイズを設定
+    canvas.width = 600;
+    canvas.height = 800;
+
+    // 背景色を設定
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // フォント設定
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+
+    let currentY = 60;
+
+    // グループ名 + 参加QRコードを描画
+    ctx.font = "bold 24px Arial, sans-serif";
+    ctx.fillText(
+      `${group.value.name} 参加QRコード`,
+      canvas.width / 2,
+      currentY
+    );
+    currentY += 50;
+
+    // 紹介文を描画（長い場合は折り返し）
+    if (group.value.description) {
+      ctx.font = "16px Arial, sans-serif";
+      const description = group.value.description;
+      const maxWidth = canvas.width - 60;
+      const lineHeight = 24;
+
+      // テキストを折り返し（日本語対応）
+      let line = "";
+
+      for (let i = 0; i < description.length; i++) {
+        const testLine = line + description[i];
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+
+        if (testWidth > maxWidth && line.length > 0) {
+          ctx.fillText(line, canvas.width / 2, currentY);
+          line = description[i];
+          currentY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      if (line.length > 0) {
+        ctx.fillText(line, canvas.width / 2, currentY);
+      }
+      currentY += 40;
+    }
+
+    // QRコードの画像を読み込んで描画
+    const qrImg = new Image();
+    qrImg.onload = () => {
+      if (!group.value) return;
+
+      // QRコードを中央に配置
+      const qrSize = 300;
+      const qrX = (canvas.width - qrSize) / 2;
+      const qrY = currentY + 20;
+
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+      // 参加URLを描画
+      const joinUrl = `${window.location.origin}/join/${group.value.qr_code_token}`;
+      ctx.font = "14px Arial, sans-serif";
+      ctx.fillStyle = "#000000";
+      ctx.fillText(joinUrl, canvas.width / 2, qrY + qrSize + 40);
+
+      // 説明文を描画
+      ctx.font = "16px Arial, sans-serif";
+      ctx.fillStyle = "#000000";
+      ctx.fillText(
+        "QRコードをスキャンまたは上記URLにアクセスして",
+        canvas.width / 2,
+        qrY + qrSize + 80
+      );
+      ctx.fillText("グループに参加", canvas.width / 2, qrY + qrSize + 110);
+
+      // 注意書きを描画
+      ctx.font = "bold 16px Arial, sans-serif";
+      ctx.fillStyle = "#dc2626";
+      ctx.fillText(
+        "※ 会員登録が必要です",
+        canvas.width / 2,
+        qrY + qrSize + 150
+      );
+
+      // 枠線を描画
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+      // ダウンロード
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.download = `group-${group.value?.id}-invite.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        }
+      }, "image/png");
+    };
+
+    qrImg.src = qrCodeImage.value;
+  } catch (error) {
+    console.error("ダウンロードエラー:", error);
+    toast.add({
+      title: "エラー",
+      description: "画像のダウンロードに失敗しました",
+      color: "error",
+    });
+  }
 };
 
 // QRコード共有（Web Share API）
