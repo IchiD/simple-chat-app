@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4">
+    <div class="max-w-5xl mx-auto px-4">
       <!-- ページヘッダー -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">サブスクリプション管理</h1>

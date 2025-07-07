@@ -6,7 +6,7 @@
     >
       <div class="flex h-full w-full">
         <!-- Main Chat Area -->
-        <div class="max-w-4xl mx-auto w-full">
+        <div class="max-w-5xl mx-auto w-full">
           <div class="flex h-full w-full flex-col pt-3 md:p-6">
             <!-- Header for Chat Area -->
             <div

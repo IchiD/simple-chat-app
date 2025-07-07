@@ -11,11 +11,11 @@
         <!-- Header -->
         <div class="mb-6">
           <button
-            class="group flex items-center justify-center w-10 h-10 rounded-full bg-white hover:bg-gray-100 border shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            class="group flex items-center justify-center w-10 h-10"
             @click="goBack"
           >
             <svg
-              class="w-5 h-5 text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
+              class="w-6 h-6 text-gray-600 group-hover:text-gray-800 transition-colors duration-200"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

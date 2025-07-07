@@ -18,7 +18,7 @@
           </div>
 
           <template v-else>
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-5xl mx-auto">
               <!-- 友達追加セクション -->
               <div
                 class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8"

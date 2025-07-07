@@ -2,7 +2,7 @@
   <div class="min-h-screen">
     <!-- Main Content -->
     <main class="p-4">
-      <div class="max-w-4xl mx-auto">
+      <div class="max-w-5xl mx-auto">
         <!-- 戻るボタン -->
         <div class="mb-6">
           <button

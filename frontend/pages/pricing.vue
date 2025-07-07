@@ -1060,7 +1060,7 @@
     <div
       class="mt-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8"
     >
-      <div class="max-w-4xl mx-auto">
+      <div class="max-w-5xl mx-auto">
         <div class="text-center mb-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-4">
             プラン変更時の料金について

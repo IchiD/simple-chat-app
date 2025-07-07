@@ -6,7 +6,7 @@
     <p class="mt-4 text-gray-600">アクセス権限を確認中...</p>
   </div>
   <div v-else class="p-4">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-5xl mx-auto">
       <!-- 戻るボタン -->
       <div class="mb-6">
         <button

@@ -3,7 +3,7 @@
     <div class="relative flex antialiased text-gray-800 min-h-full">
       <div class="flex min-h-full w-full">
         <!-- 認証済みユーザー向け通常のチャット一覧 -->
-        <div class="max-w-4xl mx-auto w-full min-h-full">
+        <div class="max-w-5xl mx-auto w-full min-h-full">
           <ChatSidebar
             :conversations="conversations"
             :pending="pending"

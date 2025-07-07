@@ -16,7 +16,7 @@
             </div>
 
             <template v-else>
-              <div class="max-w-4xl mx-auto">
+              <div class="max-w-5xl mx-auto">
                 <!-- ヘッダーエリア -->
                 <div class="mb-6">
                   <div>

@@ -367,14 +367,14 @@
             30秒でアカウントを作成し、すぐにコミュニティ運営を始められます。
           </p>
         </div>
-        <div class="max-w-4xl mx-auto bg-gray-100 rounded-lg overflow-hidden">
+        <div class="max-w-5xl mx-auto bg-gray-100 rounded-lg overflow-hidden">
           <div
             class="w-full h-[300px] md:h-[450px] bg-gray-200 flex items-center justify-center"
           >
             <p class="text-gray-500">アプリデモ動画エリア</p>
           </div>
         </div>
-        <div class="mt-12 grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="mt-12 grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <div class="text-center">
             <div
               class="w-12 h-12 flex items-center justify-center bg-teal-100 text-primary rounded-full mx-auto mb-4"
