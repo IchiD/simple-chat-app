@@ -1324,6 +1324,20 @@
         </details>
       </div>
     </div>
+
+    <!-- 法的情報 -->
+    <div class="mt-16 border-t pt-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-sm text-gray-600">
+          <NuxtLink
+            to="/legal/tokushoho"
+            class="text-blue-600 hover:text-blue-800 underline"
+          >
+            特定商取引法に基づく表記
+          </NuxtLink>
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
