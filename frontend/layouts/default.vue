@@ -15,9 +15,15 @@
           <div class="flex items-center space-x-2 sm:space-x-3">
             <!-- ユーザー（ホーム）ボタン -->
             <NuxtLink
-              v-if="authStore.isAuthenticated && currentPage !== 'user'"
-              to="/user"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              v-if="authStore.isAuthenticated"
+              :to="currentPage === 'user' ? '#' : '/user'"
+              :class="[
+                'inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium rounded-lg transition duration-150 ease-in-out',
+                currentPage === 'user'
+                  ? 'text-emerald-600 bg-emerald-100 cursor-not-allowed'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200',
+              ]"
+              @click="currentPage === 'user' ? $event.preventDefault() : null"
             >
               <svg
                 class="w-4 h-4"
@@ -34,9 +40,17 @@
 
             <!-- 友達ボタン -->
             <NuxtLink
-              v-if="authStore.isAuthenticated && currentPage !== 'friends'"
-              to="/friends"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              v-if="authStore.isAuthenticated"
+              :to="currentPage === 'friends' ? '#' : '/friends'"
+              :class="[
+                'inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium rounded-lg transition duration-150 ease-in-out',
+                currentPage === 'friends'
+                  ? 'text-emerald-600 bg-emerald-100 cursor-not-allowed'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200',
+              ]"
+              @click="
+                currentPage === 'friends' ? $event.preventDefault() : null
+              "
             >
               <svg
                 class="w-4 h-4"
@@ -55,13 +69,15 @@
 
             <!-- グループボタン（有料プランユーザーのみ） -->
             <NuxtLink
-              v-if="
-                authStore.isAuthenticated &&
-                isPaidUser &&
-                currentPage !== 'groups'
-              "
-              to="/user/groups"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-150 ease-in-out"
+              v-if="authStore.isAuthenticated && isPaidUser"
+              :to="currentPage === 'groups' ? '#' : '/user/groups'"
+              :class="[
+                'inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium rounded-lg transition duration-150 ease-in-out',
+                currentPage === 'groups'
+                  ? 'text-emerald-600 bg-emerald-100 cursor-not-allowed'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200',
+              ]"
+              @click="currentPage === 'groups' ? $event.preventDefault() : null"
             >
               <svg
                 class="w-4 h-4"
@@ -78,9 +94,15 @@
 
             <!-- チャットボタン -->
             <NuxtLink
-              v-if="authStore.isAuthenticated && currentPage !== 'chat'"
-              to="/chat"
-              class="inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition duration-150 ease-in-out"
+              v-if="authStore.isAuthenticated"
+              :to="currentPage === 'chat' ? '#' : '/chat'"
+              :class="[
+                'inline-flex items-center px-2 py-2 sm:px-3 text-xs sm:text-sm font-medium rounded-lg transition duration-150 ease-in-out',
+                currentPage === 'chat'
+                  ? 'text-emerald-600 bg-emerald-100 cursor-not-allowed'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200',
+              ]"
+              @click="currentPage === 'chat' ? $event.preventDefault() : null"
             >
               <svg
                 class="w-4 h-4"
