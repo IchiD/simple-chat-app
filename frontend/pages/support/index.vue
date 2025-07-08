@@ -7,7 +7,7 @@
 
     <!-- メインコンテンツ -->
     <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-      <!-- サポートチャットの説明 -->
+      <!-- お問い合わせチャットの説明 -->
       <div class="mb-8">
         <p class="text-gray-700 leading-relaxed">
           LumoChatサービス運営チームとの直接チャットです。
@@ -173,7 +173,7 @@
         </div>
       </div>
 
-      <!-- サポートチャット開始ボタン -->
+      <!-- お問い合わせチャット開始ボタン -->
       <div class="text-center">
         <button
           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200"
@@ -214,7 +214,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          {{ isLoading ? "チャットを開始中..." : "サポートチャットを開始" }}
+          {{ isLoading ? "チャットを開始中..." : "チャットを開始" }}
         </button>
       </div>
 
@@ -257,7 +257,7 @@ const goBack = () => {
   }
 };
 
-// サポートチャットを開く関数
+// お問い合わせチャットを開く関数
 const openSupportChat = async () => {
   try {
     isLoading.value = true;
@@ -269,7 +269,7 @@ const openSupportChat = async () => {
       return;
     }
 
-    // サポートチャットを作成または取得
+    // お問い合わせチャットを作成または取得
     const { api } = useApi();
     const conversation = await api<{ room_token: string }>(
       "/support/conversation",
@@ -283,7 +283,7 @@ const openSupportChat = async () => {
       router.push(`/chat/${conversation.room_token}/`);
     }
   } catch (error) {
-    console.error("サポートチャットの開始に失敗しました:", error);
+    console.error("お問い合わせチャットの開始に失敗しました:", error);
     // エラーが発生した場合はログインページに遷移
     router.push("/auth/login");
   } finally {
@@ -293,7 +293,7 @@ const openSupportChat = async () => {
 
 // メタ情報の設定
 useHead({
-  title: "サポートへお問い合わせ - LumoChat",
+  title: "お問い合わせ - LumoChat",
   meta: [
     {
       name: "description",

@@ -155,12 +155,12 @@ watch(
 const conversations = computed(() => {
   const conversationList = apiResponse.value?.data || [];
 
-  // サポートチャットを識別して表示名を調整
+  // お問い合わせチャットを識別して表示名を調整
   return conversationList.map((conversation: Conversation) => {
     if (conversation.type === "support") {
       return {
         ...conversation,
-        participants: [{ id: 0, name: "サポート", friend_id: null }],
+        participants: [{ id: 0, name: "お問い合わせ", friend_id: null }],
       };
     }
     return conversation;

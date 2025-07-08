@@ -779,7 +779,7 @@
               </li>
               <li>
                 <a href="#" class="hover:text-white transition-colors"
-                  >サポート</a
+                  >お問い合わせ</a
                 >
               </li>
               <li>

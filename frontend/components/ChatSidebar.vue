@@ -118,7 +118,7 @@
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <!-- サポートチャットアイコン -->
+            <!-- お問い合わせチャットアイコン -->
             <svg
               v-else-if="convo.type === 'support_chat'"
               class="w-5 h-5"
@@ -315,9 +315,9 @@ const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
 // チャットの表示名を取得する関数
 const getConversationDisplayName = (conversation: Conversation): string => {
-  // サポートチャットの場合
+  // お問い合わせチャットの場合
   if (conversation.type === "support_chat") {
-    return "サポート";
+    return "お問い合わせ";
   }
 
   // グループチャットの場合：「グループ名」(人数行は別途表示)
@@ -349,14 +349,14 @@ const getConversationDisplayName = (conversation: Conversation): string => {
   return "チャット";
 };
 
-// 送信者名を取得する関数（サポートチャットの場合は「サポート」を表示）
+// 送信者名を取得する関数（お問い合わせチャットの場合は「お問い合わせ」を表示）
 const getSenderDisplayName = (
   conversation: Conversation,
   senderId: number | null
 ): string => {
   // 管理者メッセージの場合
   if (conversation.latest_message?.admin_sender_id) {
-    return "サポート";
+    return "お問い合わせ";
   }
 
   if (senderId === currentUserId.value) {
@@ -476,9 +476,9 @@ const getTypeLabel = (
       };
     case "support_chat":
       return {
-        text: "サポート",
+        text: "お問い合わせ",
         classes: "bg-green-100 text-green-700",
-        tooltip: "運営サポートチャット",
+        tooltip: "運営お問い合わせチャット",
       };
     default:
       return {

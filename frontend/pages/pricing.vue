@@ -1494,8 +1494,8 @@ const ERROR_MESSAGES: Record<
   [ERROR_TYPES.SUBSCRIPTION]: {
     title: "サブスクリプションエラー",
     description:
-      "既にアクティブなサブスクリプションがあります。プラン変更については、サポートまでお問い合わせください。",
-    action: "サポートに連絡",
+      "既にアクティブなサブスクリプションがあります。プラン変更については、お気軽にお問い合わせください。",
+    action: "お問い合わせ",
     canRetry: false,
   },
   [ERROR_TYPES.STRIPE]: {
@@ -1535,7 +1535,7 @@ const ERROR_MESSAGES: Record<
   [ERROR_TYPES.UNKNOWN]: {
     title: "予期しないエラー",
     description:
-      "予期しないエラーが発生しました。問題が続く場合は、サポートまでお問い合わせください。",
+      "予期しないエラーが発生しました。問題が続く場合は、お気軽にお問い合わせください。",
     action: "再試行",
     canRetry: true,
   },
@@ -1817,15 +1817,22 @@ const resumeSubscription = async () => {
 // プラン比較データ
 const comparisonFeatures = ref([
   {
-    name: "基本チャット機能",
+    name: "フレンドチャット",
     description: "友達との1対1チャット",
     free: true,
     standard: true,
     premium: true,
   },
   {
-    name: "グループチャット",
-    description: "複数人でのチャット機能",
+    name: "メンバーチャット",
+    description: "メンバーとしてグループに参加する",
+    free: true,
+    standard: true,
+    premium: true,
+  },
+  {
+    name: "グループ作成",
+    description: "グループを作成し、オーナーとしてメンバーを管理",
     free: false,
     standard: "最大50名",
     premium: "最大200名",
@@ -1852,8 +1859,7 @@ const comparisonFeatures = ref([
     premium: "5年間",
   },
   {
-    name: "サポート",
-    description: "カスタマーサポートの対応",
+    name: "お問い合わせ対応",
     free: "チャット",
     standard: "チャット（優先対応）",
     premium: "チャット（優先対応）",
@@ -1897,7 +1903,7 @@ const faqs = ref([
   {
     question: "法人での利用は可能ですか？",
     answer:
-      "はい、法人でのご利用も可能です。請求書発行などの法人向けサービスについては、サポートまでお問い合わせください。",
+      "はい、法人でのご利用も可能です。請求書発行などの法人向けサービスについては、お気軽にお問い合わせください。",
   },
   {
     question: "解約した場合、支払った料金はどうなりますか？",
@@ -2104,7 +2110,7 @@ const _retryCheckout = async (plan: "standard" | "premium") => {
     toast.add({
       title: "再試行できません",
       description:
-        "このエラーは再試行できません。サポートまでお問い合わせください。",
+        "このエラーは再試行できません。問題が解決しない場合は、お気軽にお問い合わせください。",
       color: "warning",
     });
     return;

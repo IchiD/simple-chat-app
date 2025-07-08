@@ -71,10 +71,10 @@
           </button>
         </div>
 
-        <!-- サポートリンク -->
+        <!-- お問い合わせリンク -->
         <div class="mt-8 pt-6 border-t border-gray-200">
           <p class="text-sm text-gray-500 mb-3">
-            問題が解決しない場合は、サポートまでお問い合わせください。
+            問題が解決しない場合は、お気軽にお問い合わせください。
           </p>
           <NuxtLink
             to="/support"
@@ -87,7 +87,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            サポートに問い合わせる
+            お問い合わせ
           </NuxtLink>
         </div>
       </div>

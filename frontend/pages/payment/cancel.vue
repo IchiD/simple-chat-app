@@ -156,7 +156,7 @@
               </svg>
             </summary>
             <p class="mt-2 text-sm text-gray-600">
-              決済に関する問題がございましたら、サポートまでお気軽にお問い合わせください。
+              決済に関する問題がございましたら、お気軽にお問い合わせください。
             </p>
           </details>
         </div>
@@ -199,14 +199,14 @@
         </NuxtLink>
       </div>
 
-      <!-- サポート情報 -->
+      <!-- お問い合わせ情報 -->
       <div class="text-center mt-8 text-sm text-gray-500">
         <p>決済に関してご不明な点がございましたら、</p>
         <NuxtLink
           to="/support"
           class="text-blue-600 hover:text-blue-800 underline"
         >
-          サポートまでお問い合わせください
+          お気軽にお問い合わせください
         </NuxtLink>
       </div>
 

@@ -572,7 +572,7 @@ const isLoadingInitialData = computed(
 
 const currentUserId = computed<number | undefined>(() => authUser.value?.id);
 
-// サポートチャットかどうかを判定（将来の利用のため）
+// お問い合わせチャットかどうかを判定（将来の利用のため）
 const _isSupportConversation = computed(() => {
   const result = currentConversation.value?.type === "support";
   return result;
@@ -583,9 +583,9 @@ const _conversationDisplayName = computed(() => {
   const conversation = currentConversation.value;
   if (!conversation) return "チャット";
 
-  // サポートチャットの場合
+  // お問い合わせチャットの場合
   if (conversation.type === "support_chat") {
-    return "サポート（順次対応いたします）";
+    return "LumoChat運営";
   }
 
   // グループチャットの場合：「グループ名（6人）」
@@ -630,7 +630,7 @@ const isAdminMessage = (message: Message): boolean => {
 // メッセージの送信者名を取得
 const _getMessageSenderName = (message: Message): string => {
   if (isAdminMessage(message)) {
-    return "サポート";
+    return "お問い合わせ";
   }
   if (message.sender) {
     return message.sender.name;
@@ -646,7 +646,7 @@ const shouldShowSenderName = (): boolean => {
 // メッセージの発言者名を取得
 const getMessageSenderName = (message: Message): string => {
   if (isAdminMessage(message)) {
-    return "サポート";
+    return "お問い合わせ";
   }
   if (message.sender) {
     // 退室済みの場合は（退室済み）を追加
@@ -1064,9 +1064,9 @@ const titleDisplay = computed(() => {
   const conversation = currentConversation.value;
   if (!conversation) return "チャット";
 
-  // サポートチャットの場合
+  // お問い合わせチャットの場合
   if (conversation.type === "support_chat") {
-    return "サポート（順次対応いたします）";
+    return "LumoChat運営";
   }
 
   // グループチャットの場合：「グループ名 メンバー X人」

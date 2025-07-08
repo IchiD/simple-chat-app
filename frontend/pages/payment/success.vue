@@ -133,14 +133,14 @@
         </NuxtLink>
       </div>
 
-      <!-- サポート情報 -->
+      <!-- お問い合わせ情報 -->
       <div class="text-center mt-8 text-sm text-gray-500">
         <p>ご不明な点がございましたら、</p>
         <NuxtLink
           to="/support"
           class="text-blue-600 hover:text-blue-800 underline"
         >
-          サポートまでお問い合わせください
+          お気軽にお問い合わせください
         </NuxtLink>
       </div>
     </div>
@@ -184,13 +184,13 @@ const getPlanFeatures = computed(() => {
     return [
       "グループチャット機能（50人/グループ）が利用可能になりました",
       "メンバー管理機能が利用可能になりました",
-      "優先サポートが利用可能になりました",
+      "優先お問い合わせ対応が利用可能になりました",
     ];
   } else if (plan === "premium") {
     return [
       "グループチャット機能（200人/グループ）が利用可能になりました",
       "一括配信機能が利用可能になりました",
-      "優先サポートが利用可能になりました",
+      "優先お問い合わせ対応が利用可能になりました",
     ];
   } else {
     // free プランまたは不明なプラン

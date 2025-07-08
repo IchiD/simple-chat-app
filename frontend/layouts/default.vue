@@ -155,7 +155,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              Support
+              お問い合わせ
             </NuxtLink>
           </div>
         </div>
