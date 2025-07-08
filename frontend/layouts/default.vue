@@ -139,9 +139,9 @@
             &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
           </div>
           <div>
-            <button
+            <NuxtLink
+              to="/support"
               class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-150 ease-in-out"
-              @click="openSupportChat"
             >
               <svg
                 class="w-4 h-4 mr-1"
@@ -156,7 +156,7 @@
                 />
               </svg>
               Support
-            </button>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -172,8 +172,6 @@ const authStore = useAuthStore();
 
 // ルートを取得して現在のページを判断
 const route = useRoute();
-const router = useRouter();
-const config = useRuntimeConfig();
 
 // 現在のページを判断する関数
 const currentPage = computed(() => {
@@ -192,40 +190,6 @@ const shouldHideNavFooter = computed(() => {
   // chat/[room_token] ページ または ルートページ
   return route.path.match(/^\/chat\/[^/]+\/?$/) || route.path === "/";
 });
-
-// サポートチャットを開く関数
-const openSupportChat = async () => {
-  try {
-    const authStore = useAuthStore();
-
-    // 認証チェック
-    if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
-      router.push("/auth/login");
-      return;
-    }
-
-    // サポートチャットを作成または取得
-    const conversation = await $fetch<{ room_token: string }>(
-      `${config.public.apiBase}/support/conversation`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${authStore.token}`,
-        },
-      }
-    );
-
-    if (conversation && conversation.room_token) {
-      // チャットページに遷移
-      router.push(`/chat/${conversation.room_token}/`);
-    }
-  } catch (error) {
-    console.error("サポートチャットの開始に失敗しました:", error);
-    // エラーハンドリング（必要に応じてトーストメッセージを表示）
-  }
-};
 
 // 有料プランユーザーかどうかを判定
 const isPaidUser = computed(() => {

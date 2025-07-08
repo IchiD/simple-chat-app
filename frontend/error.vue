@@ -76,9 +76,9 @@
           <p class="text-sm text-gray-500 mb-3">
             問題が解決しない場合は、サポートまでお問い合わせください。
           </p>
-          <button
+          <NuxtLink
+            to="/support"
             class="inline-flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700 transition duration-150 ease-in-out"
-            @click="openSupportChat"
           >
             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -88,7 +88,7 @@
               />
             </svg>
             サポートに問い合わせる
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -96,8 +96,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "~/stores/auth";
-
 // エラー情報の受け取り
 const _props = defineProps<{
   error?: {
@@ -106,9 +104,8 @@ const _props = defineProps<{
   };
 }>();
 
-// ルーターとコンフィグ
+// ルーター
 const router = useRouter();
-const config = useRuntimeConfig();
 
 // 前のページに戻る関数
 const goBack = () => {
@@ -118,41 +115,6 @@ const goBack = () => {
   } else {
     // 履歴がない場合はホームページに遷移
     router.push("/user");
-  }
-};
-
-// サポートチャットを開く関数
-const openSupportChat = async () => {
-  try {
-    const authStore = useAuthStore();
-
-    // 認証チェック
-    if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
-      router.push("/auth/login");
-      return;
-    }
-
-    // サポートチャットを作成または取得
-    const conversation = await $fetch<{ room_token: string }>(
-      `${config.public.apiBase}/support/conversation`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${authStore.token}`,
-        },
-      }
-    );
-
-    if (conversation && conversation.room_token) {
-      // チャットページに遷移
-      router.push(`/chat/${conversation.room_token}/`);
-    }
-  } catch (error) {
-    console.error("サポートチャットの開始に失敗しました:", error);
-    // エラーが発生した場合はログインページに遷移
-    router.push("/auth/login");
   }
 };
 

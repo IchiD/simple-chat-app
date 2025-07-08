@@ -136,12 +136,12 @@
       <!-- サポート情報 -->
       <div class="text-center mt-8 text-sm text-gray-500">
         <p>ご不明な点がございましたら、</p>
-        <button
+        <NuxtLink
+          to="/support"
           class="text-blue-600 hover:text-blue-800 underline"
-          @click="openSupportChat"
         >
           サポートまでお問い合わせください
-        </button>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -154,7 +154,6 @@ import { usePricing } from "@/composables/usePricing";
 
 // URLパラメータから選択されたプランを取得
 const route = useRoute();
-const router = useRouter();
 const selectedPlan = ref<string | null>(null);
 const isLoadingPlan = ref(false);
 const pricing = usePricing();
@@ -215,38 +214,6 @@ const getNextBillingDate = (): Date => {
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   return nextMonth;
-};
-
-// サポートチャットを開く関数
-const openSupportChat = async () => {
-  try {
-    const authStore = useAuthStore();
-
-    // 認証チェック
-    if (!authStore.isAuthenticated) {
-      // 認証されていない場合はログインページにリダイレクト
-      router.push("/auth/login");
-      return;
-    }
-
-    // サポートチャットを作成または取得
-    const { api } = useApi();
-    const response = await api<{ room_token: string }>(
-      "/support/conversation",
-      {
-        method: "POST",
-      }
-    );
-
-    if (response && response.room_token) {
-      // チャットページに遷移
-      router.push(`/chat/${response.room_token}/`);
-    }
-  } catch (error) {
-    console.error("サポートチャットの開始に失敗しました:", error);
-    // エラーが発生した場合はログインページに遷移
-    router.push("/auth/login");
-  }
 };
 
 // ページタイトル設定
