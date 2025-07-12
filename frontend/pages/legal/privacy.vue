@@ -218,7 +218,8 @@
                     <ul class="list-disc ml-8 space-y-1">
                       <li>Stripe, Inc.（決済処理）</li>
                       <li>Google LLC（認証サービス、クラウドサービス）</li>
-                      <li>Amazon Web Services, Inc.（クラウドホスティング）</li>
+                      <li>Vercel Inc. (フロントエンドホスティング)</li>
+                      <li>Railway Corporation (バックエンドホスティング)</li>
                       <li>その他、サービス提供に必要な技術的パートナー</li>
                     </ul>
                   </div>
@@ -303,11 +304,13 @@
                 </p>
                 <ul class="list-disc ml-8 space-y-1">
                   <li>SSL/TLSによる通信の暗号化</li>
-                  <li>データベースの暗号化</li>
+                  <li>
+                    データベースの保存データの暗号化（at-rest）および通信の暗号化（in-transit）
+                  </li>
+                  <li>パスワードのハッシュ化による安全な保存</li>
                   <li>アクセス制御・認証システムの導入</li>
-                  <li>定期的なセキュリティ監査の実施</li>
-                  <li>個人情報保護に関する継続的な学習と対策の実施</li>
-                  <li>システムの定期的な更新・脆弱性対策</li>
+                  <li>脆弱性診断の定期的な実施と速やかな対策</li>
+                  <li>依存関係の脆弱性監視と速やかなアップデート</li>
                   <li>バックアップシステムの構築</li>
                 </ul>
               </div>
@@ -399,8 +402,7 @@
 
             <!-- 最終更新日 -->
             <section class="text-center pt-8 border-t border-gray-200">
-              <p class="text-sm text-gray-500">制定日：2025年1月20日</p>
-              <p class="text-sm text-gray-500">最終更新日：2025年1月20日</p>
+              <p class="text-sm text-gray-500">制定日：2025年7月12日</p>
             </section>
           </div>
         </div>
