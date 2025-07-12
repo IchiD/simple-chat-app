@@ -131,20 +131,37 @@
     <!-- 共通フッター (chat/[room_token] ページとルートページでは非表示) -->
     <footer
       v-if="!shouldHideNavFooter"
-      class="bg-white py-4 border-t border-gray-200 flex-shrink-0"
+      class="bg-white py-6 sm:py-8 border-t border-gray-200 flex-shrink-0"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center">
-          <div class="text-sm text-gray-500">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-500">
+        <div class="flex flex-col sm:flex-row justify-between items-center">
+          <div class="order-2 sm:order-1">
             &copy; {{ new Date().getFullYear() }} LumoChat. All Rights Reserved.
           </div>
-          <div>
+          <div
+            class="order-1 sm:order-2 flex flex-wrap justify-center sm:justify-end items-center space-x-4 sm:space-x-6"
+          >
+            <NuxtLink
+              to="/legal/terms"
+              class="hover:text-gray-900 transition-colors"
+              >利用規約</NuxtLink
+            >
+            <NuxtLink
+              to="/legal/privacy"
+              class="hover:text-gray-900 transition-colors"
+              >プライバシーポリシー</NuxtLink
+            >
+            <NuxtLink
+              to="/legal/tokushoho"
+              class="hover:text-gray-900 transition-colors"
+              >特定商取引法に基づく表記</NuxtLink
+            >
             <NuxtLink
               to="/support"
-              class="inline-flex items-center px-3 py-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition duration-150 ease-in-out"
+              class="inline-flex items-center text-emerald-600 hover:text-emerald-700 transition-colors"
             >
               <svg
-                class="w-4 h-4 mr-1"
+                class="w-4 h-4 mr-1.5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
