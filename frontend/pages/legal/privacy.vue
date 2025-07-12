@@ -281,7 +281,7 @@
                 </p>
                 <ul class="list-disc ml-8 space-y-1">
                   <li>アカウント設定画面からの変更・削除</li>
-                  <li>お問い合わせフォームからの申請</li>
+                  <li>お問い合わせチャットからの申請</li>
                   <li>メールでの申請</li>
                 </ul>
                 <p>
@@ -371,17 +371,29 @@
               </h2>
               <div class="space-y-3 text-gray-700">
                 <p>
-                  個人情報の取扱いに関するお問い合わせは、以下の窓口までご連絡ください：
+                  個人情報の取扱いに関するお問い合わせは、以下の窓口をご利用ください。
                 </p>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                  <p class="font-medium text-gray-800">お問い合わせ窓口</p>
-                  <p class="text-gray-600">
-                    メールアドレス：[メールアドレス]<br />
-                    受付時間：平日 10:00〜18:00（土日祝日を除く）
-                  </p>
-                  <p class="text-sm text-gray-500 mt-2">
-                    ※お問い合わせの際は、本人確認のため、登録されたメールアドレスからご連絡ください。
-                  </p>
+                <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+                  <div>
+                    <h3 class="font-medium text-gray-800">
+                      アカウントをお持ちの方
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                      ログイン後、お問い合わせよりチャットサポートをご利用いただけます。または、以下のメールアドレスにご連絡ください。
+                    </p>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-800">
+                      アカウントをお持ちでない方
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                      以下のメールアドレスまでお問い合わせください。
+                    </p>
+                  </div>
+                  <div class="border-t border-gray-200 pt-3">
+                    <p class="font-medium text-gray-800">メールアドレス</p>
+                    <p class="text-sm text-gray-600">[メールアドレス]</p>
+                  </div>
                 </div>
               </div>
             </section>
