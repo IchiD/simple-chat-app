@@ -1328,7 +1328,21 @@
     <!-- 法的情報 -->
     <div class="mt-16 border-t pt-8">
       <div class="max-w-3xl mx-auto text-center">
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-gray-600 space-x-4">
+          <NuxtLink
+            to="/legal/terms"
+            class="text-blue-600 hover:text-blue-800 underline"
+          >
+            利用規約
+          </NuxtLink>
+          <span>•</span>
+          <NuxtLink
+            to="/legal/privacy"
+            class="text-blue-600 hover:text-blue-800 underline"
+          >
+            プライバシーポリシー
+          </NuxtLink>
+          <span>•</span>
           <NuxtLink
             to="/legal/tokushoho"
             class="text-blue-600 hover:text-blue-800 underline"
