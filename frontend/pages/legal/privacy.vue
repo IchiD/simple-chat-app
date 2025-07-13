@@ -100,6 +100,7 @@
                       <li>メールアドレス</li>
                       <li>パスワード（暗号化されたもの）</li>
                       <li>プロフィール画像</li>
+                      <li>友達追加用ID</li>
                     </ul>
                   </div>
                   <div>
@@ -121,13 +122,37 @@
                       <li>アクセスログ・利用履歴</li>
                       <li>デバイス情報（OS、ブラウザ種類等）</li>
                       <li>IPアドレス</li>
+                      <li>最終ログイン日時</li>
+                      <li>操作ログ（ログイン、登録等のアクション記録）</li>
                     </ul>
                   </div>
                   <div>
-                    <h3 class="font-medium text-gray-800 mb-2">4. 決済情報</h3>
+                    <h3 class="font-medium text-gray-800 mb-2">
+                      4. 認証・セキュリティ情報
+                    </h3>
+                    <ul class="list-disc ml-8 space-y-1">
+                      <li>メール認証トークン</li>
+                      <li>アカウント状態（有効・無効・制限等）</li>
+                      <li>セッショントークン</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-800 mb-2">
+                      5. 通知設定情報
+                    </h3>
+                    <ul class="list-disc ml-8 space-y-1">
+                      <li>
+                        プッシュ通知の購読情報（エンドポイント、認証キー）
+                      </li>
+                      <li>通知設定（オン・オフ状態）</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-800 mb-2">6. 決済情報</h3>
                     <ul class="list-disc ml-8 space-y-1">
                       <li>決済履歴</li>
                       <li>サブスクリプション状況</li>
+                      <li>Webhookログ（決済イベントの記録）</li>
                       <li>
                         ※クレジットカード情報は運営者では保存せず、Stripe社にて安全に管理されます
                       </li>
@@ -326,18 +351,23 @@
               <div class="space-y-3 text-gray-700">
                 <p>
                   1.
-                  運営者は、ユーザーの利便性向上、サービス品質向上、利用状況の分析等を目的として、Cookie及び類似技術を使用します。
+                  運営者は、ユーザーの利便性向上、サービス品質向上、セキュリティ確保を目的として、Cookie及び類似技術を使用します。
                 </p>
                 <p>2. 使用する主なCookieは以下の通りです：</p>
                 <ul class="list-disc ml-8 space-y-1">
-                  <li>認証Cookie（ログイン状態の維持）</li>
-                  <li>セッションCookie（サービスの正常な動作）</li>
-                  <li>設定Cookie（ユーザー設定の保存）</li>
-                  <li>分析Cookie（利用状況の分析）</li>
+                  <li>認証Cookie（Laravel Sanctumによるログイン状態の維持）</li>
+                  <li>
+                    セッションCookie（laravel_sessionによるサービスの正常な動作）
+                  </li>
+                  <li>CSRFトークン（セキュリティ保護のため）</li>
                 </ul>
                 <p>
                   3.
-                  ユーザーは、ブラウザの設定によりCookieを無効にすることができますが、一部機能が利用できなくなる場合があります。
+                  フロントエンドではセッションストレージを使用して認証トークンを暗号化して保存しています。
+                </p>
+                <p>
+                  4.
+                  ユーザーは、ブラウザの設定によりCookieを無効にすることができますが、サービスが正常に動作しなくなる場合があります。
                 </p>
               </div>
             </section>
@@ -414,7 +444,8 @@
 
             <!-- 最終更新日 -->
             <section class="text-center pt-8 border-t border-gray-200">
-              <p class="text-sm text-gray-500">制定日：2025年7月12日</p>
+              <p class="text-sm text-gray-500">制定日：2025年1月1日</p>
+              <p class="text-sm text-gray-500">最終更新日：2025年1月27日</p>
             </section>
           </div>
         </div>
