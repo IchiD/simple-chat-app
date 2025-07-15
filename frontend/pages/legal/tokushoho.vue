@@ -37,35 +37,52 @@
               >
                 事業者情報
               </h2>
+
+              <!-- 省略表記の説明 -->
+              <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <div class="flex">
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">
+                      事業者情報の開示について
+                    </h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                      <p>
+                        特定商取引法第11条ただし書きに基づき、事業者名・所在地・電話番号を省略表示しています。
+                      </p>
+                      <p class="mt-2">
+                        <strong>開示請求方法：</strong
+                        >メールにて「事業者情報開示希望」とご連絡ください<br />
+                        <strong>対応期間：</strong
+                        >ご請求をいただいてから24時間以内に開示いたします<br />
+                        <strong>連絡先：</strong>lumochatapp@gmail.com
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">事業者名</h3>
-                  <p class="text-gray-600">[個人事業者名]</p>
+                  <p class="text-gray-600">
+                    請求があった場合に遅滞なく開示いたします
+                  </p>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">運営責任者</h3>
-                  <p class="text-gray-600">[代表者氏名]</p>
+                  <p class="text-gray-600">Dai</p>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">所在地</h3>
                   <p class="text-gray-600">
-                    [郵便番号]<br />
-                    [都道府県市区町村番地]<br />
-                    [建物名・部屋番号]
-                  </p>
-                  <p class="text-sm text-gray-500 mt-1">
-                    ※個人事業者のため、詳細な住所についてはお問い合わせいただいた際に開示いたします。
+                    請求があった場合に遅滞なく開示いたします
                   </p>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">連絡先</h3>
                   <p class="text-gray-600">
-                    電話番号：[電話番号]<br />
-                    メールアドレス：[メールアドレス]<br />
-                    受付時間：平日 10:00〜18:00
-                  </p>
-                  <p class="text-sm text-gray-500 mt-1">
-                    ※個人事業者のため、電話番号についてはお問い合わせいただいた際に開示いたします。
+                    電話番号：請求があった場合に遅滞なく開示いたします<br />
+                    メールアドレス：lumochatapp@gmail.com<br />
                   </p>
                 </div>
               </div>
@@ -93,16 +110,17 @@
                   <h3 class="font-medium text-gray-700 mb-2">販売価格</h3>
                   <p class="text-gray-600">
                     ・無料プラン：0円/月<br />
-                    ・プレミアムプラン：[価格]円/月（税込）<br />
+                    ・スタンダードプラン：480円/月（税込）<br />
+                    ・プレミアムプラン：980円/月（税込）<br />
                     ※料金は予告なく変更する場合があります。
                   </p>
                 </div>
-                <div>
+                <!-- <div>
                   <h3 class="font-medium text-gray-700 mb-2">追加料金</h3>
                   <p class="text-gray-600">
-                    上記料金以外に追加料金は発生いたしません。
+                    API連携機能について、作業料金
                   </p>
-                </div>
+                </div> -->
               </div>
             </section>
 
@@ -152,7 +170,7 @@
                   <h3 class="font-medium text-gray-700 mb-2">解約について</h3>
                   <p class="text-gray-600">
                     ・解約はいつでも可能です<br />
-                    ・解約手続きはマイページから行えます<br />
+                    ・解約手続きは料金プランページまたはStripeから行えます<br />
                     ・解約は次回更新日から適用されます<br />
                     ・解約後も契約期間満了まではサービスをご利用いただけます
                   </p>
@@ -162,7 +180,7 @@
                   <p class="text-gray-600">
                     ・サービスの性質上、原則として返金は行いません<br />
                     ・システム障害等、当方の責に帰すべき事由による場合は個別対応いたします<br />
-                    ・返金が必要な場合は、お問い合わせフォームよりご連絡ください
+                    ・返金が必要な場合は、お問い合わせよりご連絡ください
                   </p>
                 </div>
                 <div>
@@ -207,7 +225,7 @@
                   </h3>
                   <p class="text-gray-600">
                     本表記および当サービスに関する紛争については、日本法を準拠法とし、<br />
-                    [所在地を管轄する地方裁判所]を専属的合意管轄裁判所とします。
+                    札幌地方裁判所・札幌簡易裁判所を専属的合意管轄裁判所とします。
                   </p>
                 </div>
               </div>
@@ -215,7 +233,8 @@
 
             <!-- 最終更新日 -->
             <section class="text-center pt-8 border-t border-gray-200">
-              <p class="text-sm text-gray-500">最終更新日：2025年1月20日</p>
+              <p class="text-sm text-gray-500">制定日：2025年7月1日</p>
+              <p class="text-sm text-gray-500">最終更新日：2025年7月1日</p>
             </section>
           </div>
         </div>

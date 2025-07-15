@@ -420,8 +420,8 @@
 
             <!-- 最終更新日 -->
             <section class="text-center pt-8 border-t border-gray-200">
-              <p class="text-sm text-gray-500">制定日：2025年1月20日</p>
-              <p class="text-sm text-gray-500">最終更新日：2025年1月20日</p>
+              <p class="text-sm text-gray-500">制定日：2025年7月1日</p>
+              <p class="text-sm text-gray-500">最終更新日：2025年7月1日</p>
             </section>
           </div>
         </div>
