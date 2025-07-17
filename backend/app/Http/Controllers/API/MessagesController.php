@@ -68,6 +68,8 @@ class MessagesController extends Controller
         $query->select('id', 'name', 'friend_id'); // 送信者の基本情報を選択
       }, 'adminSender' => function ($query) {
         $query->select('id', 'name'); // 管理者送信者の基本情報を選択
+      }, 'messageReads' => function ($query) {
+        $query->select('message_id', 'user_id', 'read_at'); // 既読情報を選択
       }])
       ->orderBy('sent_at', 'desc') // 最新のメッセージから表示
       ->paginate(20); // ページネーション
@@ -83,6 +85,32 @@ class MessagesController extends Controller
         // 'last_read_message_id' => $lastMessageOnPage->id, 
         'last_read_at' => now(),
       ]);
+      
+      // 個別メッセージの既読記録
+      $unreadMessageIds = [];
+      foreach ($messages as $message) {
+        // 自分が送信したメッセージは除外
+        if ($message->sender_id !== $user->id && $message->sender_id !== null) {
+          // 既に既読していないメッセージのみ
+          $alreadyRead = $message->messageReads->where('user_id', $user->id)->isNotEmpty();
+          if (!$alreadyRead) {
+            $unreadMessageIds[] = $message->id;
+          }
+        }
+      }
+      
+      if (!empty($unreadMessageIds)) {
+        \App\Models\MessageRead::markMultipleAsRead($unreadMessageIds, $user->id);
+      }
+    }
+
+    // 各メッセージに既読情報を追加
+    foreach ($messages as $message) {
+      // 1対1チャットの場合
+      if ($conversation->type === 'direct') {
+        $message->is_read = $message->isReadByOtherParticipant($user->id);
+      }
+      // TODO: グループチャット対応は今後実装予定
     }
 
     return response()->json($messages);

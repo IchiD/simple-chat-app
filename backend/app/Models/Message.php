@@ -113,4 +113,74 @@ class Message extends Model
       'admin_deleted_by' => null,
     ]);
   }
+
+  /**
+   * このメッセージの既読記録
+   */
+  public function messageReads()
+  {
+    return $this->hasMany(MessageRead::class);
+  }
+
+  /**
+   * 相手が既読したかチェック（1対1チャット用）
+   */
+  public function isReadByOtherParticipant(int $currentUserId): bool
+  {
+    if (!$this->chatRoom) {
+      return false;
+    }
+
+    // 自分が送信したメッセージでない場合はfalse
+    if ($this->sender_id !== $currentUserId) {
+      return false;
+    }
+
+    // 相手のユーザーIDを取得
+    $otherParticipantId = null;
+    if ($this->chatRoom->type === 'friend_chat' || $this->chatRoom->type === 'member_chat') {
+      $otherParticipantId = $this->chatRoom->participant1_id === $currentUserId
+        ? $this->chatRoom->participant2_id
+        : $this->chatRoom->participant1_id;
+    }
+
+    if (!$otherParticipantId) {
+      return false;
+    }
+
+    return $this->messageReads()
+      ->where('user_id', $otherParticipantId)
+      ->exists();
+  }
+
+  /**
+   * 既読したユーザー数を取得（グループチャット用）
+   */
+  public function getReadCount(int $excludeUserId = null): int
+  {
+    $query = $this->messageReads();
+    
+    if ($excludeUserId) {
+      $query->where('user_id', '!=', $excludeUserId);
+    }
+    
+    return $query->count();
+  }
+
+  /**
+   * 既読したユーザーのリストを取得
+   */
+  public function getReadUsers()
+  {
+    return $this->messageReads()
+      ->with('user:id,name')
+      ->get()
+      ->map(function ($read) {
+        return [
+          'user_id' => $read->user_id,
+          'user_name' => $read->user->name ?? '不明なユーザー',
+          'read_at' => $read->read_at,
+        ];
+      });
+  }
 }

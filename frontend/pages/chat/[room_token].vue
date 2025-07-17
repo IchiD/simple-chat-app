@@ -235,7 +235,15 @@
                                 : 'text-gray-500 ml-2 justify-end',
                             ]"
                           >
-                            {{ formatMessageTime(message.sent_at) }}
+                            <span class="flex items-center gap-1">
+                              {{ formatMessageTime(message.sent_at) }}
+                              <span
+                                v-if="isMyMessage(message.sender_id) && currentConversation?.type === 'direct'"
+                                class="text-xs"
+                              >
+                                {{ message.is_read ? '既読' : '' }}
+                              </span>
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -352,9 +360,14 @@ type Conversation = {
   id: number;
   room_token: string;
   participants: Participant[];
+  other_participant?: Participant; // member_chat/friend_chatの相手
   latest_message: LatestMessage | null;
   unread_messages_count: number;
   type?: string;
+  name?: string; // グループ名
+  group_name?: string; // グループ名
+  group_owner?: GroupOwner; // グループオーナー情報（member_chatの場合）
+  participant_count?: number; // 参加者数（group_chatの場合）
   created_at?: string;
   updated_at?: string;
 };
@@ -369,6 +382,15 @@ type Message = {
   sent_at: string;
   sender: MessageSender | null;
   adminSender?: AdminSender | null;
+  sender_has_left?: boolean;
+  sender_left_at?: string | null;
+  is_read?: boolean; // 1対1チャット用
+  read_count?: number; // グループチャット用
+  read_by?: Array<{
+    user_id: number;
+    user_name: string;
+    read_at: string;
+  }>; // 既読したユーザーのリスト
 };
 
 type PaginatedMessagesResponse = {
