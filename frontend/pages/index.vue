@@ -5,9 +5,9 @@
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between"
       >
-        <NuxtLink to="/" class="text-3xl font-['Pacifico'] text-primary"
-          >logo</NuxtLink
-        >
+        <NuxtLink to="/" class="flex items-center">
+          <img src="/images/rogo.png" alt="logo" class="h-10 w-auto" />
+        </NuxtLink>
         <nav
           class="hidden md:flex items-center space-x-8"
           :class="{ hidden: !isMobileMenuOpen }"
@@ -733,110 +733,34 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-gray-300 py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-4 gap-8">
-          <div>
+        <div class="text-center">
+          <NuxtLink to="/" class="mb-6 inline-block">
+            <img
+              src="/images/rogo.png"
+              alt="logo"
+              class="h-12 w-auto mx-auto"
+            />
+          </NuxtLink>
+          <div class="flex justify-center items-center space-x-6 mb-8 text-sm">
             <NuxtLink
-              to="/"
-              class="text-3xl font-['Pacifico'] text-white mb-4 block"
-              >logo</NuxtLink
+              to="/legal/terms"
+              class="hover:text-white transition-colors"
+              >利用規約</NuxtLink
             >
-            <p class="mb-4">
-              コミュニティ運営をもっとシンプルに、もっと効果的に。
-            </p>
-            <div class="flex space-x-4">
-              <a
-                href="#"
-                class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full hover:bg-primary transition-colors"
-              >
-                <i class="ri-twitter-x-line" />
-              </a>
-              <a
-                href="#"
-                class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full hover:bg-primary transition-colors"
-              >
-                <i class="ri-facebook-fill" />
-              </a>
-              <a
-                href="#"
-                class="w-8 h-8 flex items-center justify-center bg-gray-700 rounded-full hover:bg-primary transition-colors"
-              >
-                <i class="ri-instagram-line" />
-              </a>
-            </div>
+            <span class="text-gray-500">|</span>
+            <NuxtLink
+              to="/legal/privacy"
+              class="hover:text-white transition-colors"
+              >プライバシーポリシー</NuxtLink
+            >
+            <span class="text-gray-500">|</span>
+            <NuxtLink
+              to="/legal/tokushoho"
+              class="hover:text-white transition-colors"
+              >特定商取引法に基づく表記</NuxtLink
+            >
           </div>
-          <div>
-            <h4 class="font-bold text-white mb-4">サービス</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="#features" class="hover:text-white transition-colors"
-                  >機能</a
-                >
-              </li>
-              <li>
-                <a href="#pricing" class="hover:text-white transition-colors"
-                  >料金プラン</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >お問い合わせ</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors">API</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-bold text-white mb-4">会社情報</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >会社概要</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >ブログ</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >採用情報</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >お問い合わせ</a
-                >
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-bold text-white mb-4">法的情報</h4>
-            <ul class="space-y-2">
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >利用規約</a
-                >
-              </li>
-              <li>
-                <a href="#" class="hover:text-white transition-colors"
-                  >プライバシーポリシー</a
-                >
-              </li>
-              <li>
-                <NuxtLink
-                  to="/legal/tokushoho"
-                  class="hover:text-white transition-colors"
-                  >特定商取引法に基づく表記</NuxtLink
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="mt-12 pt-8 border-gray-700 text-center">
-          <p>© 2025 logo. All rights reserved.</p>
+          <p class="text-sm">© 2025 logo. All rights reserved.</p>
         </div>
       </div>
     </footer>
