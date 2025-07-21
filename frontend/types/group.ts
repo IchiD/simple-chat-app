@@ -41,6 +41,8 @@ export interface GroupMessage {
   } | null;
   sender_has_left?: boolean;
   sender_left_at?: string | null;
+  is_read?: boolean; // 既読状態（1対1チャット用）
+  read_count?: number; // 既読人数（グループチャット用）
 }
 
 export interface GroupMember {

@@ -221,12 +221,53 @@
                               {{ message.text_content }}
                             </div>
                           </div>
+                          <!-- 自分のメッセージで既読表記がある場合：既読+時刻の縦並び -->
                           <div
-                            class="text-xs min-w-[3.5rem] flex items-end self-end mb-1"
+                            v-if="
+                              isMyMessage(message.sender_id) &&
+                              (message.is_read ||
+                                (typeof message.read_count === 'number' &&
+                                  message.read_count > 0))
+                            "
+                            class="flex flex-col items-end justify-end"
+                          >
+                            <!-- 既読表示（時刻の上に配置） -->
+                            <div class="text-xs text-gray-500 text-right mr-2">
+                              <span
+                                v-if="
+                                  currentConversation?.type === 'friend_chat' ||
+                                  currentConversation?.type ===
+                                    'support_chat' ||
+                                  currentConversation?.type === 'member_chat'
+                                "
+                              >
+                                <span v-if="message.is_read">既読</span>
+                              </span>
+                              <span
+                                v-else-if="
+                                  currentConversation?.type === 'group_chat' &&
+                                  typeof message.read_count === 'number' &&
+                                  message.read_count > 0
+                                "
+                              >
+                                既読 {{ message.read_count }}
+                              </span>
+                            </div>
+                            <!-- 時刻表示 -->
+                            <div
+                              class="text-xs min-w-[3.5rem] flex items-end self-end text-emerald-600 mr-2 justify-end"
+                            >
+                              {{ formatMessageTime(message.sent_at) }}
+                            </div>
+                          </div>
+                          <!-- 自分のメッセージで既読表記がない場合 または 相手のメッセージの場合：元通りの時刻表示 -->
+                          <div
+                            v-else
+                            class="text-xs min-w-[3.5rem] flex items-end self-end"
                             :class="[
                               isMyMessage(message.sender_id)
                                 ? 'text-emerald-600 mr-2 justify-end'
-                                : 'text-gray-500 ml-2 justify-end',
+                                : 'text-gray-500 ml-2 justify-start',
                             ]"
                           >
                             {{ formatMessageTime(message.sent_at) }}
@@ -380,6 +421,8 @@ type Message = {
   adminSender?: AdminSender | null;
   sender_has_left?: boolean;
   sender_left_at?: string | null;
+  is_read?: boolean; // 既読状態
+  read_count?: number; // 既読数
 };
 
 type PaginatedMessagesResponse = {
