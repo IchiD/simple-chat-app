@@ -952,6 +952,29 @@
                   </div>
                 </div>
               </div>
+
+              <!-- 個別チャット送信履歴ボタン -->
+              <div class="mt-4 flex justify-end">
+                <button
+                  class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                  @click="showMessageHistory = true"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  個別チャット送信履歴
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1410,6 +1433,204 @@
         </div>
       </div>
     </div>
+
+    <!-- 個別チャット送信履歴モーダル -->
+    <div
+      v-if="showMessageHistory"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click.self="showMessageHistory = false"
+    >
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
+
+        <div
+          class="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+        >
+          <div
+            class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between"
+          >
+            <h2 class="text-xl font-bold text-gray-900">
+              個別チャット送信履歴
+            </h2>
+            <button
+              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              @click="showMessageHistory = false"
+            >
+              <svg
+                class="w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            class="overflow-y-auto history-scroll-container"
+            style="max-height: calc(80vh - 80px)"
+          >
+            <div v-if="messageHistoryLoading" class="p-8 text-center">
+              <div
+                class="h-12 w-12 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"
+              />
+              <p class="text-gray-600">送信履歴を読み込み中...</p>
+            </div>
+
+            <div v-else-if="messageHistoryError" class="p-8 text-center">
+              <div
+                class="h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8 text-red-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p class="text-red-600 font-medium">{{ messageHistoryError }}</p>
+            </div>
+
+            <div
+              v-else-if="messageHistoryItems.length === 0"
+              class="p-8 text-center"
+            >
+              <div
+                class="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              </div>
+              <p class="text-gray-600 font-medium">まだ送信履歴がありません</p>
+            </div>
+
+            <div v-else class="divide-y divide-gray-200">
+              <div
+                v-for="item in messageHistoryItems"
+                :key="item.id"
+                class="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span
+                        v-if="item.is_bulk"
+                        class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded font-medium"
+                      >
+                        一斉送信
+                      </span>
+                      <span class="text-sm text-gray-500">
+                        {{ formatMessageDateTime(item.sent_at) }}
+                      </span>
+                    </div>
+
+                    <div v-if="item.is_bulk" class="mb-2">
+                      <div class="text-sm font-medium text-gray-900 mb-1">
+                        宛先: {{ item.recipients?.length || 0 }}人
+                        <span
+                          v-if="item.read_count !== undefined"
+                          class="ml-2 text-emerald-600"
+                        >
+                          既読 {{ item.read_count }}/{{
+                            item.recipients?.length || 0
+                          }}
+                        </span>
+                      </div>
+                      <div class="flex flex-wrap gap-2 mt-1">
+                        <div
+                          v-for="recipient in item.recipients || []"
+                          :key="recipient.id"
+                          class="flex items-center gap-1 text-xs"
+                        >
+                          <span
+                            class="px-2 py-1 rounded"
+                            :class="
+                              recipient.is_read
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-gray-100 text-gray-600'
+                            "
+                          >
+                            {{ recipient.name }}
+                            <span v-if="recipient.is_read" class="ml-1">✓</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-else class="mb-2">
+                      <div class="text-sm font-medium text-gray-900">
+                        {{ item.recipient_name }}
+                        <span
+                          v-if="item.is_read"
+                          class="ml-2 text-emerald-600 text-xs"
+                          >既読</span
+                        >
+                      </div>
+                    </div>
+
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap">
+                      {{ item.text_content }}
+                    </p>
+                  </div>
+
+                  <button
+                    v-if="!item.is_bulk"
+                    class="ml-4 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                    @click="openChatFromHistory(item)"
+                  >
+                    チャット
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 追加読み込み中の表示 -->
+            <div v-if="messageHistoryLoadingMore" class="p-4 text-center">
+              <div
+                class="h-8 w-8 mx-auto border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"
+              />
+              <p class="text-sm text-gray-600 mt-2">さらに読み込み中...</p>
+            </div>
+
+            <!-- 全て読み込み完了の表示 -->
+            <div
+              v-if="
+                !messageHistoryHasMore &&
+                messageHistoryItems.length > 0 &&
+                !messageHistoryLoadingMore
+              "
+              class="p-4 text-center text-sm text-gray-500"
+            >
+              すべての履歴を表示しました
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1446,6 +1667,24 @@ interface BulkMessageResponse {
     conversation_id: number;
     target_user_id: number;
     message_id: number;
+  }>;
+}
+
+// 送信履歴アイテムの型定義
+interface MessageHistoryItem {
+  id: string;
+  text_content: string;
+  sent_at: string;
+  is_bulk: boolean;
+  is_read?: boolean;
+  read_count?: number;
+  recipient_name?: string;
+  recipient_id?: number;
+  chat_room_id?: number;
+  recipients?: Array<{
+    id: number;
+    name: string;
+    is_read: boolean;
   }>;
 }
 
@@ -2198,6 +2437,237 @@ watch(showBulkMessageForm, async (isVisible) => {
       top: document.body.scrollHeight,
       behavior: "smooth",
     });
+  }
+});
+
+// 送信履歴モーダルの状態
+const showMessageHistory = ref(false);
+const messageHistoryItems = ref<MessageHistoryItem[]>([]);
+const messageHistoryLoading = ref(false);
+const messageHistoryError = ref("");
+const messageHistoryPage = ref(1);
+const messageHistoryHasMore = ref(true);
+const messageHistoryLoadingMore = ref(false);
+const allMessageHistoryData = ref<MessageHistoryItem[]>([]);
+
+// テスト用に5件、本番は20件
+const HISTORY_ITEMS_PER_PAGE = 5; // 本番では20に変更
+
+// 送信履歴を読み込む
+const loadMessageHistory = async (isLoadMore = false) => {
+  if (!isLoadMore) {
+    messageHistoryLoading.value = true;
+    messageHistoryPage.value = 1;
+    messageHistoryHasMore.value = true;
+    allMessageHistoryData.value = [];
+  } else {
+    messageHistoryLoadingMore.value = true;
+  }
+
+  messageHistoryError.value = "";
+
+  try {
+    // 初回のみ全データを取得
+    if (allMessageHistoryData.value.length === 0) {
+      const processedMessageIds = new Set<number>();
+      const bulkMessages = new Map<string, MessageHistoryItem>();
+
+      // 各メンバーとの個別チャットを確認
+      for (const member of members.value) {
+        try {
+          const { api } = useApi();
+          const conversation = await api<MemberConversation>(
+            `/conversations/groups/${id}/member-chat`,
+            {
+              method: "POST",
+              body: { target_user_id: member.id },
+            }
+          );
+
+          if (conversation?.room_token) {
+            // メッセージを取得
+            const messagesData = await groupConversations.getMessages(
+              conversation.room_token
+            );
+
+            // 自分が送信したメッセージのみをフィルタリング
+            const myMessages = messagesData.data.filter(
+              (msg: GroupMessage) => msg.sender_id === authStore.user?.id
+            );
+
+            // 各メッセージを履歴アイテムとして追加
+            for (const msg of myMessages) {
+              if (!processedMessageIds.has(msg.id)) {
+                processedMessageIds.add(msg.id);
+
+                // 同じ内容・同じ時刻のメッセージがあるか確認（一斉送信の可能性）
+                const messageKey = `${msg.text_content}_${msg.sent_at}`;
+
+                if (bulkMessages.has(messageKey)) {
+                  // 既存の一斉送信メッセージに受信者を追加
+                  const bulkItem = bulkMessages.get(messageKey)!;
+                  bulkItem.is_bulk = true;
+                  if (!bulkItem.recipients) {
+                    bulkItem.recipients = [];
+                  }
+                  bulkItem.recipients.push({
+                    id: member.id,
+                    name: member.owner_nickname || member.name,
+                    is_read: msg.is_read || false,
+                  });
+                  // 既読数を更新
+                  bulkItem.read_count = bulkItem.recipients.filter(
+                    (r) => r.is_read
+                  ).length;
+                } else {
+                  // 新しいメッセージアイテムを作成
+                  const historyItem: MessageHistoryItem = {
+                    id: `msg-${msg.id}`,
+                    text_content: msg.text_content || "",
+                    sent_at: msg.sent_at || new Date().toISOString(),
+                    is_bulk: false,
+                    is_read: msg.is_read || false,
+                    recipient_name: member.owner_nickname || member.name,
+                    recipient_id: member.id,
+                    chat_room_id: conversation.id,
+                    recipients: [
+                      {
+                        id: member.id,
+                        name: member.owner_nickname || member.name,
+                        is_read: msg.is_read || false,
+                      },
+                    ],
+                    read_count: msg.is_read ? 1 : 0,
+                  };
+
+                  bulkMessages.set(messageKey, historyItem);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`メンバー${member.id}との履歴取得エラー:`, error);
+        }
+      }
+
+      // Map から配列に変換
+      const allItems = Array.from(bulkMessages.values());
+
+      // 単一メッセージの場合はrecipientsを削除
+      allItems.forEach((item) => {
+        if (!item.is_bulk && item.recipients && item.recipients.length === 1) {
+          delete item.recipients;
+          delete item.read_count;
+        }
+      });
+
+      // 送信日時で降順ソート（新しいものから）
+      allItems.sort(
+        (a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime()
+      );
+
+      allMessageHistoryData.value = allItems;
+    }
+
+    // ページネーション処理
+    const startIndex = (messageHistoryPage.value - 1) * HISTORY_ITEMS_PER_PAGE;
+    const endIndex = startIndex + HISTORY_ITEMS_PER_PAGE;
+    const pageItems = allMessageHistoryData.value.slice(startIndex, endIndex);
+
+    if (isLoadMore) {
+      messageHistoryItems.value = [...messageHistoryItems.value, ...pageItems];
+    } else {
+      messageHistoryItems.value = pageItems;
+    }
+
+    // 次のページがあるかチェック
+    messageHistoryHasMore.value = endIndex < allMessageHistoryData.value.length;
+  } catch (error) {
+    console.error("送信履歴取得エラー:", error);
+    messageHistoryError.value = "送信履歴の取得に失敗しました";
+  } finally {
+    messageHistoryLoading.value = false;
+    messageHistoryLoadingMore.value = false;
+  }
+};
+
+// 追加読み込み
+const loadMoreHistory = async () => {
+  if (!messageHistoryHasMore.value || messageHistoryLoadingMore.value) return;
+
+  messageHistoryPage.value++;
+  await loadMessageHistory(true);
+};
+
+// 送信履歴からチャットを開く
+const openChatFromHistory = async (item: MessageHistoryItem) => {
+  if (!item.recipient_id) return;
+
+  const member = members.value.find((m) => m.id === item.recipient_id);
+  if (member) {
+    showMessageHistory.value = false;
+    await startChatWithMember(member);
+  }
+};
+
+// 日時フォーマット
+const formatMessageDateTime = (sentAt?: string | null): string => {
+  if (!sentAt) return "";
+  const date = new Date(sentAt);
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}/${String(date.getDate()).padStart(2, "0")} ${date.toLocaleTimeString(
+    "ja-JP",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: false,
+    }
+  )}`;
+};
+
+// 無限スクロールの監視設定
+const handleHistoryScroll = (event: Event) => {
+  const target = event.target as HTMLElement;
+  const scrollBottom =
+    target.scrollHeight - target.scrollTop - target.clientHeight;
+
+  console.log("Scroll position:", {
+    scrollBottom,
+    hasMore: messageHistoryHasMore.value,
+    loading: messageHistoryLoadingMore.value,
+  });
+
+  // 下部から100px以内にスクロールしたら追加読み込み
+  if (
+    scrollBottom < 100 &&
+    messageHistoryHasMore.value &&
+    !messageHistoryLoadingMore.value
+  ) {
+    loadMoreHistory();
+  }
+};
+
+// モーダルが開いた時にスクロールイベントを設定
+watch(showMessageHistory, async (isVisible) => {
+  if (isVisible) {
+    messageHistoryItems.value = [];
+    allMessageHistoryData.value = [];
+    await loadMessageHistory();
+
+    // スクロールイベントの設定
+    await nextTick();
+    const scrollContainer = document.querySelector(".history-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleHistoryScroll);
+    }
+  } else {
+    // モーダルが閉じたらイベントをクリーンアップ
+    const scrollContainer = document.querySelector(".history-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.removeEventListener("scroll", handleHistoryScroll);
+    }
   }
 });
 
