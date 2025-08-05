@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker exec:*)",
+      "Bash(php artisan test:*)",
+      "Bash(php artisan migrate:fresh:*)"
+    ],
+    "deny": []
+  }
+}
