@@ -417,7 +417,7 @@
                       アカウントをお持ちでない方
                     </h3>
                     <p class="text-sm text-gray-600 mt-1">
-                      以下のメールアドレスまでお問い合わせください。
+                      以下のメールアドレスまでご連絡ください。
                     </p>
                   </div>
                   <div class="border-t border-gray-200 pt-3">
