@@ -1,7 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">プッシュ通知設定</h3>
-
+  <div class="bg-white rounded-lg">
     <div v-if="!state.isSupported" class="bg-yellow-50 p-4 rounded-md mb-4">
       <div class="flex">
         <div class="flex-shrink-0">
@@ -77,52 +75,166 @@
       </div>
     </div>
 
-    <div class="mt-4">
-      <div class="flex items-center justify-between flex-col gap-4">
-        <div>
-          <p class="text-xs text-gray-500">
-            チャットメッセージ、フレンド申請などの通知を受け取ります
-          </p>
+    <!-- 詳細な通知設定 -->
+    <div class="space-y-6">
+      <!-- メール通知設定 -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 mb-3">メール通知</h4>
+        <div class="space-y-2">
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">メッセージ受信</span>
+              <p class="text-xs text-gray-500 mt-1">新しいメッセージを受信したときにメールで通知</p>
+            </div>
+            <input
+              v-model="preferences.email.messages"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">友達申請</span>
+              <p class="text-xs text-gray-500 mt-1">友達申請を受けたときにメールで通知</p>
+            </div>
+            <input
+              v-model="preferences.email.friend_requests"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">グループ招待</span>
+              <p class="text-xs text-gray-500 mt-1">グループに招待されたときにメールで通知</p>
+            </div>
+            <input
+              v-model="preferences.email.group_invites"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">グループメッセージ</span>
+              <p class="text-xs text-gray-500 mt-1">グループで新しいメッセージがあったときにメールで通知</p>
+            </div>
+            <input
+              v-model="preferences.email.group_messages"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
         </div>
+      </div>
 
-        <button
-          :disabled="state.isPending || state.permissionState === 'denied'"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer hover:scale-105 transition-transform duration-200"
-          :class="[
-            state.isPending || state.permissionState === 'denied'
-              ? 'opacity-50 cursor-not-allowed'
-              : '',
-          ]"
-          :style="
-            state.isSubscribed
-              ? 'background-color: #ef4444;'
-              : 'background-color: var(--primary);'
-          "
-          @click="toggleSubscription"
-        >
-          <svg
-            v-if="state.isPending"
-            class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+      <!-- プッシュ通知設定 -->
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 mb-3">プッシュ通知</h4>
+        
+        <!-- プッシュ通知の有効化ボタン -->
+        <div class="mb-4">
+          <button
+            :disabled="state.isPending || state.permissionState === 'denied'"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+            :class="[
+              state.isPending || state.permissionState === 'denied'
+                ? 'opacity-50 cursor-not-allowed'
+                : '',
+            ]"
+            :style="
+              state.isSubscribed
+                ? 'background-color: #ef4444;'
+                : 'background-color: var(--primary);'
+            "
+            @click="toggleSubscription"
           >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
+            <svg
+              v-if="state.isPending"
+              class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            {{ state.isSubscribed ? "プッシュ通知を無効にする" : "プッシュ通知を有効にする" }}
+          </button>
+        </div>
+        
+        <!-- プッシュ通知の詳細設定（プッシュ通知が有効な場合のみ表示） -->
+        <div v-if="state.isSubscribed" class="space-y-2">
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">メッセージ受信</span>
+              <p class="text-xs text-gray-500 mt-1">新しいメッセージを受信したときにプッシュ通知</p>
+            </div>
+            <input
+              v-model="preferences.push.messages"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
             />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">友達申請</span>
+              <p class="text-xs text-gray-500 mt-1">友達申請を受けたときにプッシュ通知</p>
+            </div>
+            <input
+              v-model="preferences.push.friend_requests"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
             />
-          </svg>
-          {{ state.isSubscribed ? "通知を無効にする" : "通知を有効にする" }}
-        </button>
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">グループ招待</span>
+              <p class="text-xs text-gray-500 mt-1">グループに招待されたときにプッシュ通知</p>
+            </div>
+            <input
+              v-model="preferences.push.group_invites"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
+          
+          <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="text-sm font-medium text-gray-700">グループメッセージ</span>
+              <p class="text-xs text-gray-500 mt-1">グループで新しいメッセージがあったときにプッシュ通知</p>
+            </div>
+            <input
+              v-model="preferences.push.group_messages"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              @change="updatePreferences"
+            />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -143,17 +255,84 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import { usePushNotification } from "../composables/usePushNotification";
+import { useApi } from "../composables/useApi";
+import { useToast } from "../composables/useToast";
 
-const _props = defineProps<{
-  // 開発モードかどうか（テスト機能の表示制御に使用）
+const { isDev } = defineProps<{
   isDev?: boolean;
 }>();
+
+const { api } = useApi();
+const toast = useToast();
 
 // プッシュ通知機能の初期化
 const { state, initialize, subscribe, unsubscribe, sendTestNotification } =
   usePushNotification();
+
+// 通知設定の状態
+const preferences = reactive({
+  email: {
+    messages: true,
+    friend_requests: true,
+    group_invites: true,
+    group_messages: true,
+  },
+  push: {
+    messages: true,
+    friend_requests: true,
+    group_invites: true,
+    group_messages: true,
+  },
+});
+
+const isUpdating = ref(false);
+
+// 通知設定を取得
+const fetchPreferences = async () => {
+  try {
+    const response = await api("/notifications/preferences");
+    if (response.success && response.preferences) {
+      Object.assign(preferences, response.preferences);
+    }
+  } catch (error) {
+    console.error("通知設定の取得に失敗しました:", error);
+  }
+};
+
+// 通知設定を更新
+const updatePreferences = async () => {
+  if (isUpdating.value) return;
+  
+  try {
+    isUpdating.value = true;
+    await api("/notifications/preferences", {
+      method: "PUT",
+      body: {
+        preferences: {
+          email: preferences.email,
+          push: preferences.push,
+        },
+      },
+    });
+    
+    toast.add({
+      title: "成功",
+      description: "通知設定を更新しました",
+      color: "success",
+    });
+  } catch (error) {
+    console.error("通知設定の更新に失敗しました:", error);
+    toast.add({
+      title: "エラー",
+      description: "通知設定の更新に失敗しました",
+      color: "error",
+    });
+  } finally {
+    isUpdating.value = false;
+  }
+};
 
 // 購読切り替え処理
 const toggleSubscription = async () => {
@@ -172,5 +351,6 @@ const testNotification = async () => {
 // コンポーネントマウント時に初期化
 onMounted(async () => {
   await initialize();
+  await fetchPreferences();
 });
 </script>
