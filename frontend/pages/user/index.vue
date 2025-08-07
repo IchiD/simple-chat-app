@@ -303,46 +303,48 @@
                             </svg>
                             あなたのフレンドID
                           </h3>
-                          <div
-                            class="bg-white border rounded-lg p-3 inline-block"
-                            style="border-color: var(--primary-light)"
-                          >
-                            <p
-                              class="text-2xl font-bold tracking-wider"
-                              style="color: var(--primary-dark)"
+                          <div class="flex">
+                            <div
+                              class="bg-white border rounded-lg py-2 px-4 inline-block"
+                              style="border-color: var(--primary-light)"
                             >
-                              {{ authStore.user.friend_id || "未設定" }}
-                            </p>
+                              <p
+                                class="text-2xl font-bold tracking-wider"
+                                style="color: var(--primary-dark)"
+                              >
+                                {{ authStore.user.friend_id || "未設定" }}
+                              </p>
+                            </div>
+                            <button
+                              v-if="authStore.user.friend_id"
+                              class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center cursor-pointer"
+                              style="
+                                background-color: white;
+                                color: var(--primary);
+                                border: 1px solid var(--primary-light);
+                              "
+                              @click="copyFriendId"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 mr-2"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                                />
+                                <path
+                                  d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
+                                />
+                              </svg>
+                              コピー
+                            </button>
                           </div>
                           <p class="text-sm text-gray-700 mt-3">
                             このIDを友達に教えると、あなたを友達に追加できます
                           </p>
                         </div>
-                        <button
-                          v-if="authStore.user.friend_id"
-                          class="font-medium py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center cursor-pointer"
-                          style="
-                            background-color: white;
-                            color: var(--primary);
-                            border: 1px solid var(--primary-light);
-                          "
-                          @click="copyFriendId"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 mr-2"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                            />
-                            <path
-                              d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"
-                            />
-                          </svg>
-                          コピー
-                        </button>
                       </div>
                     </div>
                   </div>
