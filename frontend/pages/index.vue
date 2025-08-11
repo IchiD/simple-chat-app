@@ -37,9 +37,18 @@
           @click="toggleMobileMenu"
         >
           <span class="sr-only">メニューを開閉</span>
-          <div class="w-6 h-0.5 bg-gray-900 transition-all duration-300" :class="{ 'rotate-45 translate-y-2': isMobileMenuOpen }" />
-          <div class="w-6 h-0.5 bg-gray-900 transition-opacity duration-300" :class="{ 'opacity-0': isMobileMenuOpen }" />
-          <div class="w-6 h-0.5 bg-gray-900 transition-all duration-300" :class="{ '-rotate-45 -translate-y-2': isMobileMenuOpen }" />
+          <div
+            class="w-6 h-0.5 bg-gray-900 transition-all duration-300"
+            :class="{ 'rotate-45 translate-y-2': isMobileMenuOpen }"
+          />
+          <div
+            class="w-6 h-0.5 bg-gray-900 transition-opacity duration-300"
+            :class="{ 'opacity-0': isMobileMenuOpen }"
+          />
+          <div
+            class="w-6 h-0.5 bg-gray-900 transition-all duration-300"
+            :class="{ '-rotate-45 -translate-y-2': isMobileMenuOpen }"
+          />
         </button>
       </div>
       <!-- Mobile Menu -->
@@ -118,19 +127,19 @@
             <div class="feature-card">
               <h3 class="text-xl font-semibold mb-2">チャット</h3>
               <p class="text-gray-600">
-                1対1/グループ対応。既読や通知機能で重要な連絡も確実に届ける
+                1対1/グループ対応。既読や通知機能で重要な連絡も確実に届けます。
               </p>
             </div>
             <div class="feature-card">
               <h3 class="text-xl font-semibold mb-2">メンバー管理</h3>
               <p class="text-gray-600">
-                QRコードやリンクで招待。メンバー管理も簡単
+                QRコードやリンクで招待。メンバー管理も快適に行えます。
               </p>
             </div>
             <div class="feature-card">
-              <h3 class="text-xl font-semibold mb-2">一括配信</h3>
+              <h3 class="text-xl font-semibold mb-2">一括送信</h3>
               <p class="text-gray-600">
-                お知らせをグループ内の選択した人に一括配信
+                お知らせやメッセージをグループ内の選択した人に一括送信できます。
               </p>
             </div>
           </div>
@@ -224,7 +233,7 @@
                   <div class="text-gray-700 ml-3">
                     <p class="font-bold">チャットに参加</p>
                     <p class="text-gray-600 text-sm">
-                      グループオーナーとのダイレクトチャットも可能。
+                      全体チャットとオーナーとの1対1、両方でやり取りできます。
                     </p>
                   </div>
                 </div>
@@ -241,7 +250,9 @@
             <h2 class="text-3xl md:text-4xl font-semibold mb-4 text-white">
               今すぐ始めよう
             </h2>
-            <p class="text-white/90 mb-8">今日からコミュニティ運営を最短で。</p>
+            <p class="text-white/90 mb-8">
+              シンプルなチャットアプリをまずは使ってみてください。
+            </p>
             <NuxtLink
               to="/auth/register"
               class="inline-block bg-white text-primary px-8 py-3 rounded-button font-medium hover:bg-gray-100 transition-colors"
@@ -373,11 +384,14 @@ const toggleMobileMenu = () => {
   place-items: center;
   width: 40px;
   height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #10b981 0%, #14b8a6 60%, #06b6d4 100%);
   color: #fff;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .cta-card {
