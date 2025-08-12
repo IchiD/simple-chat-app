@@ -236,7 +236,7 @@
                         </div>
                         <div class="ml-4 flex-1">
                           <h3 class="text-lg font-semibold text-gray-900">
-                            サブスクリプション管理
+                            プラン管理
                           </h3>
                           <p class="text-sm text-gray-600">
                             現在のプラン:
