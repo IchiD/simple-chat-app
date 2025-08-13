@@ -127,7 +127,7 @@
     </div>
 
     <!-- プランカード -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <!-- FREE プラン -->
       <div
         class="border-2 rounded-xl p-6 relative bg-white shadow-sm flex flex-col h-full"
@@ -316,12 +316,8 @@
                 isCurrentPlan('standard'),
               'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
             }"
-            :disabled="
-              isLoading ||
-              !authStore.isAuthenticated ||
-              isCurrentPlan('standard')
-            "
-            @click="checkout('standard')"
+            :disabled="true"
+            @click="() => {}"
           >
             <template v-if="isLoading && selectedPlan === 'standard'">
               <div class="flex items-center justify-center">
@@ -359,7 +355,7 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else> このプランを選択 </template>
+            <template v-else> 現在準備中 </template>
           </button>
         </div>
       </div>
@@ -421,12 +417,8 @@
                 isCurrentPlan('premium'),
               'opacity-50 cursor-not-allowed': !authStore.isAuthenticated,
             }"
-            :disabled="
-              isLoading ||
-              !authStore.isAuthenticated ||
-              isCurrentPlan('premium')
-            "
-            @click="checkout('premium')"
+            :disabled="true"
+            @click="() => {}"
           >
             <template v-if="isLoading && selectedPlan === 'premium'">
               <div class="flex items-center justify-center">
@@ -464,8 +456,24 @@
             <template v-else-if="!authStore.isAuthenticated">
               ログインが必要です
             </template>
-            <template v-else> このプランを選択 </template>
+            <template v-else> 現在準備中 </template>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 注意書き -->
+    <div
+      class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-12"
+    >
+      <div class="flex">
+        <div class="ml-3">
+          <p class="text-sm text-yellow-800">
+            ※現在、有料機能は試用版として無料でご利用いただけます。<br />
+            ご希望の場合お問い合わせください。<br />
+            将来的に正式サービスとして提供する際には、有料化のご案内をいたします。<br />
+            その際、継続利用をご希望の場合のみご契約いただけます。
+          </p>
         </div>
       </div>
     </div>
@@ -1431,7 +1439,7 @@ const config = useRuntimeConfig();
 const isStripeTestMode = computed(() => {
   // Stripeの公開キーがテストキー（pk_test_で始まる）かどうかで判定
   const stripeKey = config.public.stripePublishableKey as string;
-  return stripeKey?.startsWith('pk_test_') ?? false;
+  return stripeKey?.startsWith("pk_test_") ?? false;
 });
 
 // エラー状態管理
