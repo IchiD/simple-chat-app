@@ -1240,16 +1240,16 @@
                 <div class="space-y-1 text-xs">
                   <div class="flex justify-between">
                     <span class="text-gray-600">PREMIUM分（14日）</span>
-                    <span>¥2,990</span>
+                    <span>¥420</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">STANDARD未使用分</span>
-                    <span class="text-red-600">-¥1,490</span>
+                    <span class="text-red-600">-¥233</span>
                   </div>
                   <hr class="my-1" />
                   <div class="flex justify-between font-medium">
                     <span class="text-gray-900">差額請求</span>
-                    <span class="text-green-600">¥1,500</span>
+                    <span class="text-green-600">¥187</span>
                   </div>
                 </div>
               </div>
@@ -1282,16 +1282,16 @@
                 <div class="space-y-1 text-xs">
                   <div class="flex justify-between">
                     <span class="text-gray-600">STANDARD分（14日）</span>
-                    <span>¥1,490</span>
+                    <span>¥233</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">PREMIUM未使用分</span>
-                    <span class="text-red-600">-¥2,990</span>
+                    <span class="text-red-600">-¥420</span>
                   </div>
                   <hr class="my-1" />
                   <div class="flex justify-between font-medium">
                     <span class="text-gray-900">次回請求で相殺</span>
-                    <span class="text-blue-600">-¥1,500</span>
+                    <span class="text-blue-600">-¥187</span>
                   </div>
                 </div>
               </div>

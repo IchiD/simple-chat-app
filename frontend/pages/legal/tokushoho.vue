@@ -64,13 +64,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">事業者名</h3>
-                  <p class="text-gray-600">
-                    請求があった場合に遅滞なく開示いたします
-                  </p>
+                  <p class="text-gray-600">市川大詩</p>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">運営責任者</h3>
-                  <p class="text-gray-600">Dai</p>
+                  <p class="text-gray-600">市川大詩</p>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-700 mb-2">所在地</h3>
@@ -102,7 +100,6 @@
                     チャットアプリケーションサービスの提供<br />
                     ・個人チャット機能<br />
                     ・グループチャット機能<br />
-                    ・ファイル共有機能<br />
                     ・その他付随するサービス
                   </p>
                 </div>
@@ -110,8 +107,8 @@
                   <h3 class="font-medium text-gray-700 mb-2">販売価格</h3>
                   <p class="text-gray-600">
                     ・無料プラン：0円/月<br />
-                    ・スタンダードプラン：480円/月（税込）<br />
-                    ・プレミアムプラン：980円/月（税込）<br />
+                    ・スタンダードプラン：500円/月（税込）<br />
+                    ・プレミアムプラン：900円/月（税込）<br />
                     ※料金は予告なく変更する場合があります。
                   </p>
                 </div>
@@ -230,8 +227,8 @@
 
             <!-- 最終更新日 -->
             <section class="text-center pt-8 border-t border-gray-200">
-              <p class="text-sm text-gray-500">制定日：2025年7月1日</p>
-              <p class="text-sm text-gray-500">最終更新日：2025年7月1日</p>
+              <p class="text-sm text-gray-500">制定日：2025年8月1日</p>
+              <p class="text-sm text-gray-500">最終更新日：2025年8月1日</p>
             </section>
           </div>
         </div>

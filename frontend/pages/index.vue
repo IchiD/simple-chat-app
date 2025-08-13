@@ -17,6 +17,11 @@
             >機能</a
           >
           <a
+            href="#pricing"
+            class="text-gray-700 hover:text-primary transition-colors"
+            >料金</a
+          >
+          <a
             href="#how"
             class="text-gray-700 hover:text-primary transition-colors"
             >はじめ方</a
@@ -63,10 +68,22 @@
           >機能</a
         >
         <a
+          href="#pricing"
+          class="block hover:text-primary"
+          @click="toggleMobileMenu"
+          >料金</a
+        >
+        <a
           href="#how"
           class="block hover:text-primary"
           @click="toggleMobileMenu"
           >はじめ方</a
+        >
+        <NuxtLink
+          to="/auth/login"
+          class="block hover:text-primary"
+          @click="toggleMobileMenu"
+          >ログイン</NuxtLink
         >
         <NuxtLink
           to="/auth/register"
@@ -237,6 +254,267 @@
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Plans -->
+      <section id="pricing" class="py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">
+              料金プラン
+            </h2>
+            <p class="mt-3 text-gray-600">用途に合わせて選べる3つのプラン</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <!-- Free Plan -->
+            <div
+              class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            >
+              <h3 class="text-xl font-semibold mb-2">Free</h3>
+              <p class="text-3xl font-bold mb-4">
+                ¥0<span class="text-base font-normal text-gray-600">/月</span>
+              </p>
+              <ul class="space-y-2 mb-6">
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">1対1チャット無制限</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">グループ参加無制限</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-gray-400 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-500">グループ作成不可</span>
+                </li>
+              </ul>
+              <NuxtLink
+                to="/auth/register"
+                class="block w-full text-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                無料ではじめる
+              </NuxtLink>
+            </div>
+
+            <!-- Standard Plan -->
+            <div
+              class="bg-white rounded-lg shadow-md border-2 border-primary p-6 relative"
+            >
+              <h3 class="text-xl font-semibold mb-2">Standard</h3>
+              <p class="text-3xl font-bold mb-4">
+                ¥500<span class="text-base font-normal text-gray-600">/月</span>
+              </p>
+              <ul class="space-y-2 mb-6">
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">Freeプランの全機能</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">グループ作成無制限</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">グループ人数50人まで</span>
+                </li>
+              </ul>
+              <NuxtLink
+                to="/auth/register"
+                class="block w-full text-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                今すぐ始める
+              </NuxtLink>
+            </div>
+
+            <!-- Premium Plan -->
+            <div
+              class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            >
+              <h3 class="text-xl font-semibold mb-2">Premium</h3>
+              <p class="text-3xl font-bold mb-4">
+                ¥900<span class="text-base font-normal text-gray-600">/月</span>
+              </p>
+              <ul class="space-y-2 mb-6">
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">Standardプランの全機能</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">グループ人数200人まで</span>
+                </li>
+                <li class="flex items-start">
+                  <svg
+                    class="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-700">優先サポート</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="text-center mt-8">
+            <p class="text-sm text-gray-600">
+              ※ 価格は全て税込表示です<br />
+              ※ いつでもプラン変更・解約が可能です
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Service -->
+      <section class="py-16 md:py-24 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight">
+              LumoChatについて
+            </h2>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-8">
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold mb-2">サービス概要</h3>
+                <p class="text-gray-700">
+                  LumoChatは、シンプルで使いやすいオンラインチャットサービスです。
+                  個人間のコミュニケーションから、グループでの情報共有まで、
+                  様々なシーンでご利用いただけます。
+                </p>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">主な機能</h3>
+                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                  <li>チャット機能</li>
+                  <li>グループ作成・管理機能（有料プラン）</li>
+                  <li>メンバー招待機能（QRコード・リンク）</li>
+                  <li>既読確認機能</li>
+                  <li>プッシュ通知機能</li>
+                  <li>メール通知機能s</li>
+                  <li>一括メッセージ送信機能</li>
+                </ul>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">運営会社</h3>
+                <p class="text-gray-700">
+                  運営者: 市川 大詩<br />
+                  お問い合わせ: lumochatapp@gmail.com
+                </p>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">セキュリティ</h3>
+                <p class="text-gray-700">
+                  お客様のデータ通信はSSL/TLSで暗号化されています。（Webブラウザ
+                  ↔ サーバー間、外部サービス連携、メール送信を含む）<br />
+                  お客様の個人情報は適切に管理し、第三者への提供は行いません。
+                </p>
               </div>
             </div>
           </div>
