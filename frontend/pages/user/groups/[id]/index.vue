@@ -296,7 +296,7 @@
               メンバー一覧の取得に失敗しました
             </div>
             <div v-else-if="paginatedItems.length === 0" class="text-gray-500">
-              メンバーはいません
+              メンバーがいません
             </div>
             <div v-else class="grid gap-3">
               <div

@@ -875,25 +875,7 @@
                 v-if="members.length === 0"
                 class="text-center py-12 text-gray-500"
               >
-                <div class="mb-3">
-                  <svg
-                    class="w-12 h-12 mx-auto text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                </div>
                 <p class="font-medium text-gray-600">メンバーがいません</p>
-                <p class="text-sm text-gray-500 mt-1">
-                  グループにメンバーを招待してください
-                </p>
               </div>
 
               <!-- ページネーション -->
@@ -1518,7 +1500,7 @@
                   />
                 </svg>
               </div>
-              <p class="text-gray-600 font-medium">まだ送信履歴がありません</p>
+              <p class="text-gray-600 font-medium">送信履歴がありません</p>
             </div>
 
             <div v-else class="divide-y divide-gray-200">
