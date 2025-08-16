@@ -84,7 +84,7 @@
               <div class="flex h-full w-full flex-col">
                 <!-- Header for Chat Area -->
                 <div
-                  class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+                  class="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
                 >
                   <div class="flex items-center">
                     <button
@@ -119,12 +119,12 @@
                 </div>
 
                 <div
-                  class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+                  class="flex h-full flex-auto flex-shrink-0 flex-col bg-white shadow-sm border border-gray-200 overflow-hidden"
                 >
                   <!-- Messages Display Area -->
                   <div
                     ref="groupMessageContainerRef"
-                    class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                    class="flex flex-col justify-center h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
                   >
                     <div
                       v-if="groupMessagesPending"
@@ -310,10 +310,7 @@
                             </svg>
                           </div>
                           <p class="text-gray-600 font-medium">
-                            まだメッセージはありません
-                          </p>
-                          <p class="text-gray-500 text-sm mt-1">
-                            最初のメッセージを送信してみましょう
+                            メッセージはありません
                           </p>
                         </div>
                       </div>
@@ -321,23 +318,25 @@
                   </div>
 
                   <!-- Message Input Area -->
-                  <div class="border-t border-gray-200 bg-white p-4">
+                  <div class="border-t border-gray-200 bg-white p-3">
                     <div class="flex items-center space-x-3">
                       <div class="flex flex-grow">
                         <textarea
+                          ref="groupTextareaRef"
                           v-model="groupNewMessage"
                           :disabled="groupSending"
-                          class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                          class="w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                           rows="1"
-                          placeholder="メッセージを入力..."
+                          placeholder="メッセージを入力"
                           @keydown="handleGroupKeydown"
                           @compositionstart="groupIsComposing = true"
                           @compositionend="groupIsComposing = false"
+                          @input="adjustGroupTextareaHeight"
                         />
                       </div>
                       <button
                         type="submit"
-                        class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        class="inline-flex items-center justify-center rounded-full w-10 h-10 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         :class="
                           groupSending ||
                           (!groupNewMessage.trim() && !groupIsComposing)
@@ -441,7 +440,7 @@
                   <div class="flex h-full w-full flex-col">
                     <!-- Header for Chat Area -->
                     <div
-                      class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+                      class="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
                     >
                       <div class="flex items-center">
                         <div>
@@ -456,12 +455,12 @@
                     </div>
 
                     <div
-                      class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+                      class="flex h-full flex-auto flex-shrink-0 flex-col bg-white shadow-sm border border-gray-200 overflow-hidden"
                     >
                       <!-- Messages Display Area -->
                       <div
                         ref="groupMessageContainerRef"
-                        class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                        class="flex flex-col justify-center h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
                       >
                         <div
                           v-if="groupMessagesPending"
@@ -654,10 +653,7 @@
                                 </svg>
                               </div>
                               <p class="text-gray-600 font-medium">
-                                まだメッセージはありません
-                              </p>
-                              <p class="text-gray-500 text-sm mt-1">
-                                最初のメッセージを送信してみましょう
+                                メッセージはありません
                               </p>
                             </div>
                           </div>
@@ -665,13 +661,13 @@
                       </div>
 
                       <!-- Message Input Area -->
-                      <div class="border-t border-gray-200 bg-white p-4">
+                      <div class="border-t border-gray-200 bg-white p-3">
                         <div class="flex items-center space-x-3">
                           <div class="flex flex-grow">
                             <textarea
                               v-model="groupNewMessage"
                               :disabled="groupSending"
-                              class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                              class="w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                               rows="1"
                               placeholder="メッセージを入力..."
                               @keydown="handleGroupKeydown"
@@ -681,7 +677,7 @@
                           </div>
                           <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="inline-flex items-center justify-center rounded-full w-10 h-10 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
                               isGroupSendButtonDisabled
                                 ? 'bg-gray-400'
@@ -1071,7 +1067,7 @@
                   <div class="flex h-full w-full flex-col">
                     <!-- Header for Chat Area -->
                     <div
-                      class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+                      class="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
                     >
                       <div class="flex items-center">
                         <button
@@ -1116,12 +1112,12 @@
                     </div>
 
                     <div
-                      class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+                      class="flex h-full flex-auto flex-shrink-0 flex-col bg-white shadow-sm border border-gray-200 overflow-hidden"
                     >
                       <!-- Messages Display Area -->
                       <div
                         ref="messageContainerRef"
-                        class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                        class="flex flex-col justify-center h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
                       >
                         <div
                           v-if="messagesPending"
@@ -1314,10 +1310,7 @@
                                 </svg>
                               </div>
                               <p class="text-gray-600 font-medium">
-                                まだメッセージはありません
-                              </p>
-                              <p class="text-gray-500 text-sm mt-1">
-                                最初のメッセージを送信してみましょう
+                                メッセージはありません
                               </p>
                             </div>
                           </div>
@@ -1325,13 +1318,13 @@
                       </div>
 
                       <!-- Message Input Area -->
-                      <div class="border-t border-gray-200 bg-white p-4">
+                      <div class="border-t border-gray-200 bg-white p-3">
                         <div class="flex items-center space-x-3">
                           <div class="flex flex-grow">
                             <textarea
                               v-model="newMessage"
                               :disabled="sending"
-                              class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                              class="w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                               rows="1"
                               placeholder="メッセージを入力..."
                               @keydown="handleKeydown"
@@ -1341,7 +1334,7 @@
                           </div>
                           <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            class="inline-flex items-center justify-center rounded-full w-10 h-10 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             :class="
                               sending || (!newMessage.trim() && !isComposing)
                                 ? 'bg-gray-400'
@@ -1765,6 +1758,7 @@ const groupNewMessage = ref("");
 const groupSending = ref(false);
 const groupIsComposing = ref(false);
 const groupMessageContainerRef = ref<HTMLElement | null>(null);
+const groupTextareaRef = ref<HTMLTextAreaElement | null>(null);
 
 // チャットスタイルに基づく表示判定
 const isGroupChatOnly = computed(() => {
@@ -1896,6 +1890,20 @@ const loadGroupMessages = async () => {
   }
 };
 
+const adjustGroupTextareaHeight = () => {
+  const textarea = groupTextareaRef.value;
+  if (!textarea) return;
+
+  // 高さをリセットして正確な scrollHeight を取得
+  textarea.style.height = "auto";
+
+  // 最大行数を設定（例：7行）
+  const maxHeight = 168; // 約7行分の高さ
+  const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+
+  textarea.style.height = newHeight + "px";
+};
+
 const sendGroupMessage = async () => {
   if (!groupNewMessage.value.trim() || !group.value?.room_token) {
     return;
@@ -1914,6 +1922,12 @@ const sendGroupMessage = async () => {
     }
 
     groupNewMessage.value = "";
+    // テキストエリアの高さを初期状態に戻す
+    nextTick(() => {
+      if (groupTextareaRef.value) {
+        groupTextareaRef.value.style.height = "auto";
+      }
+    });
     await scrollGroupToBottom("smooth");
 
     // グループメッセージ送信後にメンバーリストを再読み込み（念のため）

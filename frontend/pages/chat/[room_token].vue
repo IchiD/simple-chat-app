@@ -7,10 +7,10 @@
       <div class="flex h-full w-full">
         <!-- Main Chat Area -->
         <div class="max-w-5xl mx-auto w-full">
-          <div class="flex h-full w-full flex-col pt-3 md:p-6">
+          <div class="flex h-full w-full flex-col md:p-6">
             <!-- Header for Chat Area -->
             <div
-              class="mb-2 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
+              class="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border border-gray-200"
             >
               <div class="flex items-center">
                 <NuxtLink
@@ -42,12 +42,12 @@
             </div>
 
             <div
-              class="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+              class="flex h-full flex-auto flex-shrink-0 flex-col bg-white shadow-sm border border-gray-200 overflow-hidden"
             >
               <!-- Messages Display Area -->
               <div
                 ref="messageContainerRef"
-                class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                class="flex flex-col justify-center h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
               >
                 <div
                   v-if="
@@ -280,27 +280,29 @@
               </div>
 
               <!-- Message Input Area -->
-              <div class="border-t border-gray-200 bg-white p-4">
+              <div class="border-t border-gray-200 bg-white p-3">
                 <div class="flex items-center space-x-3">
                   <div class="flex flex-grow">
                     <textarea
+                      ref="textareaRef"
                       v-model="newMessageText"
                       :disabled="
                         !currentConversation ||
                         sendingMessage ||
                         isLoadingInitialData
                       "
-                      class="w-full p-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
+                      class="w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none bg-gray-50 transition duration-200"
                       rows="1"
-                      placeholder="メッセージを入力..."
+                      placeholder="メッセージを入力"
                       @keydown="handleKeydown"
                       @compositionstart="isComposing = true"
                       @compositionend="isComposing = false"
+                      @input="adjustTextareaHeight"
                     />
                   </div>
                   <button
                     type="submit"
-                    class="inline-flex items-center justify-center rounded-full w-12 h-12 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    class="inline-flex items-center justify-center rounded-full w-10 h-10 transition duration-200 ease-in-out text-white font-bold focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     :class="
                       sendingMessage || (!newMessageText.trim() && !isComposing)
                         ? 'bg-gray-400'
@@ -504,6 +506,7 @@ const sendingMessage = ref(false);
 const isComposing = ref(false);
 
 const messageContainerRef = ref<HTMLDivElement | null>(null);
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 const currentPage = ref(1);
 const hasNextPage = ref(false);
 const loadingMoreMessages = ref(false);
@@ -838,6 +841,20 @@ const loadMoreMessages = async () => {
   }
 };
 
+const adjustTextareaHeight = () => {
+  const textarea = textareaRef.value;
+  if (!textarea) return;
+
+  // 高さをリセットして正確な scrollHeight を取得
+  textarea.style.height = "auto";
+
+  // 最大行数を設定（例：7行）
+  const maxHeight = 168; // 約7行分の高さ
+  const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+
+  textarea.style.height = newHeight + "px";
+};
+
 const sendMessage = async () => {
   if (
     !currentConversation.value ||
@@ -860,6 +877,12 @@ const sendMessage = async () => {
 
     messages.value.push(sentMessageData);
     newMessageText.value = "";
+    // テキストエリアの高さを初期状態に戻す
+    nextTick(() => {
+      if (textareaRef.value) {
+        textareaRef.value.style.height = "auto";
+      }
+    });
     await scrollToBottom("smooth");
   } catch (e: unknown) {
     console.error("Error sending message:", e);
