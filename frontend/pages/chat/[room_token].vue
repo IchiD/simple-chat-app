@@ -47,7 +47,7 @@
               <!-- Messages Display Area -->
               <div
                 ref="messageContainerRef"
-                class="flex flex-col justify-center h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
+                class="flex flex-col h-full overflow-x-auto p-6 bg-gradient-to-b from-gray-50/50 to-gray-100/50"
               >
                 <div
                   v-if="
